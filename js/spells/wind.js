@@ -442,10 +442,10 @@ export const VFX_UPDATE = {
 
         if (v.state === 0) {
             if (v.age === 1) {
-                player.castAnim = 180;
+                player.castAnim = 280;
                 player.castType = 'thrust';
                 player.staffGlow = 220;
-                SoundFX.playSweep(600, 1300, 'triangle', 0.18, 0.09);
+                SoundFX.playSweep(800, 1300, 'triangle', 0.18, 0.09);
                 SoundFX.playNoise(0.12, 0.08, 1800, 'bandpass', 7);
             }
             if (v.age > 3) {
@@ -535,42 +535,61 @@ export const VFX_DRAW = {
         const cx = player.x + player.w / 2;
         const cy = player.y + player.h / 2;
         X.save();
+
+        // ── Trail Ghosts (Additive Blend) ──
+        X.globalCompositeOperation = 'lighter';
         for (let i = 0; i < (v.trail?.length || 0); i++) {
             const p = v.trail[i];
-            const alpha = (p.life / p.maxLife) * 0.32;
+            const alpha = (p.life / p.maxLife) * 0.45;
             X.globalAlpha = alpha;
-            X.fillStyle = s.c2;
+
+            // Premium Radial Gradient for each ghost
+            const g = X.createRadialGradient(p.x, p.y, 0, p.x, p.y, 22 - i);
+            g.addColorStop(0, s.core);
+            g.addColorStop(0.3, s.c2 + 'aa');
+            g.addColorStop(1, 'transparent');
+
+            X.fillStyle = g;
             X.beginPath();
-            X.ellipse(p.x, p.y, 18 - i * 1.8, 8 - i * 0.7, v.angle, 0, Math.PI * 2);
+            X.ellipse(p.x, p.y, 20 - i * 1.5, 9 - i * 0.6, v.angle, 0, Math.PI * 2);
             X.fill();
         }
 
+        // ── Main Dash Gust (Ethereal Plasma Effect) ──
         if (v.state === 1) {
             X.translate(cx, cy);
             X.rotate(v.angle);
-            const gust = X.createLinearGradient(-40, 0, 46, 0);
+
+            const gust = X.createLinearGradient(-45, 0, 50, 0);
             gust.addColorStop(0, 'transparent');
-            gust.addColorStop(0.35, s.c2);
-            gust.addColorStop(1, s.core);
-            X.globalAlpha = 0.7;
+            gust.addColorStop(0.2, s.c2 + '33');
+            gust.addColorStop(0.5, s.core + '99');
+            gust.addColorStop(0.8, s.c2 + '33');
+            gust.addColorStop(1, 'transparent');
+
+            X.globalAlpha = 0.8;
             X.fillStyle = gust;
             X.beginPath();
-            X.moveTo(-38, -10);
-            X.quadraticCurveTo(-8, -20, 42, 0);
-            X.quadraticCurveTo(-8, 20, -38, 10);
+            X.moveTo(-40, -12);
+            X.quadraticCurveTo(-10, -22, 45, 0);
+            X.quadraticCurveTo(-10, 22, -40, 12);
             X.closePath();
             X.fill();
-            X.globalAlpha = 0.4;
+
+            // Inner "Energy Strings"
+            X.globalAlpha = 0.5;
             X.strokeStyle = s.core;
-            X.lineWidth = 2;
+            X.lineWidth = 1.5;
+            X.setLineDash([15, 10]);
             X.beginPath();
-            X.moveTo(-34, -4);
-            X.quadraticCurveTo(6, -14, 38, -1);
+            X.moveTo(-36, -5);
+            X.quadraticCurveTo(8, -16, 40, -1);
             X.stroke();
             X.beginPath();
-            X.moveTo(-32, 5);
-            X.quadraticCurveTo(4, 14, 36, 2);
+            X.moveTo(-34, 6);
+            X.quadraticCurveTo(6, 16, 38, 2);
             X.stroke();
+            X.setLineDash([]);
         }
         X.restore();
         X.globalAlpha = 1;
