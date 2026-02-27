@@ -1,0 +1,20 @@
+[
+  {
+    "school": "Wind",
+    "expected": "Aerial Span",
+    "selectedSpell": "Aerial Span",
+    "ok": true
+  },
+  {
+    "school": "Arcane",
+    "expected": "Sigil Lattice",
+    "selectedSpell": "Sigil Lattice",
+    "ok": true
+  },
+  {
+    "school": "PureCinema",
+    "expected": "Set Extension",
+    "selectedSpell": "Set Extension",
+    "ok": true
+  }
+]

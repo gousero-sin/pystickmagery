@@ -1,0 +1,156 @@
+{
+  "riptide": {
+    "mana": 82,
+    "vfx": {
+      "type": "riptide",
+      "state": 1,
+      "age": 9,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "depthCharge": {
+    "mana": 73,
+    "vfx": {
+      "type": "depth_charge",
+      "state": 1,
+      "age": 1,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "hydra": {
+    "mana": 69,
+    "vfx": {
+      "type": "hydra",
+      "state": 1,
+      "age": 32,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 3,
+      "x": 495,
+      "y": 395
+    }
+  },
+  "mirrorPool": {
+    "mana": 57,
+    "vfx": {
+      "type": "mirror_pool",
+      "state": 1,
+      "age": 71,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 2,
+      "heads": 0,
+      "x": 0,
+      "y": 0
+    },
+    "projectileCount": 4
+  },
+  "tidalLock": {
+    "mana": 75,
+    "vfx": {
+      "type": "tidal_lock",
+      "state": 1,
+      "age": 22,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 314,
+      "y": 245
+    }
+  },
+  "zephyrDash": {
+    "mana": 83,
+    "vfx": {
+      "type": "zephyr_dash",
+      "state": 1,
+      "age": 6,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 0,
+      "y": 0
+    },
+    "playerStart": {
+      "x": 100,
+      "y": 315,
+      "vx": 0,
+      "vy": 3.36,
+      "hp": 100,
+      "mana": 100
+    },
+    "playerEnd": {
+      "x": 265,
+      "y": 324,
+      "vx": 3.93,
+      "vy": -0.74,
+      "hp": 100,
+      "mana": 83
+    }
+  },
+  "dollyZoom": {
+    "mana": 70,
+    "vfx": {
+      "type": "dolly_zoom",
+      "state": 1,
+      "age": 28,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 513,
+      "y": 365
+    }
+  },
+  "finalCut": {
+    "mana": 64,
+    "vfx": {
+      "type": "final_cut",
+      "state": 1,
+      "age": 15,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 2,
+      "marks": 5,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 346,
+      "y": 185
+    }
+  },
+  "errors": []
+}

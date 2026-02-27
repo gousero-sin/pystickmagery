@@ -1,0 +1,49 @@
+{
+  "air": {
+    "type": "manifest_construct",
+    "spell": "Air Pressure",
+    "profile": "current",
+    "solid": false,
+    "state": 1,
+    "life": 345,
+    "builtSegments": 6,
+    "platformSegments": 0,
+    "totalSegments": 6,
+    "x1": 119,
+    "y1": 269,
+    "x2": 206,
+    "y2": 225
+  },
+  "fire": {
+    "type": "manifest_construct",
+    "spell": "Cinder Rampart",
+    "profile": "rampart",
+    "solid": true,
+    "state": 1,
+    "life": 553,
+    "builtSegments": 6,
+    "platformSegments": 6,
+    "totalSegments": 6,
+    "x1": 119,
+    "y1": 269,
+    "x2": 206,
+    "y2": 225
+  },
+  "chrono": {
+    "type": "manifest_construct",
+    "spell": "Delay Track",
+    "profile": "track",
+    "solid": false,
+    "state": 1,
+    "life": 425,
+    "builtSegments": 6,
+    "platformSegments": 0,
+    "totalSegments": 6,
+    "x1": 119,
+    "y1": 269,
+    "x2": 206,
+    "y2": 225
+  },
+  "expiredCount": 0,
+  "errors": []
+}

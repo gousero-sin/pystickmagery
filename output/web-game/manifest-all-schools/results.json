@@ -1,0 +1,112 @@
+[
+  {
+    "school": "Wind",
+    "spell": "Aerial Span",
+    "selectedSpell": "Aerial Span",
+    "category": "Manifest",
+    "playerMana": 78,
+    "manifestCount": 1,
+    "builtSegments": 1,
+    "totalSegments": 6,
+    "ok": true
+  },
+  {
+    "school": "Fire",
+    "spell": "Cinder Rampart",
+    "selectedSpell": "Cinder Rampart",
+    "category": "Manifest",
+    "playerMana": 75,
+    "manifestCount": 1,
+    "builtSegments": 4,
+    "totalSegments": 6,
+    "ok": true
+  },
+  {
+    "school": "Water",
+    "spell": "Glacier Path",
+    "selectedSpell": "Glacier Path",
+    "category": "Manifest",
+    "playerMana": 77,
+    "manifestCount": 1,
+    "builtSegments": 3,
+    "totalSegments": 6,
+    "ok": true
+  },
+  {
+    "school": "Lightning",
+    "spell": "Volt Conduit",
+    "selectedSpell": "Volt Conduit",
+    "category": "Manifest",
+    "playerMana": 73,
+    "manifestCount": 1,
+    "builtSegments": 3,
+    "totalSegments": 6,
+    "ok": true
+  },
+  {
+    "school": "Arcane",
+    "spell": "Sigil Lattice",
+    "selectedSpell": "Sigil Lattice",
+    "category": "Manifest",
+    "playerMana": 77,
+    "manifestCount": 1,
+    "builtSegments": 4,
+    "totalSegments": 6,
+    "ok": true
+  },
+  {
+    "school": "Void",
+    "spell": "Null Causeway",
+    "selectedSpell": "Null Causeway",
+    "category": "Manifest",
+    "playerMana": 75,
+    "manifestCount": 1,
+    "builtSegments": 4,
+    "totalSegments": 6,
+    "ok": true
+  },
+  {
+    "school": "Holy",
+    "spell": "Sanctuary Steps",
+    "selectedSpell": "Sanctuary Steps",
+    "category": "Manifest",
+    "playerMana": 75,
+    "manifestCount": 1,
+    "builtSegments": 4,
+    "totalSegments": 6,
+    "ok": true
+  },
+  {
+    "school": "Chrono",
+    "spell": "Delay Track",
+    "selectedSpell": "Delay Track",
+    "category": "Manifest",
+    "playerMana": 77,
+    "manifestCount": 1,
+    "builtSegments": 4,
+    "totalSegments": 6,
+    "ok": true
+  },
+  {
+    "school": "Celestial",
+    "spell": "Starway",
+    "selectedSpell": "Starway",
+    "category": "Manifest",
+    "playerMana": 77,
+    "manifestCount": 1,
+    "builtSegments": 4,
+    "totalSegments": 6,
+    "ok": true
+  },
+  {
+    "school": "PureCinema",
+    "spell": "Set Extension",
+    "selectedSpell": "Set Extension",
+    "category": "Manifest",
+    "playerMana": 76,
+    "manifestCount": 1,
+    "builtSegments": 4,
+    "totalSegments": 6,
+    "ok": true
+  }
+]

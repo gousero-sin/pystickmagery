@@ -1,0 +1,75 @@
+{
+  "results": [
+    {
+      "school": "Wind",
+      "spell": "Aerial Span",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    },
+    {
+      "school": "Fire",
+      "spell": "Cinder Rampart",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    },
+    {
+      "school": "Water",
+      "spell": "Glacier Path",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    },
+    {
+      "school": "Lightning",
+      "spell": "Volt Conduit",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    },
+    {
+      "school": "Arcane",
+      "spell": "Sigil Lattice",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    },
+    {
+      "school": "Void",
+      "spell": "Null Causeway",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    },
+    {
+      "school": "Holy",
+      "spell": "Sanctuary Steps",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    },
+    {
+      "school": "Chrono",
+      "spell": "Delay Track",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    },
+    {
+      "school": "Celestial",
+      "spell": "Starway",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    },
+    {
+      "school": "PureCinema",
+      "spell": "Set Extension",
+      "builtSegments": 6,
+      "totalSegments": 6,
+      "complete": true
+    }
+  ],
+  "errors": []
+}

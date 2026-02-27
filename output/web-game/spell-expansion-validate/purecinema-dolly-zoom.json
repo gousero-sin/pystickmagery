@@ -1,0 +1,130 @@
+{
+  "coordSystem": "origin top-left; +x right; +y down",
+  "selectedSpell": "Dolly Zoom",
+  "selectedSpellCategory": "Common",
+  "player": {
+    "x": 100,
+    "y": 355,
+    "vx": 0,
+    "vy": 0,
+    "hp": 100,
+    "mana": 70
+  },
+  "entities": [
+    {
+      "type": "dummy",
+      "x": 329,
+      "y": 185,
+      "vx": -0.85,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 403,
+      "y": 401,
+      "vx": -1.74,
+      "vy": -10.57,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 345,
+      "y": 313,
+      "vx": 1.46,
+      "vy": 0.52,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 338,
+      "y": 399,
+      "vx": 1.82,
+      "vy": 10.41,
+      "hp": 80
+    },
+    {
+      "type": "crate",
+      "x": 401,
+      "y": 325,
+      "vx": 1.25,
+      "vy": 0.01,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 424,
+      "y": 325,
+      "vx": 1.49,
+      "vy": 0.01,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 367,
+      "y": 324,
+      "vx": 1.73,
+      "vy": -0.77,
+      "hp": 40
+    },
+    {
+      "type": "barrel",
+      "x": 479,
+      "y": 253,
+      "vx": 0.24,
+      "vy": 0.02,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 150,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 606,
+      "y": 353,
+      "vx": -0.9,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "boulder",
+      "x": 304,
+      "y": 193,
+      "vx": -0.34,
+      "vy": 0,
+      "hp": 120
+    },
+    {
+      "type": "boulder",
+      "x": 100,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 120
+    }
+  ],
+  "projectiles": [],
+  "vfx": [
+    {
+      "type": "dolly_zoom",
+      "state": 1,
+      "age": 28,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 513,
+      "y": 365
+    }
+  ],
+  "manifestDraft": null,
+  "manifests": []
+}

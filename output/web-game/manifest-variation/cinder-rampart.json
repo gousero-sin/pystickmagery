@@ -1,0 +1,131 @@
+{
+  "coordSystem": "origin top-left; +x right; +y down",
+  "selectedSpell": "Cinder Rampart",
+  "selectedSpellCategory": "Manifest",
+  "player": {
+    "x": 100,
+    "y": 355,
+    "vx": 0,
+    "vy": 0,
+    "hp": 100,
+    "mana": 89
+  },
+  "entities": [
+    {
+      "type": "dummy",
+      "x": 410,
+      "y": 169,
+      "vx": 0.03,
+      "vy": 4.33,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 326,
+      "y": 446,
+      "vx": 0.19,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 361,
+      "y": 185,
+      "vx": -0.13,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 440,
+      "y": 315,
+      "vx": -0.79,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "crate",
+      "x": 400,
+      "y": 325,
+      "vx": -0.2,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 420,
+      "y": 325,
+      "vx": -0.11,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 380,
+      "y": 309,
+      "vx": -0.21,
+      "vy": 1.25,
+      "hp": 40
+    },
+    {
+      "type": "barrel",
+      "x": 480,
+      "y": 253,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 150,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 600,
+      "y": 353,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "boulder",
+      "x": 375,
+      "y": 193,
+      "vx": 0.44,
+      "vy": 0,
+      "hp": 120
+    },
+    {
+      "type": "boulder",
+      "x": 100,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 120
+    }
+  ],
+  "projectiles": [],
+  "vfx": [],
+  "manifestDraft": null,
+  "manifests": [
+    {
+      "type": "manifest_construct",
+      "spell": "Cinder Rampart",
+      "profile": "rampart",
+      "solid": true,
+      "state": 1,
+      "life": 553,
+      "builtSegments": 6,
+      "platformSegments": 6,
+      "totalSegments": 6,
+      "x1": 119,
+      "y1": 269,
+      "x2": 206,
+      "y2": 225
+    }
+  ]
+}

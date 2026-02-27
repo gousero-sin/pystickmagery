@@ -1,0 +1,29 @@
+{
+  "coordSystem": "origin top-left; +x right; +y down",
+  "selectedSpell": "Aerial Span",
+  "selectedSpellCategory": "Manifest",
+  "player": {
+    "x": 100,
+    "y": 344,
+    "vx": 0,
+    "vy": 5.88,
+    "hp": 100,
+    "mana": 78
+  },
+  "entities": [],
+  "projectiles": [],
+  "vfx": [],
+  "manifestDraft": null,
+  "manifests": [
+    {
+      "type": "manifest_construct",
+      "state": 0,
+      "builtSegments": 1,
+      "totalSegments": 6,
+      "x1": 119,
+      "y1": 269,
+      "x2": 206,
+      "y2": 225
+    }
+  ]
+}

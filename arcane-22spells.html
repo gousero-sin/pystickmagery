@@ -1,0 +1,2637 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ Arcane Sandbox - 22 Spells Edition</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      background: #04040a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Press Start 2P', monospace;
+      overflow: hidden;
+      user-select: none
+    }
+
+    #wrap {
+      position: relative
+    }
+
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border: 2px solid #1a1a3a;
+      box-shadow: 0 0 80px rgba(60, 30, 160, .3), 0 0 200px rgba(40, 20, 100, .15)
+    }
+
+    #toolbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      gap: 3px;
+      padding: 4px 6px;
+      background: rgba(4, 4, 12, .94);
+      backdrop-filter: blur(4px);
+      border-bottom: 1px solid rgba(60, 40, 120, .4);
+      z-index: 10;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .tb-section {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+      padding: 0 4px;
+      border-right: 1px solid rgba(60, 40, 120, .3)
+    }
+
+    .tb-section:last-child {
+      border: none
+    }
+
+    .tb-label {
+      font-size: 5px;
+      color: #555;
+      margin-right: 2px;
+      white-space: nowrap
+    }
+
+    .tb-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      padding: 3px 5px;
+      background: rgba(20, 18, 40, .8);
+      color: #999;
+      border: 1px solid rgba(60, 50, 100, .4);
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+      border-radius: 2px
+    }
+
+    .tb-btn:hover {
+      background: rgba(40, 30, 80, .8);
+      color: #ddd;
+      border-color: rgba(100, 70, 200, .5);
+      box-shadow: 0 0 8px rgba(80, 50, 180, .3)
+    }
+
+    .tb-btn.active {
+      background: rgba(60, 30, 120, .7);
+      color: #fff;
+      border-color: rgba(120, 80, 220, .6);
+      box-shadow: 0 0 14px rgba(100, 60, 200, .5)
+    }
+
+    .spell-btn {
+      font-size: 9px;
+      padding: 2px 4px;
+      min-width: 24px;
+      text-align: center;
+      position: relative
+    }
+
+    .spell-btn .key-hint {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      font-size: 4px;
+      color: #666;
+      background: rgba(0, 0, 0, .6);
+      padding: 0 2px;
+      border-radius: 1px;
+      line-height: 1.4
+    }
+
+    .spell-row {
+      display: flex;
+      gap: 2px;
+      flex-wrap: wrap;
+      max-width: 420px
+    }
+
+    #hud {
+      position: absolute;
+      bottom: 6px;
+      left: 8px;
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+      pointer-events: none
+    }
+
+    .hud-bar {
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .hud-bar label {
+      font-size: 5px;
+      color: #777
+    }
+
+    .bar-bg {
+      width: 85px;
+      height: 7px;
+      background: rgba(0, 0, 0, .6);
+      border: 1px solid rgba(80, 60, 120, .3);
+      border-radius: 1px;
+      overflow: hidden
+    }
+
+    .bar-fg {
+      height: 100%;
+      transition: width .1s
+    }
+
+    .hp-fg {
+      background: linear-gradient(90deg, #991122, #dd3344);
+      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .3)
+    }
+
+    .mp-fg {
+      background: linear-gradient(90deg, #112299, #3344dd);
+      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .3)
+    }
+
+    #info {
+      position: absolute;
+      bottom: 6px;
+      right: 8px;
+      font-size: 5px;
+      color: #444;
+      z-index: 10;
+      pointer-events: none;
+      text-align: right;
+      line-height: 1.6
+    }
+
+    #spellInfo {
+      position: absolute;
+      bottom: 20px;
+      left: 8px;
+      font-size: 5px;
+      color: #888;
+      z-index: 10;
+      pointer-events: none
+    }
+
+    #gravLabel {
+      font-size: 5px;
+      color: #666;
+      margin: 0 2px
+    }
+
+    .cd-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, .6);
+      pointer-events: none;
+      transition: height 50ms
+    }
+  </style>
+</head>
+
+<body>
+  <div id="wrap">
+    <canvas id="c"></canvas>
+    <div id="toolbar">
+      <div class="tb-section">
+        <span class="tb-label">SPELLS:</span>
+        <div class="spell-row" id="spellRow"></div>
+      </div>
+      <div class="tb-section">
+        <span class="tb-label">SPAWN:</span>
+        <button class="tb-btn" data-spawn="dummy">🎯</button>
+        <button class="tb-btn" data-spawn="crate">📦</button>
+        <button class="tb-btn" data-spawn="barrel">🛢️</button>
+        <button class="tb-btn" data-spawn="boulder">🪨</button>
+      </div>
+      <div class="tb-section">
+        <button class="tb-btn" id="btnGravUp">▲G</button>
+        <span id="gravLabel">0.42</span>
+        <button class="tb-btn" id="btnGravDn">▼G</button>
+        <button class="tb-btn" id="btnClear">🗑️</button>
+        <button class="tb-btn" id="btnReset">↺</button>
+      </div>
+    </div>
+    <div id="hud">
+      <div class="hud-bar"><label>HP</label>
+        <div class="bar-bg">
+          <div class="bar-fg hp-fg" id="hpBar" style="width:100%"></div>
+        </div>
+      </div>
+      <div class="hud-bar"><label>MP</label>
+        <div class="bar-bg">
+          <div class="bar-fg mp-fg" id="mpBar" style="width:100%"></div>
+        </div>
+      </div>
+    </div>
+    <div id="spellInfo"></div>
+    <div id="info">WASD Move · Mouse Aim · Click Cast · 1-9,0,Q,E.. Spells · R Reset</div>
+  </div>
+  <script>
+    const C = document.getElementById('c'), X = C.getContext('2d');
+    const W = 800, H = 500; C.width = W; C.height = H;
+    const lightCanvas = document.createElement('canvas'); lightCanvas.width = W; lightCanvas.height = H; const LX = lightCanvas.getContext('2d');
+
+    const PHY = { gravity: .42, airDrag: .998, groundFric: .85, restitution: .35, maxVel: 18 };
+
+    // ═══ AUDIO SYSTEM ═══
+    const SoundFX = {
+      ctx: null, master: null, initialized: false,
+      init() {
+        if (this.initialized) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioContext();
+        this.master = this.ctx.createGain();
+        this.master.gain.value = 0.5; // Master volume
+        this.master.connect(this.ctx.destination);
+        this.initialized = true;
+      },
+      _play(t, k) { if (!this.initialized) this.init(); if (this.ctx.state === 'suspended') this.ctx.resume(); try { k(); } catch (e) { } },
+      playTone(freq, type, dur, vol, slideFreq) {
+        this._play(dur, () => {
+          const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+          o.type = type; o.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          if (slideFreq) o.frequency.exponentialRampToValueAtTime(slideFreq, this.ctx.currentTime + dur);
+          g.gain.setValueAtTime(0, this.ctx.currentTime);
+          g.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + dur * 0.1);
+          g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+          o.connect(g); g.connect(this.master); o.start(); o.stop(this.ctx.currentTime + dur);
+        });
+      },
+      playNoise(dur, vol, filterFreq, type = 'lowpass', Q = 1) {
+        this._play(dur, () => {
+          const bs = this.ctx.createBufferSource(), b = this.ctx.createBuffer(1, this.ctx.sampleRate * dur, this.ctx.sampleRate), cd = b.getChannelData(0);
+          for (let i = 0; i < cd.length; i++) cd[i] = Math.random() * 2 - 1; bs.buffer = b;
+          const f = this.ctx.createBiquadFilter(), g = this.ctx.createGain();
+          f.type = type; f.frequency.value = filterFreq; f.Q.value = Q;
+          g.gain.setValueAtTime(vol, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+          bs.connect(f); f.connect(g); g.connect(this.master); bs.start(); bs.stop(this.ctx.currentTime + dur);
+        });
+      },
+      playSweep(f1, f2, type, dur, vol) {
+        this._play(dur, () => {
+          const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+          o.type = type; o.frequency.setValueAtTime(f1, this.ctx.currentTime);
+          o.frequency.exponentialRampToValueAtTime(f2, this.ctx.currentTime + dur);
+          g.gain.setValueAtTime(vol, this.ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+          o.connect(g); g.connect(this.master); o.start(); o.stop(this.ctx.currentTime + dur);
+        });
+      }
+    };
+
+    // ═══════════════════════════════════════════════════════
+    // 22 SPELLS — each with unique physics behavior
+    // ═══════════════════════════════════════════════════════
+    const SPELLS = [
+      // ── 1. FIRE ──
+      { name: 'Fireball', icon: '🔥', key: '1', color: '#ff5511', c2: '#ff8833', core: '#ffe844', speed: 7, dmg: 22, mana: 12, cd: 300, r: 5, grav: .15, drag: .997, bounce: 0, exR: 45, exF: 8, trail: 'fire', desc: 'Explosive blast radius' },
+      { name: 'Flame Wall', icon: '🧱', key: 'E', color: '#ff4400', c2: '#ff8822', core: '#ffcc44', speed: 0, dmg: 8, mana: 22, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'fire', isWall: true, wallW: 80, wallH: 40, wallDur: 200, desc: 'Creates a wall of fire' },
+      { name: 'Cluster Bomb', icon: '🎆', key: 'I', color: '#ff6644', c2: '#ff9966', core: '#ffcc88', speed: 6, dmg: 8, mana: 22, cd: 500, r: 4, grav: .18, drag: .998, bounce: 0, exR: 20, exF: 4, trail: 'fire', isCluster: true, subCount: 6, subSpd: 5, subDmg: 12, subR: 18, desc: 'Splits into 6 sub-bombs' },
+      { name: 'Time Bomb', icon: '⏱️', key: 'U', color: '#ffaa00', c2: '#ffcc44', core: '#fff', speed: 5, dmg: 0, mana: 20, cd: 600, r: 5, grav: .2, drag: .998, bounce: 0, exR: 0, exF: 0, trail: 'clock', isTimeBomb: true, bombDelay: 120, bombDmg: 50, bombR: 65, bombF: 12, desc: 'Sticks then detonates — huge' },
+      { name: 'Meteor', icon: '☄️', key: '6', color: '#ff6600', c2: '#ffaa33', core: '#ffdd66', speed: 0, dmg: 45, mana: 40, cd: 1500, r: 12, grav: .5, drag: .999, bounce: 0, exR: 70, exF: 14, trail: 'meteor', isMeteor: true, desc: 'Devastating sky strike' },
+      { name: 'Cataclysm', icon: '🌋', key: 'V', color: '#ff2200', c2: '#ff8800', core: '#ffcc00', speed: 0, dmg: 150, mana: 80, cd: 8000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'fire', isCataclysm: true, exR: 150, exF: 25, desc: 'Massive eruption (Ultimate)' },
+
+      // ── 2. WATER & ICE ──
+      { name: 'Ice Lance', icon: '❄️', key: '2', color: '#44ccff', c2: '#88eeff', core: '#eeffff', speed: 14, dmg: 15, mana: 8, cd: 150, r: 3, grav: .01, drag: 1, bounce: 2, exR: 0, exF: 0, trail: 'ice', piercing: true, desc: 'Fast piercing, bounces walls' },
+      { name: 'Frost Nova', icon: '❆', key: ']', color: '#66ddff', c2: '#99eeff', core: '#fff', speed: 0, dmg: 12, mana: 20, cd: 500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'ice', isFrostNova: true, frostR: 80, frostSlow: 120, desc: 'Freezes all nearby enemies' },
+      { name: 'Chain Frost', icon: '💎', key: '7', color: '#88eeff', c2: '#aaf4ff', core: '#fff', speed: 6, dmg: 18, mana: 18, cd: 500, r: 4, grav: .05, drag: .999, bounce: 5, exR: 22, exF: 4, trail: 'frost', chain: 3, chainR: 130, desc: 'Chains between targets' },
+      { name: 'Water Geyser', icon: '⛲', key: 'R', color: '#4488ff', c2: '#88bbff', core: '#ddeeff', speed: 0, dmg: 25, mana: 20, cd: 600, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isGeyser: true, geyserW: 30, geyserH: 140, desc: 'Erupting water launches foes' },
+      { name: 'Tsunami', icon: '🌊', key: 'F', color: '#1166dd', c2: '#44aadd', core: '#cceeff', speed: 0, dmg: 35, mana: 40, cd: 1200, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isTsunami: true, desc: 'Massive sweeping wave' },
+      { name: 'Water Bubble', icon: '🫧', key: 'G', color: '#77ddff', c2: '#aaeeff', core: '#ffffff', speed: 0, dmg: 10, mana: 25, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isBubble: true, bubbleDur: 300, desc: 'Traps enemy in floating sphere' },
+      { name: 'Healing Rain', icon: '🌧️', key: 'H', color: '#6688aa', c2: '#aabbdd', core: '#ddeeff', speed: 0, dmg: 0, mana: 30, cd: 1500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isRain: true, rainR: 80, rainDur: 300, healAmt: 0.5, manaAmt: 0.5, desc: 'Regens HP/Mana, slows enemies' },
+      { name: 'Whirlpool', icon: '🌀', key: 'J', color: '#114488', c2: '#2266aa', core: '#88bbdd', speed: 0, dmg: 5, mana: 35, cd: 1000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isWhirlpool: true, whorlDur: 240, whorlR: 100, whorlStr: 0.8, desc: 'Ground vortex slows and pulls' },
+      { name: 'Absolute Zero', icon: '❄️', key: 'B', color: '#88eeff', c2: '#ccffff', core: '#ffffff', speed: 0, dmg: 40, mana: 70, cd: 6000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'ice', isAbsoluteZero: true, desc: 'Freezes entire screen (Ultimate)' },
+
+      // ── 3. EARTH & NATURE ──
+      { name: 'Poison Cloud', icon: '☁️', key: '9', color: '#44cc22', c2: '#88ee55', core: '#ccff88', speed: 4, dmg: 4, mana: 20, cd: 700, r: 6, grav: -.03, drag: .98, bounce: 0, trail: 'poison', isCloud: true, cloudR: 55, cloudDur: 180, cloudDmg: 2, desc: 'Toxic AoE — damages over time' },
+      { name: 'Earth Spike', icon: '⛰️', key: '0', color: '#aa8844', c2: '#ccaa66', core: '#eedd99', speed: 0, dmg: 35, mana: 25, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isSpike: true, spikeW: 30, spikeH: 50, desc: 'Ground eruption at cursor' },
+      { name: 'Earthquake', icon: '🌍', key: 'P', color: '#886633', c2: '#aa8844', core: '#ccaa66', speed: 0, dmg: 20, mana: 35, cd: 1200, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isQuake: true, quakeR: 200, quakeF: 7, desc: 'Shakes ground — launches all' },
+      { name: 'Razor Leaf', icon: '🍃', key: 'K', color: '#33aa44', c2: '#55cc66', core: '#88ffaa', speed: 16, dmg: 14, mana: 8, cd: 150, r: 4, grav: 0, drag: 1, bounce: 0, exR: 15, exF: 2, trail: 'leaf', piercing: true, isLeaf: true, desc: 'High speed piercing leaf' },
+      { name: 'Seed Barrage', icon: '🌱', key: 'L', color: '#88bb44', c2: '#aadd66', core: '#ccff88', speed: 12, dmg: 5, mana: 4, cd: 80, r: 2, grav: .1, drag: .99, bounce: 1, exR: 12, exF: 1, trail: 'seed', desc: 'Rapid-fire spreading seeds' },
+      { name: 'Vine Grapple', icon: '🪴', key: ';', color: '#227733', c2: '#44aa55', core: '#77dd88', speed: 8, dmg: 8, mana: 20, cd: 600, r: 4, grav: .05, drag: .99, bounce: 0, exR: 0, exF: 0, trail: 'vine', isVine: true, vineDur: 200, vineDmg: 2, desc: 'Roots and poisons targets' },
+      { name: 'Spore Burst', icon: '🍄', key: '\'', color: '#aa3355', c2: '#cc5577', core: '#ff88aa', speed: 5, dmg: 10, mana: 25, cd: 500, r: 6, grav: .08, drag: .99, bounce: 0, exR: 20, exF: 3, trail: 'spore', isSporeBomb: true, subCount: 5, subSpd: 3, subDmg: 5, subR: 25, desc: 'Explodes into floating spores' },
+      { name: 'World Tree', icon: '🌳', key: ',', color: '#115522', c2: '#338844', core: '#66cc77', speed: 0, dmg: 20, mana: 80, cd: 6000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isWorldTree: true, treeDur: 600, treeR: 120, healAmt: 0.5, desc: 'Spawns a massive healing tree (Ultimate)' },
+
+
+      // ── 4. LIGHTNING & WIND ──
+      { name: 'Lightning', icon: '⚡', key: '3', color: '#ffee33', c2: '#ffffaa', core: '#fff', speed: 0, dmg: 30, mana: 22, cd: 600, r: 2, grav: 0, drag: 1, bounce: 0, exR: 28, exF: 5, trail: 'electric', instant: true, desc: 'Instant strike at cursor' },
+      { name: 'Wind Blast', icon: '💨', key: '8', color: '#99ddbb', c2: '#cceecc', core: '#eeffee', speed: 0, dmg: 3, mana: 14, cd: 350, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'wind', isWind: true, windR: 110, windF: 12, desc: 'Massive knockback push' },
+      { name: 'Tornado', icon: '🌪️', key: 'T', color: '#88aacc', c2: '#aaccee', core: '#ddeeff', speed: 3, dmg: 6, mana: 24, cd: 700, r: 7, grav: 0, drag: .99, bounce: 0, trail: 'wind', isTornado: true, torDur: 200, torR: 45, torF: .8, desc: 'Spinning vortex lifts objects' },
+
+      // ── 5. ARCANE & TECH ──
+      { name: 'Arcane Missile', icon: '🔮', key: '4', color: '#bb55ff', c2: '#dd88ff', core: '#eeddff', speed: 5, dmg: 12, mana: 10, cd: 180, r: 4, grav: 0, drag: .999, bounce: 0, exR: 18, exF: 3, trail: 'arcane', homing: true, homeStr: .15, desc: 'Homing to nearest target' },
+      { name: 'Ricochet', icon: '🔷', key: 'Y', color: '#44aaff', c2: '#66ccff', core: '#bbddff', speed: 10, dmg: 14, mana: 12, cd: 250, r: 3, grav: .02, drag: 1, bounce: 8, exR: 0, exF: 0, trail: 'ricochet', desc: 'Bounces 8 times off surfaces' },
+      { name: 'Plasma Orb', icon: '🟣', key: '[', color: '#dd33ff', c2: '#ee77ff', core: '#ffaaff', speed: 2.5, dmg: 8, mana: 30, cd: 800, r: 4, grav: 0, drag: .999, bounce: 0, trail: 'plasma', isPlasma: true, plasmaGrow: .04, plasmaMax: 18, desc: 'Grows in size and damage' },
+      { name: 'Nova', icon: '💥', key: 'Q', color: '#ff44aa', c2: '#ff88cc', core: '#ffddee', speed: 8, dmg: 15, mana: 28, cd: 600, r: 3, grav: 0, drag: .995, bounce: 0, exR: 15, exF: 3, trail: 'nova', isNova: true, novaCount: 12, desc: '360° ring of projectiles' },
+      { name: 'Laser Beam', icon: '📡', key: 'Z', color: '#ff2222', c2: '#ff6644', core: '#ffaaaa', speed: 0, dmg: 2, mana: 1, cd: 30, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'laser', isLaser: true, laserW: 3, desc: 'Continuous beam — hold click' },
+
+      // ── 6. VOID & DARK ──
+      { name: 'Gravity Well', icon: '🌀', key: '5', color: '#7722cc', c2: '#9944ee', core: '#bb88ff', speed: 5, dmg: 5, mana: 30, cd: 900, r: 8, grav: 0, drag: .97, bounce: 0, trail: 'void', isWell: true, wellDur: 240, wellR: 85, wellStr: .6, desc: 'Vortex that pulls everything' },
+      { name: 'Black Hole', icon: '⚫', key: 'X', color: '#220044', c2: '#440088', core: '#6600cc', speed: 3, dmg: 8, mana: 50, cd: 2000, r: 10, grav: 0, drag: .96, bounce: 0, trail: 'void', isWell: true, wellDur: 360, wellR: 120, wellStr: 1.2, desc: 'Massive pull — devours all' },
+      { name: 'Soul Drain', icon: '👻', key: 'O', color: '#cc44ff', c2: '#dd88ff', core: '#eeccff', speed: 6, dmg: 20, mana: 18, cd: 400, r: 4, grav: 0, drag: .998, bounce: 0, exR: 0, exF: 0, trail: 'soul', homing: true, homeStr: .1, isDrain: true, healAmt: 15, desc: 'Heals you on hit' },
+      { name: 'Shadow Step', icon: '🌑', key: '\\', color: '#442266', c2: '#6644aa', core: '#9966dd', speed: 0, dmg: 25, mana: 15, cd: 300, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'shadow', isTeleport: true, desc: 'Teleport to cursor + AoE' },
+      { name: 'Singularity', icon: '🌌', key: 'N', color: '#110033', c2: '#330066', core: '#aa44ff', speed: 0, dmg: 60, mana: 90, cd: 10000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'void', isSingularity: true, desc: 'Devours space and time (Ultimate)' },
+
+      // ── 7. HOLY & LIGHT ──
+      { name: 'Judgment', icon: '✨', key: 'M', color: '#ffee66', c2: '#ffffaa', core: '#ffffff', speed: 0, dmg: 100, mana: 85, cd: 7000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'holy', isJudgment: true, desc: 'Divine orbital strike (Ultimate)' }
+    ];
+
+    let selSpell = 0, spawnMode = null, lastCast = 0, lastCastPerSpell = new Array(SPELLS.length).fill(0);
+
+    // ═══ WORLD ═══
+    const platforms = [
+      { x: 0, y: H - 24, w: W, h: 24, ground: true },
+      { x: 55, y: 385, w: 150, h: 14 }, { x: 350, y: 345, w: 130, h: 14 }, { x: 575, y: 375, w: 170, h: 14 },
+      { x: 175, y: 285, w: 110, h: 14 }, { x: 455, y: 275, w: 140, h: 14 },
+      { x: 295, y: 215, w: 160, h: 14 }, { x: 75, y: 185, w: 100, h: 14 }, { x: 595, y: 195, w: 110, h: 14 },
+      { x: 345, y: 135, w: 130, h: 14 }, { x: 145, y: 105, w: 90, h: 14 }, { x: 525, y: 115, w: 100, h: 14 },
+    ];
+
+    const torches = [], crystals = [], vines = [];
+    for (let i = 1; i < platforms.length; i++) {
+      const p = platforms[i];
+      if (Math.random() > .4) torches.push({ x: p.x + 5, y: p.y - 10, fl: Math.random() * 100 });
+      if (Math.random() > .4) torches.push({ x: p.x + p.w - 8, y: p.y - 10, fl: Math.random() * 100 });
+      if (Math.random() > .6) crystals.push({ x: p.x + p.w * Math.random(), y: p.y - 6, h: 4 + Math.random() * 6, color: ['#6644cc', '#4488ff', '#44ccaa', '#cc44aa'][Math.floor(Math.random() * 4)] });
+      if (Math.random() > .5) vines.push({ x: p.x + Math.random() * p.w, y: p.y + p.h, len: 10 + Math.random() * 20, seed: Math.random() * 100 });
+    }
+
+    let entities = [], projectiles = [], particles = [], gravityWells = [], lightningBolts = [], damageNumbers = [], shockwaves = [], screenShake = 0, dynamicLights = [];
+    let vfxSequences = [];
+    let fireWalls = [];     // {x,y,w,h,dur,dmg,color}
+    let spikes = [];        // {x,y,w,h,life,maxLife}
+    let frozenEntities = new Map(); // entity -> freezeTimer
+
+    const player = { x: 100, y: 300, vx: 0, vy: 0, w: 14, h: 30, hp: 100, maxHp: 100, mana: 100, maxMana: 100, onGround: false, facing: 1, animT: 0, frame: 0, castAnim: 0, castType: 'thrust', jumpCount: 0, maxJumps: 2, hatWave: 0, capeWave: 0, staffGlow: 0, lean: 0, sq: 1, st: 1, inv: false };
+    let mouse = { x: W / 2, y: H / 2, down: false };
+
+    // ═══ ENTITY ═══
+    function createBody(type, x, y) {
+      const base = { x, y, vx: 0, vy: 0, onGround: false, active: true, age: 0 };
+      switch (type) {
+        case 'dummy': return { ...base, type: 'dummy', w: 14, h: 30, mass: 1.2, hp: 80, maxHp: 80, rest: .2, fric: .88, hitF: 0 };
+        case 'crate': return { ...base, type: 'crate', w: 20, h: 20, mass: 1.5, hp: 40, maxHp: 40, rest: .3, fric: .82, hitF: 0, rot: 0, rotV: 0 };
+        case 'barrel': return { ...base, type: 'barrel', w: 16, h: 22, mass: 2, hp: 50, maxHp: 50, rest: .25, fric: .8, hitF: 0, rot: 0, rotV: 0, explosive: true };
+        case 'boulder': return { ...base, type: 'boulder', w: 24, h: 22, mass: 4, hp: 120, maxHp: 120, rest: .5, fric: .9, hitF: 0, rot: 0, rotV: 0 };
+      }
+    }
+
+    // ═══ PHYSICS ═══
+    function physBody(b) {
+      if (!b.active) return;
+      // Frozen check
+      const frozen = frozenEntities.get(b);
+      if (frozen && frozen > 0) { b.vx *= .9; b.vy *= .9; if (b.rotV !== undefined) b.rotV *= .8; }
+      for (const gw of gravityWells) { const dx = gw.x - (b.x + b.w / 2), dy = gw.y - (b.y + b.h / 2), dist = Math.hypot(dx, dy); if (dist < gw.r && dist > 5) { const f = gw.str * (1 - dist / gw.r) / (b.mass || 1); b.vx += (dx / dist) * f; b.vy += (dy / dist) * f; } }
+      b.vy += PHY.gravity; b.vx *= PHY.airDrag; b.vy *= PHY.airDrag;
+      b.vx = Math.max(-PHY.maxVel, Math.min(PHY.maxVel, b.vx)); b.vy = Math.max(-PHY.maxVel, Math.min(PHY.maxVel, b.vy));
+      b.x += b.vx; b.y += b.vy;
+      if (b.rot !== undefined) { b.rot += (b.rotV || 0); b.rotV = (b.rotV || 0) * .96; }
+      b.onGround = false;
+      for (const p of platforms) {
+        if (b.x + b.w > p.x && b.x < p.x + p.w) {
+          if (b.vy >= 0 && b.y + b.h > p.y && b.y + b.h < p.y + p.h + Math.abs(b.vy) + 2) {
+            b.y = p.y - b.h; const r = b.rest ?? PHY.restitution;
+            if (Math.abs(b.vy) > 1.5) { b.vy = -b.vy * r; if (b.rotV !== undefined) b.rotV += b.vx * .05; if (Math.abs(b.vy) > 3) spawnP(b.x + b.w / 2, b.y + b.h, '#665544', 3, 'dust'); } else b.vy = 0;
+            b.onGround = true; b.vx *= (b.fric || PHY.groundFric);
+          }
+          else if (b.vy < 0 && b.y < p.y + p.h && b.y > p.y - 2 && !p.ground) { b.y = p.y + p.h; b.vy = Math.abs(b.vy) * .2; }
+        }
+        if (b.y + b.h > p.y + 4 && b.y < p.y + p.h - 2) {
+          if (b.vx > 0 && b.x + b.w > p.x && b.x + b.w < p.x + 8 && b.x < p.x) { b.x = p.x - b.w; b.vx = -b.vx * .3; }
+          if (b.vx < 0 && b.x < p.x + p.w && b.x > p.x + p.w - 8) { b.x = p.x + p.w; b.vx = -b.vx * .3; }
+        }
+      }
+      if (b.x < 0) { b.x = 0; b.vx = Math.abs(b.vx) * .3; } if (b.x + b.w > W) { b.x = W - b.w; b.vx = -Math.abs(b.vx) * .3; }
+      if (b.y < -200) { b.y = -200; b.vy = Math.abs(b.vy) * .3; } if (b.y > H + 100) b.active = false;
+    }
+
+    function collideEntities() {
+      for (let i = 0; i < entities.length; i++) {
+        const a = entities[i]; if (!a.active) continue;
+        for (let j = i + 1; j < entities.length; j++) {
+          const b = entities[j]; if (!b.active) continue;
+          if (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y) {
+            const ox = Math.min(a.x + a.w - b.x, b.x + b.w - a.x), oy = Math.min(a.y + a.h - b.y, b.y + b.h - a.y), tm = (a.mass || 1) + (b.mass || 1);
+            if (ox < oy) { const s2 = (a.x + a.w / 2) < (b.x + b.w / 2) ? -1 : 1; a.x += s2 * ox * (b.mass || 1) / tm * .5; b.x -= s2 * ox * (a.mass || 1) / tm * .5; const va = a.vx, vb = b.vx; a.vx = (va * ((a.mass || 1) - (b.mass || 1)) / tm + vb * 2 * (b.mass || 1) / tm) * .8; b.vx = (vb * ((b.mass || 1) - (a.mass || 1)) / tm + va * 2 * (a.mass || 1) / tm) * .8; }
+            else { const s2 = (a.y + a.h / 2) < (b.y + b.h / 2) ? -1 : 1; a.y += s2 * oy * (b.mass || 1) / tm * .5; b.y -= s2 * oy * (a.mass || 1) / tm * .5; const va = a.vy, vb = b.vy; a.vy = (va * ((a.mass || 1) - (b.mass || 1)) / tm + vb * 2 * (b.mass || 1) / tm) * .8; b.vy = (vb * ((b.mass || 1) - (a.mass || 1)) / tm + va * 2 * (a.mass || 1) / tm) * .8; }
+          }
+        }
+      }
+    }
+
+    // ═══ DAMAGE ═══
+    function explode(x, y, r, force, dmg, color, c2) {
+      screenShake = Math.max(screenShake, force * 1.5);
+      spawnP(x, y, color, 35, 'explode'); spawnP(x, y, '#fff', 18, 'explode'); spawnP(x, y, c2 || color, 12, 'ember');
+      shockwaves.push({ x, y, r: 0, maxR: r * 1.3, life: 18, maxLife: 18, color });
+      dynamicLights.push({ x, y, r: r * 2, color, int: 1.5, life: 20, ml: 20 });
+      // Element-specific explosion audio
+      if (color === '#88eeff' || color === '#ccffff' || color === '#ffffff' && force === 0 /* Absolute Zero rough check */) { SoundFX.playSweep(1200, 2000, 'square', 0.2, Math.min(0.4, force * 0.05)); }
+      else if (color.includes('#ff') && force > 5) { SoundFX.playNoise(0.5, Math.min(0.8, force * 0.06), force > 10 ? 200 : 500, 'lowpass'); }
+      else if (color === '#886633' || color.includes('#aa8844')) { SoundFX.playNoise(0.6, Math.min(0.6, force * 0.05), 150, 'lowpass'); }
+      else { SoundFX.playNoise(0.3, Math.min(0.5, force * 0.04), 800, 'lowpass'); }
+
+      for (const e of entities) {
+        if (!e.active) continue; const ex = e.x + e.w / 2, ey = e.y + e.h / 2, dx = ex - x, dy = ey - y, dist = Math.hypot(dx, dy);
+        if (dist < r) { const intensity = 1 - dist / r, f = force * intensity / (e.mass || 1), a = Math.atan2(dy, dx); e.vx += Math.cos(a) * f; e.vy += Math.sin(a) * f - 2; if (e.rotV !== undefined) e.rotV += (Math.random() - .5) * f * .3; const d = Math.floor(dmg * intensity); if (d > 0) hurtEntity(e, d, x, y); }
+      }
+      const pdx = (player.x + player.w / 2) - x, pdy = (player.y + player.h / 2) - y, pd = Math.hypot(pdx, pdy);
+      if (pd < r && pd > 0) { const i2 = 1 - pd / r, f = force * i2 * .5, a = Math.atan2(pdy, pdx); player.vx += Math.cos(a) * f; player.vy += Math.sin(a) * f - 1; }
+    }
+
+    function hurtEntity(e, dmg, fx, fy) {
+      e.hp -= dmg; e.hitF = 180;
+      damageNumbers.push({ x: e.x + e.w / 2, y: e.y - 8, val: dmg, life: 70, vy: -2, color: '#ff4444', sc: 1 + dmg / 30 });
+      if (e.hp <= 0) {
+        e.active = false; spawnP(e.x + e.w / 2, e.y + e.h / 2, '#aaa', 25, 'explode');
+        if (e.explosive) explode(e.x + e.w / 2, e.y + e.h / 2, 60, 11, 28, '#ff6600', '#ffaa33');
+        for (let i = 0; i < 8; i++)particles.push({ x: e.x + Math.random() * e.w, y: e.y + Math.random() * e.h, vx: (Math.random() - .5) * 5, vy: -Math.random() * 6 - 2, life: 90, ml: 90, color: e.type === 'crate' ? '#8B6914' : e.type === 'barrel' ? '#884422' : '#666', size: 3 + Math.random() * 4, grav: .18, type: 'debris', rot: Math.random() * 6, rotV: (Math.random() - .5) * .4 });
+      }
+    }
+
+    // ═══ FIRE SPELL ═══
+    function fireSpell(idx, ox, oy, tx, ty) {
+      const s = SPELLS[idx], now = performance.now();
+      if (now - lastCastPerSpell[idx] < s.cd || player.mana < s.mana) return;
+      player.mana -= s.mana; lastCastPerSpell[idx] = now; lastCast = now;
+      player.castAnim = 280; player.staffGlow = 250; screenShake = Math.max(screenShake, 3);
+      player.castType = s.isSpike || s.isQuake || s.isGeyser || s.isWhirlpool ? 'slam' : s.isMeteor || s.instant || s.isWall || s.isRain ? 'up' : s.isLaser || s.isWind || s.isTornado || s.isDrain || s.isWell ? 'channel' : s.isNova || s.isFrostNova || s.isAbsoluteZero ? 'burst' : s.isTsunami ? 'slash' : 'thrust';
+      player.sq = player.castType === 'slam' ? 0.7 : 1.2; player.st = 1 / player.sq;
+      dynamicLights.push({ x: ox, y: oy, r: 60, color: s.color, int: 1.2, life: 15, ml: 15 });
+
+      // ── Audio ──
+      if (s.name.includes('Fire') || s.name.includes('Flame') || s.isMeteor || s.name.includes('Bomb') || s.isCataclysm) { SoundFX.playNoise(0.3, 0.4, 400); SoundFX.playSweep(200, 50, 'sawtooth', 0.4, 0.2); }
+      else if (s.name.includes('Ice') || s.name.includes('Frost') || s.isGeyser || s.isTsunami || s.isBubble || s.isRain || s.isWhirlpool || s.isAbsoluteZero) SoundFX.playSweep(1200, 2000, 'triangle', 0.2, 0.15);
+      else if (s.name.includes('Earth') || s.name.includes('Poison') || s.name.includes('Spore') || s.name.includes('Vine') || s.name.includes('Leaf') || s.name.includes('Tree')) { SoundFX.playNoise(0.2, 0.3, 200, 'lowpass'); SoundFX.playTone(150, 'square', 0.2, 0.2); }
+      else if (s.name.includes('Lightning') || s.name.includes('Spark')) SoundFX.playTone(800, 'sawtooth', 0.1, 0.2);
+      else if (s.isWind || s.isTornado) SoundFX.playNoise(0.4, 0.2, 800, 'bandpass', 5);
+      else if (s.isJudgment) { SoundFX.playTone(800, 'sine', 0.4, 0.2); SoundFX.playTone(1600, 'sine', 0.4, 0.2); }
+      else if (s.name.includes('Gravity') || s.isDrain || s.name.includes('Shadow') || s.name.includes('Black') || s.isSingularity) SoundFX.playSweep(150, 40, 'sine', 0.5, 0.3);
+      else SoundFX.playSweep(800, 400, 'square', 0.2, 0.1);
+
+      // ── Special spell handlers ──
+      if (s.instant) { vfxSequences.push({ type: 'pre_cast_inst', state: 0, age: 0, tx, ty, spell: s }); return; }
+
+      if (s.isCataclysm) { vfxSequences.push({ type: 'cataclysm', state: 0, age: 0, cx: player.x + player.w / 2, cy: player.y + player.h / 2, tx, ty, spell: s }); player.inv = true; return; }
+      if (s.isAbsoluteZero) { vfxSequences.push({ type: 'absolute_zero', state: 0, age: 0, cx: player.x + player.w / 2, cy: player.y + player.h / 2, spell: s }); player.inv = true; return; }
+      if (s.isSingularity) { vfxSequences.push({ type: 'singularity', state: 0, age: 0, tx, ty, spell: s }); player.inv = true; return; }
+      if (s.isJudgment) { vfxSequences.push({ type: 'judgment', state: 0, age: 0, cx: player.x + player.w / 2, cy: player.y + player.h / 2, spell: s }); player.inv = true; return; }
+      if (s.isWorldTree) { vfxSequences.push({ type: 'worldtree', state: 0, age: 0, cx: player.x + player.w / 2, cy: player.y + player.h / 2, spell: s }); player.inv = true; return; }
+
+      // Water Spells
+      if (s.isGeyser) { vfxSequences.push({ type: 'geyser', state: 0, age: 0, tx, ty, spell: s }); return; }
+      if (s.isTsunami) { vfxSequences.push({ type: 'tsunami', state: 0, age: 0, cx: player.x + player.w / 2 - player.facing * 40, cy: player.y + player.h / 2, facing: player.facing, spell: s }); return; }
+      if (s.isBubble) { vfxSequences.push({ type: 'bubble', state: 0, age: 0, tx, ty, spell: s }); return; }
+      if (s.isRain) { vfxSequences.push({ type: 'rain', state: 0, age: 0, tx, ty, spell: s }); return; }
+      if (s.isWhirlpool) { vfxSequences.push({ type: 'whirlpool', state: 0, age: 0, tx, ty, spell: s }); return; }
+
+      // Other Spells
+      if (s.isMeteor) { vfxSequences.push({ type: 'meteor', state: 0, age: 0, tx, ty, spell: s }); spawnP(ox, oy, s.color, 12, 'burst'); return; }
+      if (s.isWind) { vfxSequences.push({ type: 'wind', state: 0, age: 0, tx, ty, spell: s }); return; }
+      if (s.isSpike) { vfxSequences.push({ type: 'spike', state: 0, age: 0, tx, ty, spell: s }); return; }
+      if (s.isNova) { vfxSequences.push({ type: 'nova', state: 0, age: 0, cx: player.x + player.w / 2, cy: player.y + player.h / 2, spell: s }); return; }
+      if (s.isWall) { vfxSequences.push({ type: 'firewall', state: 0, age: 0, tx, ty, spell: s }); return; }
+      if (s.isQuake) { vfxSequences.push({ type: 'quake', state: 0, age: 0, cx: player.x + player.w / 2, cy: player.y + player.h, spell: s }); return; }
+      if (s.isFrostNova) { vfxSequences.push({ type: 'frostnova', state: 0, age: 0, cx: player.x + player.w / 2, cy: player.y + player.h / 2, spell: s }); return; }
+      if (s.isTeleport) { vfxSequences.push({ type: 'teleport', state: 0, age: 0, fx: ox, fy: oy, tx, ty, spell: s }); player.inv = true; return; }
+      if (s.isLaser) { vfxSequences.push({ type: 'laser', state: 0, age: 0, tx, ty, spell: s }); return; }
+
+      vfxSequences.push({ type: 'pre_cast', state: 0, age: 0, tx, ty, spell: s });
+    }
+
+    function createLightning(x1, y1, x2, y2, sp) {
+      if (sp.name.includes('Frost')) SoundFX.playSweep(2000, 4000, 'triangle', 0.15, 0.2);
+      else if (sp.name.includes('Arcane')) SoundFX.playSweep(800, 1200, 'square', 0.15, 0.15);
+      else SoundFX.playTone(800 + Math.random() * 400, 'sawtooth', 0.1, 0.3); // Electric zap
+
+      const segs = [], steps = 14; for (let i = 0; i <= steps; i++) { const t = i / steps; segs.push({ x: x1 + (x2 - x1) * t + (i > 0 && i < steps ? (Math.random() - .5) * 35 : 0), y: y1 + (y2 - y1) * t + (i > 0 && i < steps ? (Math.random() - .5) * 35 : 0) }); }
+      lightningBolts.push({ segments: segs, life: 18, color: sp.color, width: 3 });
+      for (let b = 0; b < 4; b++) { const si = 3 + Math.floor(Math.random() * (steps - 4)), bs = [], base = segs[si], len = 3 + Math.floor(Math.random() * 4); for (let j = 0; j <= len; j++)bs.push({ x: base.x + (Math.random() - .5) * 22 * j, y: base.y + (Math.random() - .5) * 22 * j + j * 5 }); lightningBolts.push({ segments: bs, life: 14, color: '#aaddff', width: 1 }); }
+      explode(x2, y2, sp.exR, sp.exF, sp.dmg, sp.color, sp.c2);
+      dynamicLights.push({ x: x2, y: y2, r: 120, color: '#ffee88', int: 2, life: 12, ml: 12 }); screenShake = 9;
+    }
+
+    function doWind(ox, oy, tx, ty, s) { }
+
+    function doSpike(tx, ty, s) { }
+
+    function doNova(ox, oy, s) { }
+
+    function doFireWall(tx, ty, s) { }
+
+    function doQuake(s) {
+      screenShake = 15;
+      spawnP(player.x + player.w / 2, player.y + player.h, '#886633', 30, 'explode');
+      shockwaves.push({ x: player.x + player.w / 2, y: player.y + player.h, r: 0, maxR: s.quakeR, life: 20, maxLife: 20, color: s.color });
+      dynamicLights.push({ x: player.x + player.w / 2, y: player.y + player.h, r: s.quakeR, color: s.color, int: 1, life: 20, ml: 20 });
+      for (const e of entities) {
+        if (!e.active) continue;
+        const dist = Math.hypot(e.x + e.w / 2 - (player.x + player.w / 2), e.y + e.h / 2 - (player.y + player.h / 2));
+        if (dist < s.quakeR) { const i2 = 1 - dist / s.quakeR; e.vy -= s.quakeF * i2 / (e.mass || 1); e.vx += (Math.random() - .5) * s.quakeF * i2; if (e.rotV !== undefined) e.rotV += (Math.random() - .5) * .5; hurtEntity(e, Math.floor(s.dmg * i2), player.x, player.y); }
+      }
+      // Debris from ground
+      for (let i = 0; i < 20; i++) {
+        const dx = player.x + player.w / 2 + (Math.random() - .5) * s.quakeR;
+        particles.push({ x: dx, y: H - 24, vx: (Math.random() - .5) * 3, vy: -Math.random() * 6 - 3, life: 60, ml: 60, color: Math.random() > .5 ? '#886633' : '#665522', size: 3 + Math.random() * 4, grav: .2, type: 'debris', rot: Math.random() * 6, rotV: (Math.random() - .5) * .3 });
+      }
+    }
+
+    function doFrostNova(s) { }
+
+    function doTeleport(tx, ty, s) { }
+
+    function doLaser(ox, oy, tx, ty, s) {
+      const angle = Math.atan2(ty - oy, tx - ox);
+      const cx = player.x + player.w / 2 + player.facing * 10, cy = player.y + 8;
+      // Raycast
+      let hx = cx, hy = cy;
+      const step = 4, maxDist = 400;
+      for (let d = 0; d < maxDist; d += step) {
+        hx = cx + Math.cos(angle) * d; hy = cy + Math.sin(angle) * d;
+        // Hit platform?
+        let hitP = false;
+        for (const p of platforms) { if (hx > p.x && hx < p.x + p.w && hy > p.y && hy < p.y + p.h) { hitP = true; break; } }
+        if (hitP || hx < 0 || hx > W || hy < 0 || hy > H) break;
+        // Hit entity?
+        for (const e of entities) {
+          if (!e.active) continue;
+          if (hx > e.x && hx < e.x + e.w && hy > e.y && hy < e.y + e.h) { hurtEntity(e, s.dmg, hx, hy); const ka = Math.atan2(e.y + e.h / 2 - hy, e.x + e.w / 2 - hx); e.vx += Math.cos(ka) * .3; e.vy += Math.sin(ka) * .3; }
+        }
+      }
+      // Draw laser as lightning bolt
+      const segs = []; const steps2 = 8;
+      for (let i = 0; i <= steps2; i++) { const t = i / steps2; segs.push({ x: cx + (hx - cx) * t + (i > 0 && i < steps2 ? (Math.random() - .5) * 3 : 0), y: cy + (hy - cy) * t + (i > 0 && i < steps2 ? (Math.random() - .5) * 3 : 0) }); }
+      lightningBolts.push({ segments: segs, life: 4, color: s.color, width: s.laserW });
+      spawnP(hx, hy, s.color, 2, 'burst');
+      dynamicLights.push({ x: hx, y: hy, r: 30, color: s.color, int: .6, life: 4, ml: 4 });
+      dynamicLights.push({ x: (cx + hx) / 2, y: (cy + hy) / 2, r: 20, color: s.color, int: .3, life: 3, ml: 3 });
+    }
+
+    // ═══ PROJECTILE UPDATE ═══
+    function updateProjectiles(dt) {
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const p = projectiles[i], s = p.spell;
+        p.vy += s.grav; p.vx *= s.drag; p.vy *= s.drag;
+        // Plasma grow
+        if (s.isPlasma && p.growR < s.plasmaMax) { p.growR += s.plasmaGrow; p.growDmg = s.dmg * (p.growR / s.r); }
+        // Homing
+        if (s.homing) {
+          let cl = null, cd2 = 999; for (const e of entities) { if (!e.active) continue; const d = Math.hypot(e.x + e.w / 2 - p.x, e.y + e.h / 2 - p.y); if (d < cd2 && d < 200) { cd2 = d; cl = e; } }
+          if (cl) { const a = Math.atan2(cl.y + cl.h / 2 - p.y, cl.x + cl.w / 2 - p.x), ca = Math.atan2(p.vy, p.vx), da = normA(a - ca), na = ca + da * (s.homeStr || .1), spd = Math.hypot(p.vx, p.vy); p.vx = Math.cos(na) * spd; p.vy = Math.sin(na) * spd; }
+        }
+        // Gravity wells
+        for (const gw of gravityWells) { const dx = gw.x - p.x, dy = gw.y - p.y, dist = Math.hypot(dx, dy); if (dist < gw.r && dist > 3) { const f = gw.str * .8 * (1 - dist / gw.r); p.vx += (dx / dist) * f; p.vy += (dy / dist) * f; } }
+        // Tornado affect
+        if (s.isTornado && p.age > 15) {
+          // Convert to tornado zone
+          gravityWells.push({ x: p.x, y: p.y, r: s.torR, str: s.torF, life: s.torDur, maxLife: s.torDur, color: s.color, isTornado: true });
+          spawnP(p.x, p.y, s.color, 12, 'burst'); projectiles.splice(i, 1); continue;
+        }
+        // Poison cloud creation
+        if (s.isCloud && p.age > 10 && Math.hypot(p.vx, p.vy) < 1.5) {
+          vfxSequences.push({ type: 'poison-cloud', state: 0, age: 0, cx: p.x, cy: p.y, spell: s });
+          projectiles.splice(i, 1); continue;
+        }
+        // Time bomb sticking
+        if (s.isTimeBomb && p.age > 5) {
+          let stuck = false;
+          for (const pl of platforms) { if (p.x > pl.x && p.x < pl.x + pl.w && p.y > pl.y && p.y < pl.y + pl.h) { stuck = true; break; } }
+          for (const e of entities) { if (!e.active) continue; if (p.x > e.x && p.x < e.x + e.w && p.y > e.y && p.y < e.y + e.h) { stuck = true; break; } }
+          if (stuck || p.age > 80) { vfxSequences.push({ type: 'timebomb', state: 0, age: 0, cx: p.x, cy: p.y, spell: s }); spawnP(p.x, p.y, s.color, 6, 'burst'); projectiles.splice(i, 1); continue; }
+        }
+        // Vine Grapple deploy
+        if (s.isVine && p.age > 5) {
+          let hitE = null, hitPlat = false;
+          for (const e of entities) { if (!e.active) continue; if (p.x > e.x && p.x < e.x + e.w && p.y > e.y && p.y < e.y + e.h) { hitE = e; break; } }
+          if (!hitE) for (const pl of platforms) { if (p.x > pl.x && p.x < pl.x + pl.w && p.y > pl.y && p.y < pl.y + pl.h) { hitPlat = true; break; } }
+          if (hitE || hitPlat || p.age > 60) {
+            vfxSequences.push({ type: 'vine', state: 0, age: 0, cx: p.x, cy: p.y, target: hitE, spell: s });
+            projectiles.splice(i, 1); continue;
+          }
+        }
+        // Cluster split & Spore Burst
+        if ((s.isCluster || s.isSporeBomb) && p.age > 30) {
+          const isSpore = s.isSporeBomb;
+          for (let c = 0; c < s.subCount; c++) {
+            const a = c / s.subCount * Math.PI * 2 + (Math.random() - .5) * .5;
+            projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a) * s.subSpd, vy: Math.sin(a) * s.subSpd - (isSpore ? 4 : 2), spell: { ...s, isCluster: false, isSporeBomb: false, r: 3, grav: isSpore ? 0.015 : 0.2, drag: isSpore ? 0.97 : 0.998, dmg: s.subDmg, exR: s.subR, exF: 3, homing: isSpore, homeStr: isSpore ? 0.04 : 0, trail: isSpore ? 'spore' : 'fire', speed: s.subSpd }, life: isSpore ? 300 : 150, age: 0, trail: [], hitList: [], bounces: 0, chains: 0, growR: 3, growDmg: s.subDmg });
+          }
+          if (isSpore) {
+            // Cinematic mushroom pop — ring of glowing spore clouds + screen flash
+            SoundFX.playNoise(0.4, 0.5, 150, 'lowpass');
+            SoundFX.playSweep(200, 80, 'sine', 0.3, 0.4);
+            spawnP(p.x, p.y, s.color, 30, 'burst');
+            spawnP(p.x, p.y, s.core, 15, 'sparkle');
+            spawnP(p.x, p.y, s.c2, 20, 'explode');
+            shockwaves.push({ x: p.x, y: p.y, r: 0, maxR: 55, life: 15, maxLife: 15, color: s.color });
+            dynamicLights.push({ x: p.x, y: p.y, r: 120, color: s.core, int: 2.5, life: 10, ml: 10 });
+            screenShake = Math.max(screenShake, 8);
+            // Mushroom cap particles rising
+            for (let k = 0; k < 12; k++) {
+              const ma = (k / 12) * Math.PI * 2;
+              particles.push({ x: p.x + Math.cos(ma) * 20, y: p.y + Math.sin(ma) * 10, vx: Math.cos(ma) * 2.5, vy: -2.5 - Math.random() * 2, life: 50, ml: 50, color: k % 2 ? s.color : s.c2, size: 4 + Math.random() * 4, grav: -0.02, rot: Math.random() * 6, rotV: (Math.random() - .5) * 0.15, type: 'dust' });
+            }
+          } else { spawnP(p.x, p.y, s.color, 15, 'explode'); screenShake = 5; }
+          projectiles.splice(i, 1); continue;
+        }
+        // Gravity well
+        if (s.isWell && p.age > 10 && Math.hypot(p.vx, p.vy) < 1) {
+          gravityWells.push({ x: p.x, y: p.y, r: s.wellR, str: s.wellStr, life: s.wellDur, maxLife: s.wellDur, color: s.color });
+          spawnP(p.x, p.y, s.color, 18, 'burst'); projectiles.splice(i, 1); continue;
+        }
+
+        p.x += p.vx; p.y += p.vy; p.age++; p.life--;
+        p.trail.push({ x: p.x, y: p.y }); if (p.trail.length > 22) p.trail.shift();
+        if (p.age % 4 === 0) dynamicLights.push({ x: p.x, y: p.y, r: 25 + (p.growR || s.r) * 3, color: s.color, int: .35, life: 5, ml: 5 });
+        // Spore Bomb: pulsing glow + sporeling ring while charging
+        if (s.isSporeBomb && p.age % 5 === 0) {
+          const pulse = Math.sin(p.age * 0.4) * 0.5 + 0.5;
+          dynamicLights.push({ x: p.x, y: p.y, r: 30 + pulse * 20, color: s.core, int: 1 + pulse, life: 5, ml: 5 });
+          spawnP(p.x + (Math.random() - .5) * 12, p.y + (Math.random() - .5) * 12, s.core, 1, 'sparkle');
+        }
+        // Leaf spin: track rotation
+        if (s.isLeaf) { p.leafRot = (p.leafRot || 0) + 0.35; }
+        // Trail particles
+        if (p.age % 2 === 0) {
+          const tc = s.trail;
+          if (tc === 'fire') spawnP(p.x + (Math.random() - .5) * 4, p.y + (Math.random() - .5) * 4, Math.random() > .5 ? '#ff4400' : '#ffaa00', 1, 'trail');
+          else if (tc === 'ice') spawnP(p.x, p.y, Math.random() > .5 ? '#88ddff' : '#ccf0ff', 1, 'trail');
+          else if (tc === 'arcane') spawnP(p.x, p.y, Math.random() > .5 ? '#aa55ff' : '#dd88ff', 1, 'trail');
+          else if (tc === 'void') spawnP(p.x, p.y, Math.random() > .5 ? '#5500aa' : '#7722cc', 2, 'trail');
+          else if (tc === 'meteor') { spawnP(p.x, p.y, '#ff6600', 2, 'trail'); spawnP(p.x + (Math.random() - .5) * 10, p.y - Math.random() * 6, '#ffcc00', 1, 'ember'); }
+          else if (tc === 'frost') spawnP(p.x, p.y, Math.random() > .5 ? '#aaeeff' : '#fff', 1, 'trail');
+          else if (tc === 'poison') spawnP(p.x, p.y, Math.random() > .5 ? '#44cc22' : '#88ee55', 1, 'trail');
+          else if (tc === 'nova') spawnP(p.x, p.y, Math.random() > .5 ? '#ff44aa' : '#ff88cc', 1, 'trail');
+          else if (tc === 'ricochet') spawnP(p.x, p.y, Math.random() > .5 ? '#44aaff' : '#88ccff', 1, 'trail');
+          else if (tc === 'clock') spawnP(p.x, p.y, Math.random() > .5 ? '#ffaa00' : '#ffcc44', 1, 'trail');
+          else if (tc === 'soul') { spawnP(p.x, p.y, Math.random() > .5 ? '#cc44ff' : '#9922cc', 1, 'trail'); if (p.age % 6 === 0) spawnP(p.x + (Math.random() - .5) * 8, p.y + (Math.random() - .5) * 8, '#eeccff', 1, 'sparkle'); }
+          else if (tc === 'plasma') { spawnP(p.x + (Math.random() - .5) * p.growR, p.y + (Math.random() - .5) * p.growR, Math.random() > .5 ? '#dd33ff' : '#ee77ff', 1, 'trail'); if (p.age % 4 === 0) spawnP(p.x, p.y, '#ffaaff', 1, 'sparkle'); }
+          else if (tc === 'wind') spawnP(p.x, p.y, s.color, 1, 'trail');
+          else if (tc === 'leaf') {
+            // Spinning leaf trail — small rotated ellipses
+            const la = (p.leafRot || 0);
+            particles.push({ x: p.x + (Math.random() - .5) * 6, y: p.y + (Math.random() - .5) * 6, vx: (Math.random() - .5) * 2, vy: (Math.random() - .5) * 2, life: 20, ml: 20, color: Math.random() > .5 ? s.color : s.c2, size: 3 + Math.random() * 2, grav: 0.02, rot: la, rotV: (Math.random() - .5) * 0.3, type: 'dust' });
+            if (p.age % 4 === 0) spawnP(p.x, p.y, s.core, 1, 'sparkle');
+          }
+          else if (tc === 'seed') {
+            // Seeds leave tiny sprout-like particles
+            spawnP(p.x + (Math.random() - .5) * 4, p.y + (Math.random() - .5) * 4, Math.random() > .5 ? s.color : s.c2, 1, 'dust');
+            if (p.age % 6 === 0) spawnP(p.x, p.y, s.core, 1, 'sparkle');
+          }
+          else if (tc === 'spore') {
+            // Glowing spore trail
+            spawnP(p.x + (Math.random() - .5) * 8, p.y + (Math.random() - .5) * 8, Math.random() > .5 ? s.color : s.c2, 1, 'sparkle');
+            if (p.age % 3 === 0) spawnP(p.x, p.y, s.core, 1, 'void');
+          }
+          else if (tc === 'vine') {
+            spawnP(p.x + (Math.random() - .5) * 5, p.y + (Math.random() - .5) * 5, Math.random() > .5 ? '#227733' : '#44aa55', 1, 'trail');
+          }
+          else spawnP(p.x, p.y, s.color, 1, 'trail');
+        }
+        // Platform collision
+        let hitPlat = false;
+        for (const pl of platforms) {
+          if (p.x > pl.x && p.x < pl.x + pl.w && p.y > pl.y && p.y < pl.y + pl.h) {
+            if (p.bounces > 0) { p.bounces--; const ft = p.y - p.vy - pl.y, fb = p.y - p.vy - (pl.y + pl.h); if (Math.abs(ft) < Math.abs(fb) + 5) { p.y = pl.y - 1; p.vy = -Math.abs(p.vy) * .85; } else if (fb > -5) { p.y = pl.y + pl.h + 1; p.vy = Math.abs(p.vy) * .85; } else { p.vx = -p.vx * .85; p.x += p.vx * 2; } spawnP(p.x, p.y, s.color, 6, 'burst'); } else hitPlat = true; break;
+          }
+        }
+        // Wall bounces for ricochet
+        if (p.bounces > 0) { if (p.x < 0 || p.x > W) { p.vx = -p.vx; p.bounces--; spawnP(p.x, p.y, s.color, 4, 'burst'); } if (p.y < 0) { p.vy = -p.vy; p.bounces--; spawnP(p.x, p.y, s.color, 4, 'burst'); } }
+        // Hit entities
+        let hitS = false;
+        const hitR = p.growR || s.r;
+        for (const e of entities) {
+          if (!e.active || p.hitList.includes(e)) continue;
+          const ex = e.x + e.w / 2, ey = e.y + e.h / 2;
+          if (Math.hypot(p.x - ex, p.y - ey) < hitR + Math.max(e.w, e.h) / 2 ||
+            (p.x > e.x && p.x < e.x + e.w && p.y > e.y && p.y < e.y + e.h)) {
+            const finalDmg = Math.floor(p.growDmg || s.dmg);
+            hurtEntity(e, finalDmg, p.x, p.y);
+            const ka = Math.atan2(p.vy, p.vx), kf = Math.hypot(p.vx, p.vy) * .6 / (e.mass || 1); e.vx += Math.cos(ka) * kf; e.vy += Math.sin(ka) * kf - 2; if (e.rotV !== undefined) e.rotV += kf * .1 * (Math.random() > .5 ? 1 : -1);
+            // Soul drain handled by VFX
+            if (s.piercing) { p.hitList.push(e); spawnP(p.x, p.y, s.color, 6, 'burst'); }
+            else if (p.chains > 0) {
+              p.chains--; p.hitList.push(e); let nx = null, nd = 999; for (const e2 of entities) { if (!e2.active || p.hitList.includes(e2)) continue; const d = Math.hypot(e2.x + e2.w / 2 - p.x, e2.y + e2.h / 2 - p.y); if (d < nd && d < (s.chainR || 130)) { nd = d; nx = e2; } }
+              if (nx) { const a = Math.atan2(nx.y + nx.h / 2 - p.y, nx.x + nx.w / 2 - p.x), spd = Math.hypot(p.vx, p.vy); p.vx = Math.cos(a) * spd; p.vy = Math.sin(a) * spd; lightningBolts.push({ segments: [{ x: p.x, y: p.y }, { x: (p.x + nx.x + nx.w / 2) / 2 + (Math.random() - .5) * 25, y: (p.y + nx.y + nx.h / 2) / 2 + (Math.random() - .5) * 25 }, { x: nx.x + nx.w / 2, y: nx.y + nx.h / 2 }], life: 12, color: s.color, width: 2 }); spawnP(p.x, p.y, s.color, 8, 'burst'); } else hitS = true;
+            }
+            else hitS = true; if (hitS) break;
+          }
+        }
+        if (p.life <= 0 || p.x < -50 || p.x > W + 50 || p.y > H + 50 || hitPlat || hitS) {
+          if ((hitPlat || hitS) && (s.exR || 0) > 0) explode(p.x, p.y, s.exR, s.exF, Math.floor((p.growDmg || s.dmg) * .5), s.color, s.c2);
+          else if (hitPlat || hitS) spawnP(p.x, p.y, s.color, 12, 'burst');
+          // Seed Barrage: sprout vines/flowers on platform landing
+          if (s.trail === 'seed' && hitPlat) {
+            for (let k = 0; k < 6; k++) {
+              const sa = -Math.PI / 2 + (Math.random() - .5) * 1.2;
+              const sl = 10 + Math.random() * 16;
+              particles.push({ x: p.x + (Math.random() - .5) * 8, y: p.y, vx: Math.cos(sa) * 0.5, vy: Math.sin(sa) * 0.5 - 1, life: 70, ml: 70, color: k % 2 ? s.color : s.c2, size: 2 + Math.random() * 2, grav: -0.01, rot: sa, rotV: (Math.random() - .5) * 0.05, type: 'dust' });
+            }
+            // Flower bloom particle
+            spawnP(p.x, p.y - 4, s.core, 4, 'sparkle');
+            dynamicLights.push({ x: p.x, y: p.y, r: 25, color: s.core, int: 1, life: 8, ml: 8 });
+          }
+          // Razor Leaf hit: cinematic green slash burst
+          if (s.isLeaf && (hitPlat || hitS)) {
+            const la = Math.atan2(p.vy, p.vx);
+            for (let k = 0; k < 5; k++) {
+              const sa = la + (Math.random() - .5) * 1.5;
+              particles.push({ x: p.x, y: p.y, vx: Math.cos(sa) * (3 + Math.random() * 4), vy: Math.sin(sa) * (3 + Math.random() * 4), life: 18, ml: 18, color: k % 2 ? s.core : s.c2, size: 2 + Math.random() * 2, grav: 0.05, rot: sa, rotV: (Math.random() - .5) * 0.4, type: 'dust' });
+            }
+            dynamicLights.push({ x: p.x, y: p.y, r: 30, color: s.core, int: 1.5, life: 5, ml: 5 });
+          }
+          // Spore sub-projectile: glowing spore bloom on hit
+          if (s.trail === 'spore' && (hitPlat || hitS)) {
+            spawnP(p.x, p.y, s.color, 8, 'burst');
+            spawnP(p.x, p.y, s.core, 4, 'sparkle');
+            dynamicLights.push({ x: p.x, y: p.y, r: 40, color: s.core, int: 1.5, life: 8, ml: 8 });
+          }
+          projectiles.splice(i, 1);
+        }
+      }
+    }
+
+    // ═══ SPECIAL ZONES UPDATE ═══
+    function updateZones(dt) {
+      // poison clouds handled by vfxEngine
+
+      // Fire walls
+      for (let i = fireWalls.length - 1; i >= 0; i--) {
+        const fw = fireWalls[i]; fw.dur--;
+        if (fw.dur % 10 === 0) { for (const e of entities) { if (!e.active) continue; if (e.x + e.w > fw.x && e.x < fw.x + fw.w && e.y + e.h > fw.y && e.y < fw.y + fw.h) { hurtEntity(e, fw.dmg, fw.x + fw.w / 2, fw.y); e.vy -= 2; } } }
+        if (fw.dur % 3 === 0) {
+          const fx = fw.x + Math.random() * fw.w; particles.push({ x: fx, y: fw.y + fw.h - Math.random() * 10, vx: (Math.random() - .5) * 1, vy: -Math.random() * 3 - 1, life: 20, ml: 20, color: Math.random() > .3 ? fw.color : fw.c2, size: 2 + Math.random() * 3, grav: -.05, type: 'flame' });
+          if (Math.random() > .7) dynamicLights.push({ x: fx, y: fw.y + fw.h / 2, r: 30, color: fw.color, int: .3, life: 4, ml: 4 });
+        }
+        if (fw.dur <= 0) fireWalls.splice(i, 1);
+      }
+
+      // Spikes
+      for (let i = spikes.length - 1; i >= 0; i--) {
+        const sk = spikes[i];
+        if (sk.phase === 'rise') {
+          sk.h = Math.min(sk.maxH, sk.h + 4); if (sk.h >= sk.maxH) {
+            sk.phase = 'hold';
+            for (const e of entities) { if (!e.active) continue; if (e.x + e.w > sk.x && e.x < sk.x + sk.w && e.y + e.h > sk.y - sk.h && e.y < sk.y) { hurtEntity(e, sk.dmg, sk.x + sk.w / 2, sk.y - sk.h / 2); e.vy = -8 / (e.mass || 1); if (e.rotV !== undefined) e.rotV += (Math.random() - .5) * .5; } }
+          }
+        }
+        sk.life--; if (sk.life <= 0) spikes.splice(i, 1);
+      }
+
+      // timebombs handled by vfxEngine
+
+      // Frozen entities decay
+      for (const [e, t] of frozenEntities) { frozenEntities.set(e, t - 1); if (t <= 0) frozenEntities.delete(e); }
+
+      // Gravity wells (inc tornado)
+      for (let i = gravityWells.length - 1; i >= 0; i--) {
+        const gw = gravityWells[i]; gw.life--;
+        if (gw.isTornado) {
+          // Tornado lifts things up
+          for (const e of entities) {
+            if (!e.active) continue; const dx = gw.x - (e.x + e.w / 2), dy = gw.y - (e.y + e.h / 2), dist = Math.hypot(dx, dy);
+            if (dist < gw.r) { const f = gw.str * (1 - dist / gw.r) / (e.mass || 1); e.vx += (dx / dist) * f; e.vy -= Math.abs(f) * 1.5; if (e.rotV !== undefined) e.rotV += f * .1; if (gw.life % 20 === 0) hurtEntity(e, 2, gw.x, gw.y); }
+          }
+          if (gw.life % 2 === 0) {
+            const a = Math.random() * Math.PI * 2, d = Math.random() * gw.r;
+            particles.push({ x: gw.x + Math.cos(a) * d, y: gw.y + Math.sin(a) * d, vx: Math.cos(a + Math.PI / 2) * 3, vy: -Math.random() * 4 - 2, life: 20, ml: 20, color: Math.random() > .5 ? gw.color : '#ddeeff', size: 1.5 + Math.random() * 2, grav: -.1, type: 'tornado' });
+          }
+        } else {
+          if (gw.life % 2 === 0) { const a = Math.random() * Math.PI * 2, d = Math.random() * gw.r; particles.push({ x: gw.x + Math.cos(a) * d, y: gw.y + Math.sin(a) * d, vx: -Math.cos(a) * 2.5, vy: -Math.sin(a) * 2.5, life: 18, ml: 18, color: Math.random() > .5 ? gw.color : '#5500aa', size: 1.5 + Math.random() * 2, grav: 0, type: 'void' }); }
+        }
+        if (gw.life % 8 === 0) dynamicLights.push({ x: gw.x, y: gw.y, r: gw.r * 1.5, color: gw.color, int: .4, life: 8, ml: 8 });
+        if (gw.life <= 0) { spawnP(gw.x, gw.y, gw.color, 25, 'explode'); if (!gw.isTornado) explode(gw.x, gw.y, gw.r * .5, 5, 12, gw.color); gravityWells.splice(i, 1); }
+      }
+    }
+
+    // ═══ PARTICLES ═══
+    function spawnP(x, y, color, count, type) {
+      for (let i = 0; i < count; i++) {
+        const a = Math.random() * Math.PI * 2, spd = type === 'explode' ? Math.random() * 5.5 + 2 : type === 'burst' ? Math.random() * 3.5 + 1 : type === 'ember' ? Math.random() * 2.5 + 1 : type === 'electric' ? Math.random() * 4.5 + 2 : type === 'sparkle' ? Math.random() * 1 + .5 : type === 'dust' ? Math.random() * 1.5 + .5 : Math.random() * 1.5;
+        particles.push({ x, y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd - (type === 'explode' ? 2 : type === 'ember' ? 3.5 : 0), life: type === 'explode' ? 32 + Math.random() * 28 : type === 'trail' ? 14 + Math.random() * 8 : type === 'electric' ? 8 + Math.random() * 12 : type === 'ember' ? 45 + Math.random() * 35 : type === 'sparkle' ? 20 + Math.random() * 20 : type === 'dust' ? 25 + Math.random() * 15 : 20 + Math.random() * 15, ml: 65, color, size: type === 'explode' ? 2 + Math.random() * 3.5 : type === 'ember' ? 1 + Math.random() * 2 : type === 'trail' ? 1 + Math.random() * 1.5 : type === 'sparkle' ? 1 + Math.random() : type === 'dust' ? 2 + Math.random() * 2 : 1.5 + Math.random() * 2, grav: type === 'ember' ? .05 : type === 'electric' ? 0 : type === 'void' ? -.03 : type === 'sparkle' ? -.02 : type === 'dust' ? .12 : type === 'cloud' ? -.02 : type === 'tornado' ? -.1 : .06, type, rot: Math.random() * 6, rotV: (Math.random() - .5) * .2 });
+      }
+    }
+
+    function updateVFX(dt) {
+      for (let i = vfxSequences.length - 1; i >= 0; i--) {
+        const v = vfxSequences[i], s = v.spell; v.age += 1;
+        if (v.type === 'teleport') {
+          if (v.state === 0) { // Shadow dissolve
+            // Spiral shadow particles converging inward
+            if (v.age % 2 === 0) { for (let k = 0; k < 3; k++) { const a = v.age * 0.4 + k * Math.PI * 2 / 3, d = 40 - v.age * 2; if (d > 0) spawnP(v.fx + Math.cos(a) * d, v.fy + Math.sin(a) * d, s.color, 1, 'void'); } }
+            dynamicLights.push({ x: v.fx, y: v.fy, r: 60 - v.age * 3, color: s.color, int: 1, life: 2, ml: 2 });
+            player.castAnim = 280; player.castType = 'burst';
+            if (v.age > 18) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // Vanish + rift
+            if (v.age === 1) {
+              // Shadow explosion at origin
+              spawnP(v.fx, v.fy, s.color, 30, 'explode');
+              for (let k = 0; k < 12; k++) particles.push({ x: v.fx, y: v.fy, vx: (Math.random() - .5) * 6, vy: (Math.random() - .5) * 6, life: 20, ml: 20, color: s.core, size: 1, grav: 0, type: 'sparkle' });
+              screenShake = 5;
+            }
+            if (v.age > 6) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) { // Arrival
+            if (v.age === 1) {
+              player.x = v.tx - player.w / 2; player.y = v.ty - player.h / 2; player.vx = 0; player.vy = 0; player.inv = false;
+              // Dimensional rift particles at destination
+              for (let k = 0; k < 20; k++) { const a = k / 20 * Math.PI * 2; particles.push({ x: v.tx + Math.cos(a) * 30, y: v.ty + Math.sin(a) * 30, vx: -Math.cos(a) * 4, vy: -Math.sin(a) * 4, life: 15, ml: 15, color: s.core, size: 2, grav: 0, type: 'void' }); }
+              spawnP(v.tx, v.ty, '#fff', 20, 'burst');
+              dynamicLights.push({ x: v.tx, y: v.ty, r: 120, color: s.color, int: 3, life: 12, ml: 12 });
+              shockwaves.push({ x: v.tx, y: v.ty, r: 0, maxR: 80, life: 12, maxLife: 12, color: s.color });
+              screenShake = 10;
+              // AoE damage
+              for (const e of entities) { if (!e.active) continue; const d = Math.hypot(e.x + e.w / 2 - v.tx, e.y + e.h / 2 - v.ty); if (d < 60) { hurtEntity(e, s.dmg, v.tx, v.ty); const a2 = Math.atan2(e.y + e.h / 2 - v.ty, e.x + e.w / 2 - v.tx); e.vx += Math.cos(a2) * 10 / (e.mass || 1); e.vy += Math.sin(a2) * 10 / (e.mass || 1) - 4; } }
+            }
+            if (v.age > 15) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'poison-cloud') {
+          if (v.state === 0) {
+            if (v.age % 2 === 0) spawnP(v.cx + (Math.random() - .5) * s.cloudR * 1.5, v.cy + (Math.random() - .5) * s.cloudR * 1.5, s.color, 1, 'void');
+            if (v.age > 18) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) {
+            if (v.age === 1) { spawnP(v.cx, v.cy, s.c2, 12, 'burst'); screenShake = 3; }
+            if (v.age > 8) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) {
+            if (v.age % 3 === 0) particles.push({ x: v.cx + (Math.random() - .5) * 20, y: v.cy + (Math.random() - .5) * 10, vx: 0, vy: -1, life: 20, ml: 20, color: s.color, size: 2 + Math.random() * 4, grav: -0.01, type: 'cloud' });
+            if (v.age > 20) { v.state = 3; v.age = 0; }
+          } else if (v.state === 3) {
+            if (v.age % 2 === 0) { const a = Math.random() * Math.PI * 2, d = Math.random() * s.cloudR * (v.age / 120); particles.push({ x: v.cx + Math.cos(a) * d, y: v.cy + Math.sin(a) * d * .5, vx: (Math.random() - .5) * 1, vy: -Math.random() * 2, life: 30, ml: 30, color: Math.random() > .5 ? s.color : s.c2, size: 3 + Math.random() * 4, grav: -0.03, type: 'cloud' }); }
+            if (v.age % 15 === 0) { for (const e of entities) { if (!e.active) continue; if (Math.hypot(e.x + e.w / 2 - v.cx, e.y + e.h / 2 - v.cy) < s.cloudR * (v.age / 120)) hurtEntity(e, 1, v.cx, v.cy); } }
+            if (v.age > 120) { v.state = 4; v.age = 0; }
+          } else if (v.state === 4) {
+            if (v.age % 4 === 0) { const a = Math.random() * Math.PI * 2, d = Math.random() * s.cloudR; particles.push({ x: v.cx + Math.cos(a) * d, y: v.cy + Math.sin(a) * d * .8, vx: (Math.random() - .5) * .5, vy: -Math.random() * .8 - .2, life: 25, ml: 25, color: Math.random() > .5 ? s.color : s.c2, size: 2 + Math.random() * 3, grav: -.02, type: 'cloud' }); }
+            if (v.age % 15 === 0) { for (const e of entities) { if (!e.active) continue; if (Math.hypot(e.x + e.w / 2 - v.cx, e.y + e.h / 2 - v.cy) < s.cloudR) hurtEntity(e, s.cloudDmg, v.cx, v.cy); } }
+            if (v.age > 300) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'quake') {
+          if (v.state === 0) {
+            screenShake = 3;
+            if (v.age % 2 === 0) spawnP(v.cx + (Math.random() - .5) * s.quakeR * .8, v.cy, '#665522', 1, 'dust');
+            if (v.age > 30) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) {
+            if (v.age === 1) {
+              screenShake = 18; spawnP(v.cx, v.cy, '#886633', 30, 'explode');
+              shockwaves.push({ x: v.cx, y: v.cy, r: 0, maxR: s.quakeR, life: 20, maxLife: 20, color: s.color });
+              dynamicLights.push({ x: v.cx, y: v.cy, r: s.quakeR, color: s.color, int: 1, life: 20, ml: 20 });
+              for (const e of entities) { if (!e.active) continue; const d = Math.hypot(e.x + e.w / 2 - v.cx, e.y + e.h / 2 - v.cy); if (d < s.quakeR) { const i2 = 1 - d / s.quakeR; e.vy -= s.quakeF * i2 / (e.mass || 1); e.vx += (Math.random() - .5) * s.quakeF * i2; if (e.rotV !== undefined) e.rotV += (Math.random() - .5) * .5; hurtEntity(e, Math.floor(s.dmg * i2), v.cx, v.cy); } }
+              for (let k = 0; k < 20; k++)particles.push({ x: v.cx + (Math.random() - .5) * s.quakeR, y: v.cy, vx: (Math.random() - .5) * 3, vy: -Math.random() * 6 - 3, life: 60, ml: 60, color: '#886633', size: 3 + Math.random() * 4, grav: .2, type: 'debris', rot: Math.random() * 6, rotV: (Math.random() - .5) * .3 });
+            }
+            if (v.age > 20) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'vine') {
+          if (v.state === 0) {
+            SoundFX.playNoise(0.3, 0.5, 120, 'lowpass');
+            SoundFX.playSweep(80, 200, 'sawtooth', 0.4, 0.3);
+            spawnP(v.cx, v.cy, s.color, 20, 'burst');
+            spawnP(v.cx, v.cy, s.c2, 10, 'sparkle');
+            dynamicLights.push({ x: v.cx, y: v.cy, r: 60, color: s.core, int: 1.5, life: 8, ml: 8 });
+            // Build vine strand points from player to target/impact
+            const px = player.x + player.w / 2, py = player.y + player.h / 2;
+            const numPts = 18;
+            v.vinePts = [];
+            for (let si = 0; si < 3; si++) {
+              const strand = [];
+              for (let pi = 0; pi <= numPts; pi++) {
+                const t = pi / numPts;
+                const sag = Math.sin(t * Math.PI) * (20 + si * 8);
+                const perpX = (v.cy - py) / Math.hypot(v.cx - px, v.cy - py) * sag;
+                const perpY = -(v.cx - px) / Math.hypot(v.cx - px, v.cy - py) * sag;
+                strand.push({ x: px + (v.cx - px) * t + perpX + (si - 1) * 4, y: py + (v.cy - py) * t + perpY + (si - 1) * 3 });
+              }
+              v.vinePts.push(strand);
+            }
+            v.anchorX = v.cx; v.anchorY = v.cy;
+            v.state = 1; v.age = 0;
+          } else if (v.state === 1) {
+            const px = player.x + player.w / 2, py = player.y + player.h / 2;
+            // Update vine strands to follow target/anchor dynamically
+            if (v.target && v.target.active) {
+              v.anchorX = v.target.x + v.target.w / 2;
+              v.anchorY = v.target.y + v.target.h / 2;
+            }
+            const numPts = 18;
+            const wave = Math.sin(v.age * 0.08) * 6;
+            for (let si = 0; si < 3; si++) {
+              for (let pi = 0; pi <= numPts; pi++) {
+                const t = pi / numPts;
+                const sag = Math.sin(t * Math.PI) * (16 + si * 7 + wave);
+                const dx2 = v.anchorX - px, dy2 = v.anchorY - py, len2 = Math.hypot(dx2, dy2) || 1;
+                const perpX = (dy2 / len2) * sag;
+                const perpY = -(dx2 / len2) * sag;
+                v.vinePts[si][pi] = { x: px + dx2 * t + perpX + (si - 1) * 4, y: py + dy2 * t + perpY + (si - 1) * 3 };
+              }
+            }
+            // Entangle target
+            if (v.target && v.target.active) {
+              if (v.age % 8 === 0) {
+                hurtEntity(v.target, s.vineDmg, v.anchorX, v.anchorY);
+                v.target.vx *= 0.08; v.target.vy *= 0.08; // Hard root
+                // Spiral vine particles wrapping around target
+                const wa = v.age * 0.5;
+                for (let k = 0; k < 3; k++) {
+                  spawnP(v.anchorX + Math.cos(wa + k * 2.1) * 18, v.anchorY - 15 + Math.sin(wa + k * 2.1) * 10, s.c2, 1, 'trail');
+                }
+                if (v.age % 24 === 0) spawnP(v.anchorX, v.anchorY - 20, '#88ff88', 3, 'sparkle');
+              }
+              dynamicLights.push({ x: v.anchorX, y: v.anchorY, r: 35, color: s.color, int: 0.8, life: 2, ml: 2 });
+            } else {
+              // Ground vine hazard zone
+              if (v.age % 12 === 0) {
+                for (const e of entities) {
+                  if (!e.active) continue;
+                  if (Math.hypot(e.x + e.w / 2 - v.anchorX, e.y + e.h / 2 - v.anchorY) < 45) {
+                    hurtEntity(e, s.vineDmg, v.anchorX, v.anchorY); e.vx *= 0.4;
+                    spawnP(e.x + e.w / 2, e.y, s.color, 5, 'burst');
+                  }
+                }
+              }
+              // Sprout leaves from anchor
+              if (v.age % 6 === 0) {
+                const a = Math.random() * Math.PI * 2;
+                spawnP(v.anchorX + Math.cos(a) * 12, v.anchorY + Math.sin(a) * 6, s.c2, 1, 'sparkle');
+              }
+            }
+            if (v.age > s.vineDur) {
+              // Snap! vine breaks with burst
+              SoundFX.playNoise(0.15, 0.2, 300, 'highpass');
+              spawnP(px, py, s.c2, 8, 'burst'); spawnP(v.anchorX, v.anchorY, s.c2, 8, 'burst');
+              vfxSequences.splice(i, 1);
+            }
+          } // end state 1
+        } else if (v.type === 'frostnova') {
+          if (v.state === 0) { // gathering
+            if (v.age % 2 === 0) spawnP(v.cx + (Math.random() - .5) * s.frostR, v.cy + (Math.random() - .5) * s.frostR, '#fff', 1, 'void');
+            if (v.age > 16) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) {
+            if (v.age === 1) {
+              spawnP(v.cx, v.cy, s.color, 25, 'explode'); spawnP(v.cx, v.cy, '#fff', 15, 'burst');
+              shockwaves.push({ x: v.cx, y: v.cy, r: 0, maxR: s.frostR, life: 25, maxLife: 25, color: s.color });
+              dynamicLights.push({ x: v.cx, y: v.cy, r: s.frostR * 1.5, color: s.color, int: 1.5, life: 15, ml: 15 });
+              for (const e of entities) { if (!e.active) continue; if (Math.hypot(e.x + e.w / 2 - v.cx, e.y + e.h / 2 - v.cy) < s.frostR) { hurtEntity(e, s.dmg, v.cx, v.cy); frozenEntities.set(e, s.frostSlow); for (let k = 0; k < 5; k++)spawnP(e.x + Math.random() * e.w, e.y + Math.random() * e.h, '#aaeeff', 1, 'burst'); } }
+              screenShake = 6;
+            }
+            if (v.age > 20) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'nova') {
+          if (v.state === 0) { // charge up
+            dynamicLights.push({ x: v.cx, y: v.cy, r: v.age * 3, color: s.color, int: 1, life: 2, ml: 2 });
+            if (v.age % 2 === 0) { for (let k = 0; k < 3; k++) { const a = v.age * 0.3 + k * Math.PI * 2 / 3; spawnP(v.cx + Math.cos(a) * v.age * 1.5, v.cy + Math.sin(a) * v.age * 1.5, s.color, 1, 'sparkle'); } }
+            if (v.age > 20) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) {
+            if (v.age === 1) {
+              for (let k = 0; k < s.novaCount; k++) { const a = k / s.novaCount * Math.PI * 2; projectiles.push({ x: v.cx, y: v.cy, vx: Math.cos(a) * s.speed, vy: Math.sin(a) * s.speed, spell: s, life: 200, age: 0, trail: [], hitList: [], bounces: 0, chains: 0, growR: s.r, growDmg: s.dmg }); }
+              spawnP(v.cx, v.cy, s.color, 20, 'explode'); shockwaves.push({ x: v.cx, y: v.cy, r: 0, maxR: 60, life: 12, maxLife: 12, color: s.color }); screenShake = 5;
+            }
+            if (v.age > 5) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'timebomb') {
+          if (v.state === 0) { // tick
+            if (v.age % 10 === 0) spawnP(v.cx, v.cy, '#ffaa00', 2, 'burst');
+            if (s.bombDelay - v.age <= 20 && v.age % 3 === 0) { v.state = 1; v.age = 0; } else if (s.bombDelay - v.age <= 20 && v.age % 5 === 0) spawnP(v.cx, v.cy, '#ff4400', 3, 'burst');
+            if (v.age > s.bombDelay) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // intense tick
+            if (v.age % 3 === 0) spawnP(v.cx, v.cy, '#ff0000', 3, 'burst');
+            if (v.age > 20) { explode(v.cx, v.cy, s.bombR, s.bombF, s.bombDmg, s.color, s.c2); vfxSequences.splice(i, 1); }
+          }
+        } else if (v.type === 'meteor') {
+          if (v.state === 0) { // Warning circle grows
+            // Find impact surface (highest platform at tx below the click)
+            if (!v.impactY) { v.impactY = H - 24; for (const p of platforms) { if (v.tx > p.x && v.tx < p.x + p.w && p.y < v.impactY && p.y >= v.ty) v.impactY = p.y; } }
+            dynamicLights.push({ x: v.tx, y: v.impactY, r: v.age * 2, color: s.c2, int: 0.4, life: 2, ml: 2 });
+            if (v.age % 4 === 0) spawnP(v.tx + (Math.random() - .5) * 40, v.impactY - 6, '#ff4400', 1, 'smoke');
+            screenShake = Math.min(v.age / 20, 3);
+            if (v.age > 50) { v.state = 1; v.age = 0; v.meteorY = -80; }
+          } else if (v.state === 1) { // Meteor descending
+            v.meteorY += 12;
+            // Fire trail behind meteor
+            for (let k = 0; k < 4; k++) particles.push({ x: v.tx + (Math.random() - .5) * 15, y: v.meteorY - 10 - k * 8, vx: (Math.random() - .5) * 3, vy: -Math.random() * 3 - 1, life: 15, ml: 15, color: k % 2 ? '#ffaa00' : '#ff4400', size: 3 + Math.random() * 4, grav: -.05, type: 'trail' });
+            dynamicLights.push({ x: v.tx, y: v.meteorY, r: 80, color: '#ffaa00', int: 2, life: 2, ml: 2 });
+            screenShake = 6;
+            if (v.meteorY >= v.impactY) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) { // Impact
+            if (v.age === 1) {
+              explode(v.tx, v.impactY, s.exR * 1.3, s.exF, s.dmg, s.color, s.c2);
+              shockwaves.push({ x: v.tx, y: v.impactY, r: 0, maxR: s.exR * 2, life: 25, maxLife: 25, color: s.c2 });
+              shockwaves.push({ x: v.tx, y: v.impactY, r: 0, maxR: s.exR * 1.5, life: 18, maxLife: 18, color: '#fff' });
+              dynamicLights.push({ x: v.tx, y: v.impactY, r: 200, color: '#ffaa00', int: 4, life: 15, ml: 15 });
+              screenShake = 25;
+              for (let k = 0; k < 40; k++) particles.push({ x: v.tx + (Math.random() - .5) * 80, y: v.impactY, vx: (Math.random() - .5) * 10, vy: -Math.random() * 15 - 5, life: 100, ml: 100, color: k % 3 === 0 ? '#ffcc00' : k % 3 === 1 ? s.color : '#aa4400', size: 3 + Math.random() * 6, grav: .18, type: 'debris', rot: Math.random() * 6, rotV: (Math.random() - .5) * .4 });
+            }
+            if (v.age > 60) vfxSequences.splice(i, 1);
+          }
+
+        } else if (v.type === 'wind') {
+          if (v.state === 0) { // Gathering
+            const px = player.x + player.w / 2 + player.facing * 10, py = player.y + 8;
+            if (v.age % 2 === 0) spawnP(px + (Math.random() - .5) * 15, py + (Math.random() - .5) * 15, '#fff', 1, 'void');
+            if (v.age > 12) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // Blast
+            const ox = player.x + player.w / 2 + player.facing * 10, oy = player.y + 8;
+            const angle = Math.atan2(v.ty - oy, v.tx - ox), cx = player.x + player.w / 2, cy = player.y + player.h / 2;
+            for (const e of entities) {
+              if (!e.active) continue; const dx = e.x + e.w / 2 - cx, dy = e.y + e.h / 2 - cy, dist = Math.hypot(dx, dy);
+              if (dist < s.windR) { const da = Math.atan2(dy, dx), ad = Math.abs(normA(da - angle)); if (ad < Math.PI * .6) { const f = s.windF * (1 - dist / s.windR) / (e.mass || 1); e.vx += Math.cos(angle) * f; e.vy += Math.sin(angle) * f - 1; if (e.rotV !== undefined) e.rotV += f * .2; hurtEntity(e, s.dmg, cx, cy); } }
+            }
+            for (let i = 0; i < 30; i++) {
+              const sp = (Math.random() - .5) * 1.2, a = angle + sp, d = Math.random() * s.windR;
+              particles.push({ x: cx + Math.cos(a) * d, y: cy + Math.sin(a) * d, vx: Math.cos(angle) * 9 + (Math.random() - .5) * 2, vy: Math.sin(angle) * 9 + (Math.random() - .5) * 2, life: 22 + Math.random() * 15, ml: 37, color: i % 3 === 0 ? '#fff' : s.color, size: 2 + Math.random() * 3, grav: 0, type: 'wind' });
+            }
+            shockwaves.push({ x: cx + Math.cos(angle) * 30, y: cy + Math.sin(angle) * 30, r: 0, maxR: s.windR, life: 14, maxLife: 14, color: s.color }); screenShake = 6;
+            vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'spike') {
+          if (v.state === 0) { // Find ground
+            let gy = H - 24; for (const p of platforms) { if (v.tx > p.x && v.tx < p.x + p.w && v.ty <= p.y) gy = Math.min(gy, p.y); }
+            v.gy = gy; v.state = 1; v.age = 0;
+          } else if (v.state === 1) { // Ground cracks propagate
+            if (v.age % 2 === 0) {
+              // Spreading crack particles outward from center
+              const spread = v.age * 2;
+              for (let k = 0; k < 2; k++) particles.push({ x: v.tx + (Math.random() - .5) * spread, y: v.gy - 2, vx: (Math.random() - .5) * 1, vy: -Math.random() * 1, life: 20, ml: 20, color: '#664422', size: 1 + Math.random() * 2, grav: .05, type: 'dust' });
+            }
+            screenShake = Math.min(v.age / 3, 4);
+            if (v.age > 20) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) { // Eruption
+            if (v.age === 1) {
+              screenShake = 12;
+              // Main spike
+              spikes.push({ x: v.tx - s.spikeW / 2, y: v.gy, w: s.spikeW, h: 0, maxH: s.spikeH, life: 80, maxLife: 80, dmg: s.dmg, color: s.color, c2: s.c2, phase: 'rise' });
+              // Crystal burst particles
+              for (let k = 0; k < 25; k++) particles.push({ x: v.tx + (Math.random() - .5) * s.spikeW, y: v.gy, vx: (Math.random() - .5) * 6, vy: -Math.random() * 10 - 3, life: 40, ml: 40, color: k % 3 === 0 ? s.core : k % 3 === 1 ? s.color : '#886644', size: 2 + Math.random() * 3, grav: .15, type: 'debris', rot: Math.random() * 6, rotV: (Math.random() - .5) * .4 });
+              spawnP(v.tx, v.gy, s.color, 20, 'burst');
+              dynamicLights.push({ x: v.tx, y: v.gy, r: 80, color: s.color, int: 2, life: 20, ml: 20 });
+              shockwaves.push({ x: v.tx, y: v.gy, r: 0, maxR: 50, life: 10, maxLife: 10, color: s.color });
+            }
+            if (v.age > 10) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'firewall') {
+          if (v.state === 0) {
+            let gy = H - 24; for (const p of platforms) { if (v.tx > p.x - s.wallW / 2 && v.tx < p.x + p.w + s.wallW / 2 && v.ty <= p.y) gy = Math.min(gy, p.y); }
+            v.gy = gy; v.state = 1; v.age = 0;
+          } else if (v.state === 1) { // Sizzle
+            if (v.age % 2 === 0) spawnP(v.tx + (Math.random() - .5) * s.wallW, v.gy, '#ff8800', 1, 'smoke');
+            if (v.age > 10) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) { // Ignite
+            fireWalls.push({ x: v.tx - s.wallW / 2, y: v.gy - s.wallH, w: s.wallW, h: s.wallH, dur: s.wallDur, maxDur: s.wallDur, dmg: 8, color: s.color, c2: s.c2 });
+            spawnP(v.tx, v.gy, s.color, 20, 'burst'); screenShake = 6; dynamicLights.push({ x: v.tx, y: v.gy, r: 80, color: s.color, int: 2, life: 10, ml: 10 });
+            vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'cluster') {
+          if (v.state === 0) { // Flash
+            spawnP(v.cx, v.cy, '#fff', 3, 'burst');
+            if (v.age > 4) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // BOOM
+            explode(v.cx, v.cy, s.exR, s.exF, s.dmg, s.color, s.c2);
+            for (let k = 0; k < s.subCount; k++) {
+              const a = Math.random() * Math.PI * 2;
+              projectiles.push({ x: v.cx, y: v.cy, vx: Math.cos(a) * s.subSpd, vy: Math.sin(a) * s.subSpd - 2, spell: s, life: 100, age: 0, trail: [], hitList: [], bounces: 2, subProj: true, growR: s.subR, growDmg: s.subDmg });
+            }
+            vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'tornado') {
+          if (v.state === 0) {
+            if (v.age % 2 === 0) spawnP(v.cx + (Math.random() - .5) * s.torR, v.cy + (Math.random() - .5) * s.torR, '#fff', 1, 'wind');
+            if (v.age > 15) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) {
+            gravityWells.push({ x: v.cx, y: v.cy, r: s.torR, str: s.torF, life: s.torDur, maxLife: s.torDur, isTornado: true, color: s.color });
+            spawnP(v.cx, v.cy, s.color, 15, 'burst');
+            vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'blackhole') {
+          if (v.state === 0) {
+            if (v.age % 2 === 0) spawnP(v.cx + (Math.random() - .5) * s.wellR, v.cy + (Math.random() - .5) * s.wellR, '#220044', 1, 'void');
+            if (v.age > 20) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) {
+            if (v.age === 1) { spawnP(v.cx, v.cy, s.color, 15, 'explode'); screenShake = 4; }
+            if (v.age > 5) {
+              gravityWells.push({ x: v.cx, y: v.cy, r: s.wellR, str: s.wellStr, life: s.wellDur, maxLife: s.wellDur, color: s.color });
+              vfxSequences.splice(i, 1);
+            }
+          }
+
+
+        } else if (v.type === 'cataclysm') {
+          // ═══ CATACLYSM — Cinematic Eruption ═══
+          // State 0: Dramatic levitation + energy spiral gathering
+          // State 1: Giant meteor coalesces above
+          // State 2: Mage slams down, meteor follows
+          // State 3: Catastrophic impact — multiple eruption waves
+          // State 4: Lingering aftermath embers
+          if (v.state === 0) {
+            if (v.age === 1) SoundFX.playSweep(100, 300, 'sawtooth', 3, 0.4);
+            player.x = v.cx - player.w / 2; player.vx = 0; player.vy = 0;
+            player.y -= 0.8; if (player.y < v.cy - 80) player.y = v.cy - 80;
+            player.castAnim = 280; player.castType = 'up'; player.sq = 1.15; player.st = 0.85;
+            // Spiral particles inward
+            if (v.age % 2 === 0) {
+              for (let k = 0; k < 3; k++) {
+                const a = v.age * 0.15 + k * Math.PI * 2 / 3, d = 200 - v.age * 1.5;
+                if (d > 10) particles.push({ x: v.cx + Math.cos(a) * d, y: v.cy - 60 + Math.sin(a) * d * 0.5, vx: -Math.cos(a) * 3, vy: -Math.sin(a) * 1.5 - 1, life: 20, ml: 20, color: v.age % 6 < 3 ? s.color : s.c2, size: 2 + Math.random() * 3, grav: 0, type: 'trail' });
+              }
+            }
+            // Rising debris from ground
+            if (v.age % 4 === 0) particles.push({ x: v.cx + (Math.random() - .5) * 250, y: H - 24, vx: (Math.random() - .5) * 1, vy: -Math.random() * 3 - 1, life: 50, ml: 50, color: '#554433', size: 3 + Math.random() * 4, grav: -0.02, type: 'debris', rot: Math.random() * 6, rotV: (Math.random() - .5) * .3 });
+            dynamicLights.push({ x: v.cx, y: v.cy - 60, r: v.age * 2.5, color: s.c2, int: 0.8 + v.age / 120, life: 2, ml: 2 });
+            screenShake = Math.min(v.age / 15, 8);
+            if (v.age > 100) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) {
+            if (v.age === 1) SoundFX.playSweep(200, 100, 'sawtooth', 1.5, 0.5);
+            player.vx = 0; player.vy = 0; player.castAnim = 280; player.castType = 'channel';
+            // Meteor coalescing — intense particle burst
+            if (v.age % 2 === 0) { for (let k = 0; k < 5; k++) spawnP(v.cx + (Math.random() - .5) * 60, v.cy - 120 + (Math.random() - .5) * 60, k % 2 ? s.color : '#ffcc00', 2, 'burst'); }
+            dynamicLights.push({ x: v.cx, y: v.cy - 120, r: 120, color: '#ffaa00', int: 2, life: 2, ml: 2 });
+            screenShake = 8;
+            if (v.age > 50) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) {
+            player.castAnim = 280; player.castType = 'slam';
+            player.y += 20; player.vx = 0; player.vy = 0;
+            if (player.y > H - 24 - player.h) {
+              player.y = H - 24 - player.h; v.state = 3; v.age = 0;
+              SoundFX.playNoise(0.5, 0.6, 100);
+              screenShake = 15; spawnP(player.x + player.w / 2, H - 24, '#886633', 20, 'burst');
+            }
+          } else if (v.state === 3) {
+            if (v.age === 1) {
+              // Wave 1: Central explosion
+              explode(v.tx, H - 24, s.exR, s.exF, Math.floor(s.dmg * 0.6), s.color, s.c2);
+              shockwaves.push({ x: v.tx, y: H - 24, r: 0, maxR: s.exR * 2, life: 40, maxLife: 40, color: s.color });
+              screenShake = 50;
+            }
+            if (v.age === 15) {
+              // Wave 2: Secondary eruption ring
+              explode(v.tx, H - 24, s.exR * 1.5, s.exF * 0.8, Math.floor(s.dmg * 0.3), '#ffaa00', '#fff');
+              for (let k = 0; k < 3; k++) shockwaves.push({ x: v.tx, y: H - 24, r: 0, maxR: s.exR * (2 + k * 0.5), life: 30 + k * 8, maxLife: 30 + k * 8, color: k % 2 ? '#fff' : s.c2 });
+            }
+            if (v.age === 30) {
+              // Wave 3: Final devastation
+              explode(v.tx, H - 24, s.exR * 2, s.exF * 0.5, Math.floor(s.dmg * 0.1), '#fff', s.color);
+              for (let k = 0; k < 80; k++) particles.push({ x: v.tx + (Math.random() - .5) * 300, y: H - 24, vx: (Math.random() - .5) * 15, vy: -Math.random() * 25 - 3, life: 180, ml: 180, color: k % 3 === 0 ? '#ffcc00' : k % 3 === 1 ? '#ff4400' : '#aa2200', size: 4 + Math.random() * 8, grav: .15, type: 'debris', rot: Math.random() * 6, rotV: (Math.random() - .5) * .5 });
+              player.inv = false;
+            }
+            if (v.age > 100) { v.state = 4; v.age = 0; }
+          } else if (v.state === 4) {
+            if (v.age % 8 === 0) spawnP(v.tx + (Math.random() - .5) * 200, H - 30, '#ff4400', 1, 'smoke');
+            if (v.age > 60) vfxSequences.splice(i, 1);
+          }
+
+        } else if (v.type === 'absolute_zero') {
+          // ═══ ABSOLUTE ZERO — Cinematic Flash Freeze ═══
+          // State 0: Meditation stance, temperature drops, frost spreads
+          // State 1: Dramatic pause — breath visible, time slows
+          // State 2: Crystallization wave outward
+          // State 3: Shattering — ice crystals explode off enemies
+          if (v.state === 0) {
+            if (v.age === 1) SoundFX.playSweep(1200, 200, 'sine', 2.5, 0.3);
+            player.x = v.cx - player.w / 2; player.y = v.cy - player.h / 2; player.vx = 0; player.vy = 0;
+            player.castAnim = 280; player.castType = 'burst';
+            // Snowflake particles drift inward
+            if (v.age % 3 === 0) {
+              for (let k = 0; k < 4; k++) {
+                const a = Math.random() * Math.PI * 2, d = 300 + Math.random() * 100;
+                particles.push({ x: v.cx + Math.cos(a) * d, y: v.cy + Math.sin(a) * d, vx: -Math.cos(a) * 2, vy: -Math.sin(a) * 2, life: 30, ml: 30, color: k % 2 ? '#aaeeff' : '#fff', size: 1 + Math.random() * 2, grav: 0, type: 'sparkle' });
+              }
+            }
+            // Frost mandala expanding on ground
+            dynamicLights.push({ x: v.cx, y: v.cy, r: v.age * 4, color: '#88eeff', int: 0.5, life: 2, ml: 2 });
+            if (v.age > 80) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) {
+            // Dramatic pause — everything slows
+            player.castAnim = 280; player.castType = 'burst'; player.vx = 0; player.vy = 0;
+            screenShake = 0;
+            // Breath particle
+            if (v.age % 5 === 0) particles.push({ x: v.cx + player.facing * 6, y: v.cy - player.h / 2 - 5, vx: player.facing * 0.5, vy: -0.3, life: 20, ml: 20, color: '#ccddff', size: 2, grav: -0.01, type: 'smoke' });
+            if (v.age > 30) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) {
+            // Crystallization wave
+            player.castAnim = 280; player.castType = 'burst';
+            if (v.age === 1) {
+              SoundFX.playTone(800, 'triangle', 0.8, 0.4); SoundFX.playSweep(400, 2000, 'sine', 0.6, 0.3);
+              screenShake = 30;
+              shockwaves.push({ x: v.cx, y: v.cy, r: 0, maxR: 500, life: 30, maxLife: 30, color: '#88eeff' });
+              shockwaves.push({ x: v.cx, y: v.cy, r: 0, maxR: 500, life: 40, maxLife: 40, color: '#fff' });
+              dynamicLights.push({ x: v.cx, y: v.cy, r: 500, color: '#ffffff', int: 3, life: 8, ml: 8 });
+              // Freeze + damage all entities
+              for (const e of entities) {
+                if (!e.active) continue;
+                hurtEntity(e, s.dmg, v.cx, v.cy);
+                frozenEntities.set(e, 360);
+              }
+            }
+            if (v.age > 20) { v.state = 3; v.age = 0; }
+          } else if (v.state === 3) {
+            // Shattering ice crystals off frozen enemies
+            if (v.age === 1) {
+              SoundFX.playSweep(2000, 4000, 'square', 0.3, 0.2);
+              player.inv = false;
+              for (const e of entities) {
+                if (!e.active) continue;
+                for (let k = 0; k < 15; k++) particles.push({ x: e.x + Math.random() * e.w, y: e.y + Math.random() * e.h, vx: (Math.random() - .5) * 6, vy: (Math.random() - .5) * 6 - 2, life: 50, ml: 50, color: k % 3 === 0 ? '#ffffff' : k % 3 === 1 ? '#aaeeff' : '#66ccff', size: 2 + Math.random() * 3, grav: .1, type: 'debris', rot: Math.random() * 6, rotV: (Math.random() - .5) * .3 });
+              }
+            }
+            if (v.age > 40) vfxSequences.splice(i, 1);
+          }
+
+        } else if (v.type === 'worldtree') {
+          // ═══ WORLD TREE (ULTIMATE) — Cinematic 5-second composition ═══
+          // State 0 (50f): Player kneels, runes glow, ground cracks green
+          // State 1 (60f): 5 giant roots burst from ground spiraling upward
+          // State 2 (55f): Trunk erupts in helix particle spiral
+          // State 3 (55f): Branches extend left/right, canopy explosion
+          // State 4 (60f): Fruits & flowers bloom, healing light floods area
+          // State 5 (treeDur): Mature tree — healing zone, falling leaves, root strikes
+          // State 6 (60f): Tree dissolves into golden motes
+          if (v.state === 0) {
+            if (v.age === 1) {
+              SoundFX.playSweep(60, 180, 'sine', 1.5, 0.6);
+              player.castAnim = 400; player.castType = 'slam'; player.inv = true;
+              // Find ground beneath player
+              v.gy = H - 24;
+              for (const p of platforms) { if (v.cx > p.x && v.cx < p.x + p.w && p.y >= v.cy) v.gy = Math.min(v.gy, p.y); }
+              v.roots = []; // root positions for state 1
+              v.branchT = 0; // branch growth timer
+            }
+            // Glowing rune circle on ground
+            if (v.age % 2 === 0) {
+              const ra = Math.random() * Math.PI * 2, rr = Math.random() * 60;
+              spawnP(v.cx + Math.cos(ra) * rr, v.gy - 2, Math.random() > .5 ? s.core : s.c2, 2, 'sparkle');
+            }
+            // Ground cracks
+            if (v.age % 4 === 0) spawnP(v.cx + (Math.random() - .5) * 80, v.gy, '#33aa44', 2, 'dust');
+            dynamicLights.push({ x: v.cx, y: v.gy, r: v.age * 3, color: s.core, int: 1.2, life: 2, ml: 2 });
+            screenShake = Math.min(v.age / 15, 3);
+            if (v.age > 50) { v.state = 1; v.age = 0; }
+
+          } else if (v.state === 1) {
+            // Roots burst from ground in 5 spots
+            if (v.age === 1) {
+              SoundFX.playNoise(2.0, 0.8, 120, 'lowpass');
+              screenShake = 20;
+              shockwaves.push({ x: v.cx, y: v.gy, r: 0, maxR: 180, life: 35, maxLife: 35, color: '#33aa44' });
+              spawnP(v.cx, v.gy, '#553311', 50, 'explode');
+              dynamicLights.push({ x: v.cx, y: v.gy, r: 300, color: s.color, int: 3, life: 8, ml: 8 });
+              // Pre-calculate root angles
+              v.roots = [0, 0.4, -0.4, 0.75, -0.75].map((off, ri) => ({
+                ox: v.cx + Math.cos(Math.PI * 0.5 + off) * 30 * (ri === 0 ? 0 : 1),
+                gy: v.gy, h: 0, maxH: 90 + Math.random() * 40, angle: off
+              }));
+            }
+            // Roots grow upward
+            for (const root of v.roots) {
+              root.h = Math.min(root.maxH, root.h + 4.5);
+              if (v.age % 3 === 0) {
+                particles.push({ x: root.ox + (Math.random() - .5) * 25 + Math.sin(v.age * 0.3 + root.angle) * 12, y: root.gy - root.h, vx: (Math.random() - .5) * 2, vy: -Math.random() * 2, life: 30, ml: 30, color: Math.random() > .5 ? '#442211' : '#664422', size: 4 + Math.random() * 4, grav: 0.05, type: 'dust' });
+              }
+            }
+            // Hurt nearby enemies during root burst
+            if (v.age === 8) { for (const e of entities) { if (!e.active) continue; if (Math.hypot(e.x + e.w / 2 - v.cx, e.y + e.h / 2 - v.gy) < 100) { hurtEntity(e, s.dmg * 0.5, v.cx, v.gy); e.vy -= 8 / (e.mass || 1); } } }
+            dynamicLights.push({ x: v.cx, y: v.gy - 80, r: 160, color: '#225533', int: 1.5, life: 2, ml: 2 });
+            if (v.age > 60) { v.state = 2; v.age = 0; }
+
+          } else if (v.state === 2) {
+            // Trunk erupts as helix spiral of bark particles
+            if (v.age === 1) {
+              SoundFX.playSweep(120, 400, 'sawtooth', 1.2, 0.5);
+              screenShake = 12;
+              v.trunkH = 0;
+            }
+            v.trunkH = Math.min(200, (v.trunkH || 0) + 5);
+            for (let k = 0; k < 6; k++) {
+              const ha = (v.age * 0.25 + k * Math.PI / 3);
+              const hy2 = v.gy - v.trunkH * (k / 5);
+              particles.push({ x: v.cx + Math.cos(ha) * (12 + k * 3), y: hy2, vx: Math.cos(ha) * 1.5, vy: -1.5, life: 35, ml: 35, color: k % 2 ? '#442211' : '#553311', size: 5 + Math.random() * 3, grav: 0.02, type: 'dust' });
+            }
+            if (v.age % 4 === 0) spawnP(v.cx + (Math.random() - .5) * 30, v.gy - v.trunkH, s.color, 2, 'trail');
+            dynamicLights.push({ x: v.cx, y: v.gy - v.trunkH / 2, r: 120, color: '#225533', int: 1.8, life: 2, ml: 2 });
+            if (v.age > 55) { v.state = 3; v.age = 0; }
+
+          } else if (v.state === 3) {
+            // Branches extend dramatically left and right
+            if (v.age === 1) {
+              SoundFX.playSweep(250, 700, 'sine', 1.0, 0.4);
+              screenShake = 8;
+              v.branchL = 0; v.branchR = 0;
+            }
+            v.branchL = Math.min(130, (v.branchL || 0) + 3.5);
+            v.branchR = Math.min(130, (v.branchR || 0) + 3.5);
+            // Particles along branches
+            if (v.age % 2 === 0) {
+              for (let bi = 0; bi < 3; bi++) {
+                const bf = (bi + 1) / 3;
+                particles.push({ x: v.cx - v.branchL * bf + (Math.random() - .5) * 10, y: v.gy - 180 - bi * 20 + (Math.random() - .5) * 10, vx: -1 - Math.random(), vy: -Math.random() * 2, life: 25, ml: 25, color: Math.random() > .5 ? '#442211' : '#553311', size: 4 + Math.random() * 3, grav: 0.04, type: 'dust' });
+                particles.push({ x: v.cx + v.branchR * bf + (Math.random() - .5) * 10, y: v.gy - 180 - bi * 20 + (Math.random() - .5) * 10, vx: 1 + Math.random(), vy: -Math.random() * 2, life: 25, ml: 25, color: Math.random() > .5 ? '#442211' : '#553311', size: 4 + Math.random() * 3, grav: 0.04, type: 'dust' });
+              }
+              // Leaf buds on branch tips
+              spawnP(v.cx - v.branchL + (Math.random() - .5) * 20, v.gy - 185 + Math.random() * 15, s.color, 2, 'sparkle');
+              spawnP(v.cx + v.branchR + (Math.random() - .5) * 20, v.gy - 185 + Math.random() * 15, s.c2, 2, 'sparkle');
+            }
+            dynamicLights.push({ x: v.cx, y: v.gy - 180, r: 200 + v.branchL, color: s.color, int: 1.5, life: 2, ml: 2 });
+            if (v.age > 55) { v.state = 4; v.age = 0; }
+
+          } else if (v.state === 4) {
+            // Canopy explosion + bloom + healing light floods
+            if (v.age === 1) {
+              SoundFX.playSweep(500, 1200, 'sine', 1.5, 0.4);
+              screenShake = 15;
+              spawnP(v.cx, v.gy - 200, s.core, 120, 'explode');
+              spawnP(v.cx, v.gy - 200, s.c2, 80, 'burst');
+              spawnP(v.cx, v.gy - 200, s.color, 60, 'sparkle');
+              shockwaves.push({ x: v.cx, y: v.gy - 200, r: 0, maxR: 280, life: 35, maxLife: 35, color: s.core });
+              dynamicLights.push({ x: v.cx, y: v.gy - 120, r: 500, color: s.core, int: 4, life: 18, ml: 18 });
+              // Fruit/flower particles
+              for (let k = 0; k < 30; k++) {
+                const a = Math.random() * Math.PI * 2, spd = 3 + Math.random() * 5;
+                particles.push({ x: v.cx, y: v.gy - 200, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd - 3, life: 120, ml: 120, color: k % 3 === 0 ? '#ffaa44' : k % 3 === 1 ? '#ff6688' : s.core, size: 3 + Math.random() * 4, grav: .06, rot: Math.random() * 6, rotV: (Math.random() - .5) * .2, type: 'debris' });
+              }
+              player.inv = false;
+            }
+            // Healing pulse outward
+            if (v.age % 15 === 0) {
+              shockwaves.push({ x: v.cx, y: v.gy - 100, r: 0, maxR: s.treeR + 30, life: 20, maxLife: 20, color: s.core });
+              if (Math.hypot(player.x + player.w / 2 - v.cx, player.y + player.h / 2 - v.gy) < s.treeR) {
+                player.hp = Math.min(100, player.hp + s.healAmt * 3);
+                spawnP(player.x + player.w / 2, player.y + player.h / 2, s.core, 5, 'sparkle');
+              }
+            }
+            dynamicLights.push({ x: v.cx, y: v.gy - 100, r: s.treeR * 1.5, color: s.core, int: 2, life: 2, ml: 2 });
+            if (v.age > 60) { v.state = 5; v.age = 0; }
+
+          } else if (v.state === 5) {
+            // ─ Mature tree: healing zone, falling leaves, periodic root strikes ─
+            if (v.age % 4 === 0) {
+              // Falling leaves from canopy
+              const lx = v.cx + (Math.random() - .5) * 320, lc = Math.random() > .5 ? s.color : s.c2;
+              particles.push({ x: lx, y: v.gy - 210 + (Math.random() - .5) * 40, vx: (Math.random() - .5) * 2 + 0.5, vy: 0.8 + Math.random(), life: 180, ml: 180, color: lc, size: 2 + Math.random() * 3, grav: .01, rot: Math.random() * 6, rotV: (Math.random() - .5) * .12, type: 'dust' });
+            }
+            if (v.age % 25 === 0) {
+              // Heal player in zone
+              if (Math.hypot(player.x + player.w / 2 - v.cx, player.y + player.h / 2 - v.gy) < s.treeR) {
+                player.hp = Math.min(100, player.hp + s.healAmt);
+                spawnP(player.x + player.w / 2, player.y + player.h / 2, '#88ffaa', 3, 'sparkle');
+                SoundFX.playTone(900, 'sine', 0.08, 0.12);
+              }
+            }
+            if (v.age % 50 === 0 && v.age < s.treeDur - 50) {
+              // Slam roots outward — 2 at a time
+              for (let ri = 0; ri < 2; ri++) {
+                screenShake = 6; SoundFX.playNoise(0.25, 0.35, 200, 'lowpass');
+                const rx = v.cx + (Math.random() - .5) * s.treeR * 2.2;
+                spikes.push({ x: rx - 18, y: v.gy, w: 36, h: 0, maxH: 70, life: 100, maxLife: 100, dmg: s.dmg, color: '#442211', c2: '#664422', phase: 'rise' });
+                spawnP(rx, v.gy, '#664422', 18, 'burst');
+                // Vine whip from root impact
+                for (const e of entities) { if (!e.active) continue; if (Math.hypot(e.x + e.w / 2 - rx, e.y + e.h / 2 - v.gy) < 55) { hurtEntity(e, s.dmg, rx, v.gy); e.vy -= 6 / (e.mass || 1); } }
+              }
+            }
+            dynamicLights.push({ x: v.cx, y: v.gy - 100, r: s.treeR + 20, color: s.color, int: 1.2, life: 2, ml: 2 });
+            if (v.age > s.treeDur) { v.state = 6; v.age = 0; }
+
+          } else if (v.state === 6) {
+            // Tree dissolves into golden motes
+            if (v.age === 1) SoundFX.playSweep(600, 200, 'sine', 0.6, 0.5);
+            if (v.age % 2 === 0) {
+              for (let k = 0; k < 4; k++) {
+                const a = Math.random() * Math.PI * 2, rr = Math.random() * 180;
+                particles.push({ x: v.cx + Math.cos(a) * rr, y: v.gy - 80 - Math.random() * 180, vx: Math.cos(a) * 0.5, vy: -0.5 - Math.random(), life: 80, ml: 80, color: k % 2 ? s.core : s.c2, size: 2 + Math.random() * 2, grav: -0.01, type: 'sparkle' });
+              }
+            }
+            dynamicLights.push({ x: v.cx, y: v.gy - 100, r: Math.max(20, s.treeR * (1 - v.age / 60)), color: s.color, int: 1, life: 2, ml: 2 });
+            if (v.age > 60) vfxSequences.splice(i, 1);
+          }
+
+        } else if (v.type === 'singularity') {
+          // ═══ SINGULARITY — Cinematic Space Tear ═══
+          // State 0: Mage slashes reality open — visual crack
+          // State 1: Black hole expands, pulls everything
+          // State 2: Dramatic pause at max pull
+          // State 3: Violent collapse to point
+          // State 4: Supernova detonation
+          if (v.state === 0) {
+            player.castAnim = 280; player.castType = 'slash'; player.vx = 0; player.vy = 0;
+            if (v.age === 1) {
+              SoundFX.playSweep(800, 100, 'square', 0.6, 0.4);
+              dynamicLights.push({ x: v.tx, y: v.ty, r: 200, color: s.core, int: 3, life: 6, ml: 6 });
+              screenShake = 8;
+              // Slash particles
+              for (let k = 0; k < 20; k++) {
+                const a = Math.random() * Math.PI * 2;
+                particles.push({ x: v.tx + Math.cos(a) * 5, y: v.ty + Math.sin(a) * 5, vx: Math.cos(a) * 8, vy: Math.sin(a) * 8, life: 15, ml: 15, color: s.core, size: 2, grav: 0, type: 'burst' });
+              }
+            }
+            if (v.age > 20) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) {
+            if (v.age === 1) { SoundFX.playTone(50, 'sine', 3.0, 0.5); SoundFX.playNoise(3.0, 0.2, 50); }
+            player.castAnim = 280; player.castType = 'struggle'; player.vx = 0; player.vy = 0;
+            const pullR = Math.min(v.age * 4, 400);
+            const pullStr = Math.min(v.age * 0.03, 3);
+            for (const e of entities) {
+              if (!e.active) continue;
+              const dx = v.tx - (e.x + e.w / 2), dy = v.ty - (e.y + e.h / 2), d = Math.hypot(dx, dy);
+              if (d < pullR && d > 10) { e.vx += (dx / d) * pullStr; e.vy += (dy / d) * pullStr; }
+            }
+            for (const p2 of particles) {
+              const dx = v.tx - p2.x, dy = v.ty - p2.y, d = Math.hypot(dx, dy);
+              if (d < pullR && d > 5) { p2.vx += (dx / d) * 1.5; p2.vy += (dy / d) * 1.5; }
+            }
+            // Swirling void particles
+            if (v.age % 2 === 0) {
+              for (let k = 0; k < 3; k++) {
+                const a = v.age * 0.2 + k * Math.PI * 2 / 3, d = pullR * 0.8;
+                spawnP(v.tx + Math.cos(a) * d, v.ty + Math.sin(a) * d * 0.6, s.c2, 1, 'void');
+              }
+            }
+            screenShake = Math.min(v.age / 10, 12);
+            if (v.age > 120) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) {
+            // Dramatic pause — everything frozen in pull
+            player.castAnim = 280; player.castType = 'struggle';
+            screenShake = 15;
+            if (v.age > 30) { v.state = 3; v.age = 0; }
+          } else if (v.state === 3) {
+            // Collapse to point
+            if (v.age === 1) SoundFX.playSweep(50, 800, 'sine', 0.5, 0.5);
+            if (v.age > 15) { v.state = 4; v.age = 0; }
+          } else if (v.state === 4) {
+            if (v.age === 1) {
+              player.inv = false;
+              explode(v.tx, v.ty, 300, 50, s.dmg, s.core, '#fff');
+              dynamicLights.push({ x: v.tx, y: v.ty, r: 500, color: '#ffffff', int: 4, life: 15, ml: 15 });
+              screenShake = 60;
+              for (let k = 0; k < 6; k++) shockwaves.push({ x: v.tx, y: v.ty, r: 0, maxR: 400, life: 20 + k * 6, maxLife: 25 + k * 6, color: k % 2 ? '#fff' : s.core });
+              spawnP(v.tx, v.ty, '#fff', 60, 'explode');
+              // Fling everything outward
+              for (const e of entities) {
+                if (!e.active) continue;
+                const dx = (e.x + e.w / 2) - v.tx, dy = (e.y + e.h / 2) - v.ty, d = Math.max(Math.hypot(dx, dy), 10);
+                e.vx += (dx / d) * 30; e.vy += (dy / d) * 30 - 5;
+              }
+            }
+            if (v.age > 60) vfxSequences.splice(i, 1);
+          }
+
+        } else if (v.type === 'judgment') {
+          // ═══ JUDGMENT — Cinematic Divine Strike ═══
+          // State 0: Mark all targets
+          // State 1: Teleport-slash through each enemy (anime speed lines)
+          // State 2: Return to origin, front_pose, wind swirls under feet
+          // State 3: Staff slam — light descends from heaven
+          // State 4: Simultaneous divine pillars obliterate all marked targets
+          if (v.state === 0) {
+            v.targets = []; for (const e of entities) { if (e.active && e.hp > 0) v.targets.push(e); }
+            v.targetIdx = 0; v.origX = player.x; v.origY = player.y;
+            if (v.targets.length === 0) { player.inv = false; vfxSequences.splice(i, 1); }
+            else { v.state = 1; v.age = 0; SoundFX.playTone(1200, 'sine', 0.2, 0.4); }
+          } else if (v.state === 1) {
+            // Teleport strikes — every 6 frames dash to next target
+            if (v.age % 6 === 0 && v.targetIdx < v.targets.length) {
+              const t = v.targets[v.targetIdx];
+              if (t.active) {
+                // Afterimage at old position
+                for (let k = 0; k < 3; k++) particles.push({ x: player.x + player.w / 2 + (Math.random() - .5) * 10, y: player.y + player.h / 2 + (Math.random() - .5) * 10, vx: 0, vy: 0, life: 12, ml: 12, color: s.color, size: 3, grav: 0, type: 'sparkle' });
+                // Teleport to target
+                const side = (Math.random() > .5 ? 1 : -1);
+                player.x = t.x + t.w / 2 - player.w / 2 + side * 25; player.y = t.y - 5;
+                player.castAnim = 280; player.castType = 'slash'; player.facing = -side;
+                // Slash VFX
+                SoundFX.playSweep(1200, 2000, 'sawtooth', 0.1, 0.3);
+                dynamicLights.push({ x: t.x + t.w / 2, y: t.y + t.h / 2, r: 60, color: '#ffee66', int: 2, life: 5, ml: 5 });
+                hurtEntity(t, Math.floor(s.dmg * 0.15), player.x, player.y);
+                screenShake = 4;
+                // Speed lines
+                for (let k = 0; k < 8; k++) particles.push({ x: t.x + t.w / 2 + (Math.random() - .5) * 30, y: t.y + t.h / 2 + (Math.random() - .5) * 20, vx: (Math.random() - .5) * 12, vy: (Math.random() - .5) * 3, life: 8, ml: 8, color: '#fff', size: 1, grav: 0, type: 'trail' });
+                spawnP(t.x + t.w / 2, t.y + t.h / 2, '#ffee66', 8, 'burst');
+              }
+              v.targetIdx++;
+            }
+            if (v.targetIdx >= v.targets.length && v.age > v.targets.length * 6 + 8) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) {
+            // Return to origin + front_pose
+            if (v.age === 1) {
+              SoundFX.playTone(800, 'sine', 0.5, 0.4);
+              for (let k = 0; k < 5; k++) particles.push({ x: player.x + player.w / 2, y: player.y + player.h / 2, vx: 0, vy: 0, life: 10, ml: 10, color: s.color, size: 3, grav: 0, type: 'sparkle' });
+              player.x = v.origX; player.y = v.origY;
+            }
+            player.castAnim = 280; player.castType = 'front_pose'; player.staffGlow = 280; player.vx = 0; player.vy = 0;
+            // Swirling wind under feet
+            if (v.age % 2 === 0) {
+              const a = v.age * 0.3; const wr = 25 + Math.sin(v.age * 0.1) * 5;
+              particles.push({ x: player.x + player.w / 2 + Math.cos(a) * wr, y: player.y + player.h + Math.sin(a) * wr * 0.3, vx: Math.cos(a) * 1, vy: -0.5, life: 15, ml: 15, color: '#ddeeff', size: 2, grav: 0, type: 'wind' });
+              particles.push({ x: player.x + player.w / 2 + Math.cos(a + Math.PI) * wr, y: player.y + player.h + Math.sin(a + Math.PI) * wr * 0.3, vx: Math.cos(a + Math.PI) * 1, vy: -0.5, life: 15, ml: 15, color: '#fff', size: 2, grav: 0, type: 'wind' });
+            }
+            dynamicLights.push({ x: player.x + player.w / 2, y: player.y, r: 80 + v.age * 2, color: s.color, int: 1 + v.age / 30, life: 2, ml: 2 });
+            if (v.age > 50) { v.state = 3; v.age = 0; }
+          } else if (v.state === 3) {
+            // Staff slam + light descends
+            player.castAnim = 280; player.castType = 'slam'; player.vx = 0; player.vy = 0;
+            if (v.age === 5) {
+              SoundFX.playTone(1600, 'sine', 0.8, 0.6);
+              screenShake = 8;
+              dynamicLights.push({ x: player.x + player.w / 2, y: 0, r: W, color: '#ffee88', int: 0.5, life: 20, ml: 20 });
+            }
+            // Light rays descending toward each target
+            if (v.age > 5 && v.age < 25) {
+              for (const t of v.targets) {
+                if (!t.active) continue;
+                const tx = t.x + t.w / 2;
+                if (v.age % 3 === 0) particles.push({ x: tx + (Math.random() - .5) * 10, y: -20, vx: 0, vy: 15, life: 30, ml: 30, color: '#ffee88', size: 3, grav: 0, type: 'trail' });
+              }
+            }
+            if (v.age > 30) { v.state = 4; v.age = 0; }
+          } else if (v.state === 4) {
+            // Divine pillars obliterate
+            if (v.age === 1) {
+              SoundFX.playSweep(2000, 400, 'square', 1.0, 0.5); SoundFX.playNoise(1.0, 0.4, 800, 'highpass');
+              player.inv = false; screenShake = 50; player.castAnim = 0;
+              for (const t of v.targets) {
+                if (!t.active) continue;
+                const tx = t.x + t.w / 2, ty = t.y + t.h / 2;
+                dynamicLights.push({ x: tx, y: ty, r: 200, color: s.color, int: 5, life: 20, ml: 20 });
+                explode(tx, ty, 90, 10, Math.floor(s.dmg * 0.85), '#ffee66', '#fff');
+                for (let k = 0; k < 4; k++) shockwaves.push({ x: tx, y: ty, r: 0, maxR: 100, life: 12 + k * 4, maxLife: 12 + k * 4, color: k % 2 ? '#fff' : s.color });
+                spawnP(tx, ty, '#fff', 40, 'explode');
+              }
+            }
+            if (v.age > 50) vfxSequences.splice(i, 1);
+          }
+
+        } else if (v.type === 'laser') {
+          if (v.state === 0) { // Charge up
+            const px = player.x + player.w / 2 + player.facing * 10, py = player.y + 8;
+            if (v.age % 2 === 0) spawnP(px + (Math.random() - .5) * 15, py + (Math.random() - .5) * 15, s.color, 1, 'void');
+            dynamicLights.push({ x: px, y: py, r: 30, color: s.color, int: v.age / 6, life: 2, ml: 2 });
+            player.castAnim = 280; player.sq = 1.2; player.st = 1 / player.sq; player.castType = 'channel';
+            if (v.age > 4) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // Fire
+            if (v.age % 5 === 0) SoundFX.playTone(800 + Math.random() * 200, 'sawtooth', 0.1, 0.1);
+            const ox = player.x + player.w / 2 + player.facing * 10, oy = player.y + 8;
+            const angle = Math.atan2(mouse.y - oy, mouse.x - ox);
+            let hx = ox, hy = oy; const step = 4, maxDist = 400;
+            for (let d = 0; d < maxDist; d += step) {
+              hx = ox + Math.cos(angle) * d; hy = oy + Math.sin(angle) * d;
+              let hitP = false; for (const p of platforms) { if (hx > p.x && hx < p.x + p.w && hy > p.y && hy < p.y + p.h) { hitP = true; break; } }
+              if (hitP || hx < 0 || hx > W || hy < 0 || hy > H) break;
+            }
+            const maxD = Math.hypot(hx - ox, hy - oy);
+            // Hurt entities along beam
+            for (const e of entities) {
+              if (!e.active) continue;
+              const ex = e.x + e.w / 2, ey = e.y + e.h / 2;
+              // Project point on line segment
+              const l1 = (ex - ox) * Math.cos(angle) + (ey - oy) * Math.sin(angle);
+              if (l1 > 0 && l1 < maxD) {
+                const px1 = ox + Math.cos(angle) * l1, py1 = oy + Math.sin(angle) * l1;
+                if (Math.hypot(ex - px1, ey - py1) < 15) {
+                  if (v.age % 5 === 0) hurtEntity(e, s.dmg, hx, hy);
+                  const ka = Math.atan2(e.y + e.h / 2 - hy, e.x + e.w / 2 - hx); e.vx += Math.cos(ka) * .1; e.vy += Math.sin(ka) * .1;
+                  spawnP(ex, ey, s.color, 1, 'burst');
+                }
+              }
+            }
+            v.hx = hx; v.hy = hy; v.ox = ox; v.oy = oy;
+            if (v.age % 2 === 0) spawnP(hx, hy, s.color, 1, 'burst');
+            dynamicLights.push({ x: hx, y: hy, r: 60, color: s.color, int: 2, life: 2, ml: 2 });
+            screenShake = 1;
+            if (!mouse.down || player.mana < 2) vfxSequences.splice(i, 1);
+            else { player.mana -= 0.25; player.castAnim = 280; player.sq = 1.2; player.st = 1 / player.sq; player.castType = 'channel'; }
+          }
+        } else if (v.type === 'soul_drain') {
+          if (v.state === 0) { // Extract souls
+            spawnP(v.cx, v.cy, s.color, 5, 'sparkle');
+            if (v.age > 4) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // Pull to player
+            const px = player.x + player.w / 2, py = player.y + player.h / 2;
+            v.cx += (px - v.cx) * 0.15; v.cy += (py - v.cy) * 0.15;
+            particles.push({ x: v.cx, y: v.cy, vx: 0, vy: 0, life: 10, ml: 10, color: s.c2, size: 4, grav: 0, type: 'sparkle' });
+            dynamicLights.push({ x: v.cx, y: v.cy, r: 30, color: s.c2, int: 1, life: 2, ml: 2 });
+            if (Math.hypot(px - v.cx, py - v.cy) < 15) {
+              player.hp = Math.min(player.maxHp, player.hp + s.healAmt);
+              spawnP(px, py, '#44ff44', 10, 'sparkle'); dynamicLights.push({ x: px, y: py, r: 50, color: '#44ff44', int: 1.5, life: 10, ml: 10 });
+              damageNumbers.push({ x: px, y: py - 15, val: s.healAmt, life: 70, vy: -2, color: '#44ff44', sc: 1.5 });
+              vfxSequences.splice(i, 1);
+            }
+          }
+        } else if (v.type === 'geyser') {
+          if (v.state === 0) { // Warning bubbling
+            if (!v.gy) { v.gy = H - 24; for (const p of platforms) { if (v.tx > p.x && v.tx < p.x + p.w && p.y < v.gy && p.y >= v.ty) v.gy = p.y; } }
+            if (v.age % 3 === 0) spawnP(v.tx + (Math.random() - .5) * s.geyserW, v.gy - 4, '#fff', 1, 'cloud');
+            dynamicLights.push({ x: v.tx, y: v.gy, r: v.age * 1.5, color: s.color, int: v.age / 40, life: 2, ml: 2 });
+            if (v.age > 30) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // Eruption
+            screenShake = 8;
+            dynamicLights.push({ x: v.tx, y: v.gy, r: 120, color: s.color, int: 2, life: 5, ml: 5 });
+            for (let k = 0; k < 4; k++) particles.push({ x: v.tx + (Math.random() - .5) * s.geyserW, y: v.gy, vx: (Math.random() - .5) * 4, vy: -Math.random() * 15 - 8, life: 30, ml: 30, color: Math.random() > .5 ? s.color : '#fff', size: 3 + Math.random() * 4, grav: .4, type: 'debris', rot: Math.random() * 6, rotV: (Math.random() - .5) * .2 });
+            for (const e of entities) { if (!e.active) continue; if (Math.abs(e.x + e.w / 2 - v.tx) < s.geyserW / 2 + e.w / 2) { if (v.age % 5 === 0) hurtEntity(e, 4, v.tx, v.gy); e.vy = -16 / (e.mass || 1); e.y -= 4; } }
+            if (v.age > 40) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'tsunami') {
+          if (v.state === 0) { // Swell
+            if (v.age % 2 === 0) { for (let k = 0; k < 3; k++) spawnP(v.cx + (Math.random() - .5) * 20, H - 40 + Math.random() * 30, s.color, 1, 'cloud'); }
+            if (v.age > 30) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // Wave crash forward
+            v.cx += v.facing * 8;
+            screenShake = 4;
+            dynamicLights.push({ x: v.cx, y: H - 50, r: 150, color: s.c2, int: 1.5, life: 2, ml: 2 });
+            for (let k = 0; k < 5; k++) particles.push({ x: v.cx + (Math.random() - .5) * 30, y: H - Math.random() * 120, vx: v.facing * (Math.random() * 5 + 3), vy: (Math.random() - .5) * 4, life: 25, ml: 25, color: Math.random() > .3 ? s.color : '#fff', size: 3 + Math.random() * 5, grav: .1, type: 'trail' });
+            for (const e of entities) { if (!e.active) continue; if (Math.abs(e.x + e.w / 2 - v.cx) < 30 && e.y > H - 150) { if (v.age % 6 === 0) hurtEntity(e, 5, v.cx, e.y); e.vx += v.facing * 5 / (e.mass || 1); e.vy -= 1; } }
+            if (v.cx < -100 || v.cx > W + 100) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'bubble') {
+          if (v.state === 0) { // Find target & Enclose
+            if (v.age === 1) {
+              let closest = null, minDist = 999;
+              for (const e of entities) { if (!e.active || frozenEntities.has(e)) continue; const d = Math.hypot(e.x + e.w / 2 - v.tx, e.y + e.h / 2 - v.ty); if (d < minDist) { minDist = d; closest = e; } }
+              v.target = closest ? closest : null;
+              if (!v.target) { spawnP(v.tx, v.ty, s.color, 10, 'burst'); vfxSequences.splice(i, 1); return; }
+            }
+            if (v.target && !v.target.active) { vfxSequences.splice(i, 1); return; }
+            const ex = v.target.x + v.target.w / 2, ey = v.target.y + v.target.h / 2;
+            for (let k = 0; k < 3; k++) { const a = Math.random() * Math.PI * 2; spawnP(ex + Math.cos(a) * (30 - v.age * 2), ey + Math.sin(a) * (30 - v.age * 2), s.c2, 1, 'cloud'); }
+            if (v.age > 15) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // Float & Drown
+            if (v.target && !v.target.active) { v.state = 2; v.age = 0; return; }
+            frozenEntities.set(v.target, 5); // Keep frozen
+            v.target.vy = 0; v.target.vx *= 0.8;
+            v.target.y += Math.sin(v.age * 0.1) * 0.5 - 0.2; // Float up slowly with bobbing
+            if (v.age % 30 === 0) hurtEntity(v.target, s.dmg, v.target.x, v.target.y);
+            const ex = v.target.x + v.target.w / 2, ey = v.target.y + v.target.h / 2;
+            dynamicLights.push({ x: ex, y: ey, r: 40, color: s.c2, int: 1, life: 2, ml: 2 });
+            if (v.age > s.bubbleDur) { v.state = 2; v.age = 0; }
+          } else if (v.state === 2) { // Pop
+            const ex = v.target.x + v.target.w / 2, ey = v.target.y + v.target.h / 2;
+            spawnP(ex, ey, '#fff', 20, 'explode');
+            shockwaves.push({ x: ex, y: ey, r: 0, maxR: 40, life: 10, maxLife: 10, color: s.color });
+            vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'rain') {
+          if (v.state === 0) { // Cloud forming
+            // Find highest Y point
+            if (!v.cy) v.cy = 30;
+            if (v.age % 2 === 0) spawnP(v.tx + (Math.random() - .5) * s.rainR * 1.5, v.cy + (Math.random() - .5) * 15, s.c2, 1, 'smoke');
+            if (v.age > 40) { v.state = 1; v.age = 0; }
+          } else if (v.state === 1) { // Pouring rain
+            if (v.age % 2 === 0) {
+              const rx = v.tx + (Math.random() - .5) * s.rainR * 1.5;
+              particles.push({ x: rx, y: v.cy + 10, vx: 0, vy: Math.random() * 4 + 6, life: 100, ml: 100, color: Math.random() > .5 ? '#fff' : s.core, size: 1, grav: 0, type: 'trail' });
+            }
+            // Heal player
+            const pdx = Math.abs((player.x + player.w / 2) - v.tx);
+            if (pdx < s.rainR) {
+              if (v.age % 2 === 0) { player.hp = Math.min(player.maxHp, player.hp + s.healAmt); player.mana = Math.min(player.maxMana, player.mana + s.manaAmt); }
+              if (v.age % 30 === 0) {
+                spawnP(player.x + player.w / 2, player.y + player.h / 2, '#44ff44', 5, 'sparkle');
+                damageNumbers.push({ x: player.x + player.w / 2, y: player.y - 10, val: Math.floor(s.healAmt * 15), life: 40, vy: -1, color: '#44ff44', sc: 1 });
+              }
+            }
+            // Slow enemies
+            for (const e of entities) { if (!e.active) continue; if (Math.abs(e.x + e.w / 2 - v.tx) < s.rainR) { e.vx *= 0.9; } }
+            if (v.age > s.rainDur) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'whirlpool') {
+          if (v.state === 0) { // Find ground & Spawn
+            let gy = H - 24; for (const p of platforms) { if (v.tx > p.x && v.tx < p.x + p.w && v.ty <= p.y) gy = Math.min(gy, p.y); }
+            v.gy = gy; v.state = 1; v.age = 0;
+          } else if (v.state === 1) { // Swirling vortex
+            if (v.age % 2 === 0) {
+              const a = Math.random() * Math.PI * 2, d = Math.random() * s.whorlR;
+              particles.push({ x: v.tx + Math.cos(a) * d, y: v.gy, vx: -Math.cos(a) * 2 - Math.sin(a) * 4, vy: 0, life: 20, ml: 20, color: s.c2, size: 1 + Math.random() * 2, grav: 0, type: 'trail' });
+            }
+            dynamicLights.push({ x: v.tx, y: v.gy, r: s.whorlR * 0.8, color: s.color, int: 0.8, life: 2, ml: 2 });
+            for (const e of entities) {
+              if (!e.active) continue;
+              const ex = e.x + e.w / 2, dx = v.tx - ex, dist = Math.abs(dx);
+              if (dist < s.whorlR && Math.abs(e.y + e.h - v.gy) < 25) {
+                const intens = 1 - (dist / s.whorlR);
+                e.vx += Math.sign(dx) * s.whorlStr * intens / (e.mass || 1);
+                e.vx *= 0.85; // Heavy slow
+                if (v.age % 30 === 0) hurtEntity(e, s.dmg, v.tx, v.gy);
+              }
+            }
+            if (v.age > s.whorlDur) vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'pre_cast') {
+          if (v.age < 10) {
+            const px = player.x + player.w / 2 + player.facing * 10, py = player.y + 8;
+            // Spiral gathering particles
+            for (let k = 0; k < 2; k++) { const a = v.age * 0.6 + k * Math.PI; spawnP(px + Math.cos(a) * (25 - v.age * 2), py + Math.sin(a) * (18 - v.age * 1.5), s.color, 1, 'void'); }
+            dynamicLights.push({ x: px, y: py, r: 20 + v.age * 4, color: s.color, int: v.age / 10, life: 2, ml: 2 });
+            if (v.age === 1) screenShake = Math.max(screenShake, 2);
+          } else {
+            const px = player.x + player.w / 2 + player.facing * 10, py = player.y + 8;
+            const angle = Math.atan2(v.ty - py, v.tx - px);
+            if (s.isLeaf) {
+              // Razor Leaf: 3 spinning leaves in a fan spread
+              const fanAngles = [-0.18, 0, 0.18];
+              for (let li = 0; li < 3; li++) {
+                const la = angle + fanAngles[li];
+                const spd = s.speed * (li === 1 ? 1 : 0.88);
+                projectiles.push({ x: px, y: py, vx: Math.cos(la) * spd, vy: Math.sin(la) * spd, spell: s, life: 350, age: 0, trail: [], hitList: [], bounces: 0, chains: 0, growR: s.r, growDmg: s.dmg, leafRot: li * 2.1 });
+              }
+              // Green slash VFX
+              shockwaves.push({ x: px, y: py, r: 0, maxR: 35, life: 8, maxLife: 8, color: s.core });
+              for (let k = 0; k < 3; k++) { const a = angle + (k - 1) * 0.3; spawnP(px + Math.cos(a) * 15, py + Math.sin(a) * 15, s.core, 3, 'sparkle'); }
+              dynamicLights.push({ x: px, y: py, r: 55, color: s.core, int: 2, life: 5, ml: 5 });
+              screenShake = Math.max(screenShake, 4);
+            } else {
+              projectiles.push({ x: px, y: py, vx: Math.cos(angle) * s.speed, vy: Math.sin(angle) * s.speed, spell: s, life: 400, age: 0, trail: [], hitList: [], bounces: s.bounce || 0, chains: s.chain || 0, growR: s.r, growDmg: s.dmg });
+            }
+            spawnP(px, py, s.color, 18, 'burst');
+            dynamicLights.push({ x: px, y: py, r: 40, color: s.color, int: 1.5, life: 5, ml: 5 });
+            vfxSequences.splice(i, 1);
+          }
+        } else if (v.type === 'pre_cast_inst') {
+          if (v.age < 12) {
+            const px = player.x + player.w / 2 + player.facing * 10, py = player.y + 8;
+            // Electric arcs converging toward staff tip
+            if (v.age % 2 === 0) {
+              for (let k = 0; k < 3; k++) {
+                const a = Math.random() * Math.PI * 2, d = 40 - v.age * 3;
+                if (d > 0) particles.push({ x: px + Math.cos(a) * d, y: py + Math.sin(a) * d, vx: -Math.cos(a) * 4, vy: -Math.sin(a) * 4, life: 8, ml: 8, color: s.color, size: 1, grav: 0, type: 'electric' });
+              }
+            }
+            dynamicLights.push({ x: px, y: py, r: 30 + v.age * 5, color: s.color, int: v.age / 12, life: 2, ml: 2 });
+            screenShake = Math.max(screenShake, v.age / 4);
+          } else {
+            const px = player.x + player.w / 2 + player.facing * 10, py = player.y + 8;
+            createLightning(px, py, v.tx, v.ty, s);
+            // Extra forked bolts for dramatic effect
+            for (let k = 0; k < 2; k++) createLightning(px + (Math.random() - .5) * 20, py + (Math.random() - .5) * 20, v.tx + (Math.random() - .5) * 30, v.ty + (Math.random() - .5) * 30, { ...s, dmg: 0, exR: 8, exF: 1 });
+            vfxSequences.splice(i, 1);
+          }
+        }
+      }
+    }
+
+    function drawVFX() {
+      for (const v of vfxSequences) {
+        if (v.type === 'teleport') {
+          if (v.state === 0) {
+            // Shadow dissolve — shrinking portal ring
+            const r = Math.max(1, 40 - v.age * 2);
+            X.strokeStyle = v.spell.core; X.lineWidth = 3; X.globalAlpha = 0.7;
+            for (let j = 0; j < 8; j++) { const a = (j / 8) * Math.PI * 2 + v.age * 0.3; X.beginPath(); X.moveTo(v.fx + Math.cos(a) * r, v.fy + Math.sin(a) * r); X.lineTo(v.fx + Math.cos(a) * (r - 8), v.fy + Math.sin(a) * (r - 8)); X.stroke(); }
+            X.beginPath(); X.arc(v.fx, v.fy, r, 0, Math.PI * 2); X.stroke();
+            X.globalAlpha = 1;
+          } else if (v.state === 1) {
+            // Vanish flash
+            X.globalAlpha = Math.max(0, 1 - v.age / 6); X.fillStyle = v.spell.core;
+            X.beginPath(); X.arc(v.fx, v.fy, 30 - v.age * 4, 0, Math.PI * 2); X.fill();
+            X.globalAlpha = 1;
+          } else if (v.state === 2) {
+            // Arrival rift — expanding rings
+            const r = v.age * 5;
+            X.strokeStyle = v.spell.core; X.lineWidth = 2; X.globalAlpha = Math.max(0, 0.8 - v.age / 15);
+            X.beginPath(); X.arc(v.tx, v.ty, r, 0, Math.PI * 2); X.stroke();
+            X.strokeStyle = v.spell.color; X.lineWidth = 1;
+            X.beginPath(); X.arc(v.tx, v.ty, r * 0.6, 0, Math.PI * 2); X.stroke();
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'meteor') {
+          if (v.state === 0) {
+            // Warning circle on ground
+            const iy = v.impactY || H - 24, r = Math.max(1, v.age * 1.4);
+            X.strokeStyle = v.spell.c2; X.lineWidth = 2; X.globalAlpha = Math.min(0.7, v.age / 30);
+            X.beginPath(); X.ellipse(v.tx, iy, r, Math.max(1, r * 0.25), 0, 0, Math.PI * 2); X.stroke();
+            X.strokeStyle = v.spell.color; X.lineWidth = 1;
+            X.beginPath(); X.ellipse(v.tx, iy, r * 0.6, Math.max(1, r * 0.15), v.age * 0.02, 0, Math.PI * 2); X.stroke();
+            X.globalAlpha = 1;
+          } else if (v.state === 1) {
+            // Descending meteor with gradient glow
+            const iy = v.impactY || H - 24, mR = 18;
+            const grad = X.createRadialGradient(v.tx, v.meteorY, 0, v.tx, v.meteorY, mR);
+            grad.addColorStop(0, '#fff'); grad.addColorStop(0.2, '#ffdd44'); grad.addColorStop(0.6, v.spell.color); grad.addColorStop(1, 'transparent');
+            X.fillStyle = grad; X.globalAlpha = 0.95; X.beginPath(); X.arc(v.tx, v.meteorY, mR, 0, Math.PI * 2); X.fill();
+            // Fire trail
+            X.globalAlpha = 0.4;
+            for (let k = 1; k < 4; k++) { X.beginPath(); X.arc(v.tx + (Math.random() - .5) * 8, v.meteorY - k * 12, mR * 0.7 - k * 2, 0, Math.PI * 2); X.fill(); }
+            X.globalAlpha = 1;
+            // Impact warning circle still on ground
+            X.strokeStyle = v.spell.c2; X.lineWidth = 2; X.globalAlpha = 0.5;
+            X.beginPath(); X.ellipse(v.tx, iy, 70, 18, 0, 0, Math.PI * 2); X.stroke();
+            X.globalAlpha = 1;
+          } else if (v.state === 2) {
+            // Impact flash
+            X.globalAlpha = Math.max(0, 1 - v.age / 10); X.fillStyle = '#fff'; X.fillRect(0, 0, W, H);
+            X.globalAlpha = Math.max(0, 0.3 - v.age / 60); X.fillStyle = v.spell.color; X.fillRect(0, 0, W, H);
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'geyser') {
+          if (v.state === 0) {
+            X.globalAlpha = Math.min(0.8, v.age / 20); X.fillStyle = v.spell.c2;
+            X.beginPath(); X.ellipse(v.tx, v.gy, v.spell.geyserW * 0.8, 6, 0, 0, Math.PI * 2); X.fill();
+            X.globalAlpha = 1;
+          } else if (v.state === 1) {
+            const h = Math.min(v.spell.geyserH, v.age * 25);
+            const w = v.spell.geyserW * (1 - (v.age / 50) * 0.5);
+            X.globalAlpha = Math.max(0, 1 - v.age / 40);
+            const grad = X.createLinearGradient(0, v.gy, 0, v.gy - h);
+            grad.addColorStop(0, v.spell.color); grad.addColorStop(0.8, v.spell.c2); grad.addColorStop(1, 'transparent');
+            X.fillStyle = grad; X.fillRect(v.tx - w / 2, v.gy - h, w, h);
+            // Core jet
+            X.fillStyle = '#fff'; X.globalAlpha = Math.max(0, 0.6 - v.age / 30);
+            X.fillRect(v.tx - w / 4, v.gy - h, w / 2, h);
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'tsunami') {
+          if (v.state === 0) {
+            X.globalAlpha = Math.min(0.5, v.age / 30);
+            X.fillStyle = v.spell.color;
+            X.fillRect(v.cx - 20, H - 100, 40, 100);
+            X.globalAlpha = 1;
+          } else if (v.state === 1) {
+            X.globalAlpha = 0.8;
+            X.fillStyle = v.spell.color;
+            X.beginPath(); X.moveTo(v.cx - v.facing * 40, H);
+            X.quadraticCurveTo(v.cx, H - 80, v.cx + v.facing * 50, H - 150);
+            X.lineTo(v.cx + v.facing * 60, H); X.fill();
+            X.globalAlpha = 0.5; X.fillStyle = v.spell.c2;
+            X.beginPath(); X.moveTo(v.cx - v.facing * 20, H);
+            X.quadraticCurveTo(v.cx + v.facing * 20, H - 60, v.cx + v.facing * 30, H - 100);
+            X.lineTo(v.cx + v.facing * 40, H); X.fill();
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'bubble') {
+          if (v.state === 0 && v.target) {
+            const ex = v.target.x + v.target.w / 2, ey = v.target.y + v.target.h / 2;
+            X.globalAlpha = Math.min(0.5, v.age / 15);
+            X.beginPath(); X.arc(ex, ey, 30, 0, Math.PI * 2); X.fillStyle = v.spell.color; X.fill();
+            X.globalAlpha = 1;
+          } else if (v.state === 1 && v.target) {
+            const ex = v.target.x + v.target.w / 2, ey = v.target.y + v.target.h / 2;
+            X.globalAlpha = 0.5;
+            X.beginPath(); X.arc(ex, ey, 25, 0, Math.PI * 2); X.fillStyle = v.spell.color; X.fill();
+            X.globalAlpha = 0.8; X.lineWidth = 2; X.strokeStyle = v.spell.c2; X.stroke();
+            // Highlight
+            X.globalAlpha = 0.9; X.fillStyle = '#fff';
+            X.beginPath(); X.arc(ex - 8, ey - 10, 4, 0, Math.PI * 2); X.fill();
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'rain') {
+          if (v.state === 0 || v.state === 1) {
+            const a = v.state === 0 ? Math.min(0.8, v.age / 40) : Math.max(0, 1 - (v.age / v.spell.rainDur));
+            X.globalAlpha = a * 0.7;
+            const grad = X.createLinearGradient(0, v.cy - 20, 0, v.cy + 20);
+            grad.addColorStop(0, v.spell.color); grad.addColorStop(1, 'transparent');
+            X.fillStyle = grad;
+            X.beginPath(); X.ellipse(v.tx, v.cy, v.spell.rainR * 1.5, 20, 0, 0, Math.PI * 2); X.fill();
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'whirlpool') {
+          if (v.state === 1) {
+            X.globalAlpha = Math.max(0, Math.min(0.8, 1 - v.age / v.spell.whorlDur));
+            const grad = X.createRadialGradient(v.tx, v.gy, 0, v.tx, v.gy, v.spell.whorlR);
+            grad.addColorStop(0, v.spell.c2); grad.addColorStop(0.5, v.spell.color); grad.addColorStop(1, 'transparent');
+            X.fillStyle = grad;
+            X.save(); X.translate(v.tx, v.gy); X.scale(1, 0.25); X.rotate(v.age * 0.1);
+            X.beginPath(); X.arc(0, 0, v.spell.whorlR, 0, Math.PI * 2); X.fill();
+            // Inner spiral
+            X.lineWidth = 3; X.strokeStyle = '#fff'; X.globalAlpha *= 0.6;
+            X.beginPath(); X.moveTo(0, 0);
+            for (let a = 0; a < Math.PI * 6; a += 0.3) { X.lineTo(Math.cos(a + v.age * 0.2) * a * 5, Math.sin(a + v.age * 0.2) * a * 5); }
+            X.stroke();
+            X.restore(); X.globalAlpha = 1;
+          }
+        } else if (v.type === 'poison-cloud') {
+          const s = v.spell;
+          if (v.state === 0) {
+            const maxR = s.cloudR * 1.5, r = maxR * (1 - v.age / 12);
+            X.strokeStyle = s.color; X.lineWidth = 3; X.globalAlpha = 0.5;
+            for (let j = 0; j < 8; j++) { const a = (j / 8) * Math.PI * 2 - v.age * .2; X.beginPath(); X.moveTo(v.cx + Math.cos(a) * maxR, v.cy + Math.sin(a) * maxR); X.lineTo(v.cx + Math.cos(a) * r, v.cy + Math.sin(a) * r); X.stroke(); }
+            X.globalAlpha = 1;
+          } else if (v.state === 1) {
+            const r = (v.age / 8) * 30; X.strokeStyle = s.c2; X.lineWidth = 4 * (1 - v.age / 8); X.beginPath(); X.arc(v.cx, v.cy, r, 0, Math.PI * 2); X.stroke();
+          } else if (v.state === 3) {
+            const a = Math.min(1, v.age / 30) * 0.35, r = Math.max(1, s.cloudR * (v.age / 120));
+            X.globalAlpha = a; const pg = X.createRadialGradient(v.cx, v.cy, 0, v.cx, v.cy, r); pg.addColorStop(0, s.color); pg.addColorStop(1, 'transparent'); X.fillStyle = pg; X.beginPath(); X.arc(v.cx, v.cy, r, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+          } else if (v.state === 4) {
+            const a = Math.min(1, 1 - (v.age - 270) / 30) * 0.35; X.globalAlpha = Math.max(0, a); const pg = X.createRadialGradient(v.cx, v.cy, 0, v.cx, v.cy, s.cloudR); pg.addColorStop(0, s.color); pg.addColorStop(1, 'transparent'); X.fillStyle = pg; X.beginPath(); X.arc(v.cx, v.cy, s.cloudR, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+          }
+
+        } else if (v.type === 'cataclysm') {
+          // ═══ DRAW CATACLYSM ═══
+          if (v.state <= 2) {
+            X.globalAlpha = Math.min(0.5, v.age / 80); X.fillStyle = '#110000'; X.fillRect(0, 0, W, H); X.globalAlpha = 1;
+            const r = Math.max(1, v.state === 0 ? v.age * 1.2 : 120);
+            X.save(); X.translate(v.tx, H - 24);
+            X.strokeStyle = v.spell.c2; X.lineWidth = 2; X.globalAlpha = 0.7;
+            X.beginPath(); X.ellipse(0, 0, r, Math.max(1, r * 0.25), 0, 0, Math.PI * 2); X.stroke();
+            X.strokeStyle = v.spell.color; X.lineWidth = 1.5;
+            X.beginPath(); X.ellipse(0, 0, r * 0.7, r * 0.175, v.age * 0.02, 0, Math.PI * 2); X.stroke();
+            for (let k = 0; k < 8; k++) {
+              const a = k / 8 * Math.PI * 2 + v.age * 0.015;
+              X.beginPath(); X.moveTo(Math.cos(a) * r * 0.4, Math.sin(a) * r * 0.1); X.lineTo(Math.cos(a) * r * 0.9, Math.sin(a) * r * 0.225); X.stroke();
+            }
+            X.restore(); X.globalAlpha = 1;
+            const mY = v.cy - 130 + (v.state === 2 ? v.age * 18 : 0);
+            const mR = Math.max(1, v.state === 0 ? Math.min(v.age * 0.6, 60) : v.state === 1 ? 60 + v.age * 0.4 : 80);
+            const grad = X.createRadialGradient(v.cx, mY, 0, v.cx, mY, mR);
+            grad.addColorStop(0, '#fff'); grad.addColorStop(0.15, '#ffdd44'); grad.addColorStop(0.4, '#ff8800'); grad.addColorStop(0.8, v.spell.color); grad.addColorStop(1, 'transparent');
+            X.fillStyle = grad; X.globalAlpha = 0.9; X.beginPath(); X.arc(v.cx, mY, mR, 0, Math.PI * 2); X.fill();
+            if (v.state === 2) { for (let k = 0; k < 3; k++) { X.globalAlpha = 0.3 - k * 0.1; X.beginPath(); X.arc(v.cx + (Math.random() - .5) * 20, mY - v.age * 3 - k * 15, mR * 0.6, 0, Math.PI * 2); X.fill(); } }
+            X.globalAlpha = 1;
+          } else if (v.state === 3) {
+            const flash = Math.max(0, 1 - v.age / 15);
+            X.globalAlpha = flash * 0.8; X.fillStyle = '#fff'; X.fillRect(0, 0, W, H);
+            X.globalAlpha = Math.max(0, 0.4 - v.age / 100); X.fillStyle = '#ff2200'; X.fillRect(0, 0, W, H);
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'absolute_zero') {
+          // ═══ DRAW ABSOLUTE ZERO ═══
+          if (v.state === 0) {
+            X.globalAlpha = v.age / 200; X.fillStyle = '#88ccff'; X.fillRect(0, 0, W, H); X.globalAlpha = 1;
+            X.save(); X.translate(v.cx, v.cy);
+            const r = v.age * 3.5;
+            X.strokeStyle = v.spell.color; X.lineWidth = 2; X.globalAlpha = 0.5;
+            X.beginPath(); X.ellipse(0, 0, r, r * 0.6, 0, 0, Math.PI * 2); X.stroke();
+            for (let k = 0; k < 12; k++) {
+              const a = k / 12 * Math.PI * 2 + v.age * 0.005;
+              X.globalAlpha = 0.3 + Math.sin(v.age * 0.05 + k) * 0.2;
+              X.beginPath(); X.moveTo(0, 0); X.lineTo(Math.cos(a) * r, Math.sin(a) * r * 0.6); X.stroke();
+              if (r > 40) {
+                const br = r * 0.6, ba = a + 0.3;
+                X.beginPath(); X.moveTo(Math.cos(a) * br * 0.5, Math.sin(a) * br * 0.3); X.lineTo(Math.cos(ba) * br, Math.sin(ba) * br * 0.6); X.stroke();
+                const ba2 = a - 0.3;
+                X.beginPath(); X.moveTo(Math.cos(a) * br * 0.5, Math.sin(a) * br * 0.3); X.lineTo(Math.cos(ba2) * br, Math.sin(ba2) * br * 0.6); X.stroke();
+              }
+            }
+            X.restore(); X.globalAlpha = 1;
+          } else if (v.state === 1) {
+            X.globalAlpha = 0.4; X.fillStyle = '#aaddff'; X.fillRect(0, 0, W, H); X.globalAlpha = 1;
+          } else if (v.state === 2) {
+            X.globalAlpha = Math.max(0, 1 - v.age / 15); X.fillStyle = '#ffffff'; X.fillRect(0, 0, W, H); X.globalAlpha = 1;
+          } else if (v.state === 3) {
+            X.globalAlpha = Math.max(0, 0.3 - v.age / 100); X.fillStyle = '#aaeeff'; X.fillRect(0, 0, W, H); X.globalAlpha = 1;
+          }
+        } else if (v.type === 'singularity') {
+          // ═══ DRAW SINGULARITY ═══
+          if (v.state === 0) {
+            X.save(); X.translate(v.tx, v.ty);
+            const len = Math.min(v.age * 8, 80);
+            X.strokeStyle = v.spell.core; X.lineWidth = 3; X.globalAlpha = Math.max(0, 1 - v.age / 20);
+            X.beginPath(); X.moveTo(-len, -len * 0.4); X.lineTo(len, len * 0.4); X.stroke();
+            X.strokeStyle = '#fff'; X.lineWidth = 1;
+            X.beginPath(); X.moveTo(-len, -len * 0.4); X.lineTo(len, len * 0.4); X.stroke();
+            X.restore(); X.globalAlpha = 1;
+          } else if (v.state === 1 || v.state === 2) {
+            const r = v.state === 1 ? Math.min(v.age * 0.6, 70) : 70;
+            X.globalAlpha = Math.min(0.3, v.age / 100); X.fillStyle = '#110022'; X.fillRect(0, 0, W, H); X.globalAlpha = 1;
+            X.save(); X.translate(v.tx, v.ty);
+            for (let k = 0; k < 4; k++) {
+              const rr = r + 20 + k * 12;
+              X.strokeStyle = k % 2 ? v.spell.c2 : v.spell.core; X.lineWidth = 2 - k * 0.3; X.globalAlpha = 0.6 - k * 0.12;
+              X.beginPath(); X.ellipse(0, 0, rr, rr * 0.3, v.age * 0.03 + k * 0.5, 0, Math.PI * 2); X.stroke();
+            }
+            const coreGrad = X.createRadialGradient(0, 0, 0, 0, 0, r);
+            coreGrad.addColorStop(0, '#000'); coreGrad.addColorStop(0.7, '#000'); coreGrad.addColorStop(0.85, v.spell.c2); coreGrad.addColorStop(1, 'transparent');
+            X.fillStyle = coreGrad; X.globalAlpha = 1; X.beginPath(); X.arc(0, 0, r, 0, Math.PI * 2); X.fill();
+            X.restore(); X.globalAlpha = 1;
+          } else if (v.state === 3) {
+            const r = 70 * Math.max(0, 1 - v.age / 15);
+            X.fillStyle = '#000'; X.beginPath(); X.arc(v.tx, v.ty, r, 0, Math.PI * 2); X.fill();
+          } else if (v.state === 4) {
+            X.globalAlpha = Math.max(0, 1 - v.age / 30); X.fillStyle = '#fff'; X.fillRect(0, 0, W, H);
+            X.globalAlpha = Math.max(0, 0.5 - v.age / 60); X.fillStyle = v.spell.core; X.fillRect(0, 0, W, H);
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'judgment') {
+          // ═══ DRAW JUDGMENT ═══
+          if (v.state === 1 && v.targets) {
+            X.strokeStyle = '#ffee66'; X.lineWidth = 1; X.globalAlpha = 0.3;
+            for (let k = 0; k < 15; k++) {
+              const x1 = Math.random() * W, y1 = Math.random() * H;
+              X.beginPath(); X.moveTo(x1, y1); X.lineTo(x1 + (Math.random() - .5) * 80, y1 + (Math.random() - .5) * 20); X.stroke();
+            }
+            X.globalAlpha = 1;
+          } else if (v.state === 2) {
+            const r = 40 + v.age * 0.8;
+            const grad = X.createRadialGradient(player.x + player.w / 2, player.y + player.h / 2, 0, player.x + player.w / 2, player.y + player.h / 2, r);
+            grad.addColorStop(0, 'rgba(255,238,102,0.4)'); grad.addColorStop(1, 'transparent');
+            X.fillStyle = grad; X.beginPath(); X.arc(player.x + player.w / 2, player.y + player.h / 2, r, 0, Math.PI * 2); X.fill();
+            X.strokeStyle = v.spell.color; X.lineWidth = 2; X.globalAlpha = 0.6 + Math.sin(v.age * 0.2) * 0.3;
+            for (const t of v.targets) {
+              if (!t.active) continue; const tx = t.x + t.w / 2, ty = t.y + t.h / 2;
+              X.beginPath(); X.ellipse(tx, ty + t.h / 2, 22, 7, v.age * 0.08, 0, Math.PI * 2); X.stroke();
+              X.beginPath(); X.ellipse(tx, ty + t.h / 2, 12, 4, -v.age * 0.08, 0, Math.PI * 2); X.stroke();
+            }
+            X.globalAlpha = 1;
+          } else if (v.state === 3) {
+            X.globalAlpha = Math.min(0.3, v.age / 30); X.fillStyle = '#ffee88'; X.fillRect(0, 0, W, H); X.globalAlpha = 1;
+            X.strokeStyle = '#ffee66'; X.lineWidth = 3; X.globalAlpha = 0.5;
+            for (const t of v.targets) {
+              if (!t.active) continue; const tx = t.x + t.w / 2;
+              X.beginPath(); X.moveTo(tx, 0); X.lineTo(tx, Math.min(v.age * 15, t.y + t.h)); X.stroke();
+            }
+            X.globalAlpha = 1;
+          } else if (v.state === 4) {
+            const flash = Math.max(0, 1 - v.age / 12);
+            X.globalAlpha = flash * 0.6; X.fillStyle = '#fff'; X.fillRect(0, 0, W, H); X.globalAlpha = 1;
+            X.globalAlpha = Math.max(0, 1 - v.age / 40);
+            for (const t of v.targets) {
+              if (!t.active) continue; const tx = t.x + t.w / 2;
+              X.fillStyle = 'rgba(255,255,255,0.9)'; X.fillRect(tx - 12, 0, 24, H);
+              X.fillStyle = 'rgba(255,238,102,0.4)'; X.fillRect(tx - 35, 0, 70, H);
+            }
+            X.globalAlpha = 1;
+          }
+
+        } else if (v.type === 'laser') {
+          if (v.state === 1) {
+            const steps = 8; const segs = [];
+            for (let j = 0; j <= steps; j++) {
+              segs.push({
+                x: v.ox + (v.hx - v.ox) * (j / steps) + (j > 0 && j < steps ? (Math.random() - .5) * 8 : 0),
+                y: v.oy + (v.hy - v.oy) * (j / steps) + (j > 0 && j < steps ? (Math.random() - .5) * 8 : 0)
+              });
+            }
+            X.strokeStyle = v.spell.color; X.lineWidth = v.spell.laserW + 4; X.globalAlpha = 0.3;
+            X.beginPath(); segs.forEach((s2, idx) => idx === 0 ? X.moveTo(s2.x, s2.y) : X.lineTo(s2.x, s2.y)); X.stroke();
+            X.strokeStyle = '#fff'; X.lineWidth = v.spell.laserW; X.globalAlpha = 0.8;
+            X.beginPath(); segs.forEach((s2, idx) => idx === 0 ? X.moveTo(s2.x, s2.y) : X.lineTo(s2.x, s2.y)); X.stroke();
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'wind') {
+          if (v.state === 0) {
+            const r = 30 * (1 - v.age / 12);
+            X.strokeStyle = v.spell.color; X.lineWidth = 2; X.globalAlpha = 0.5;
+            for (let j = 0; j < 5; j++) { const a = (j / 5) * Math.PI * 2 + v.age * .2; X.beginPath(); X.moveTo(v.tx + Math.cos(a) * r, v.ty + Math.sin(a) * r); X.lineTo(v.tx + Math.cos(a) * (r - 5), v.ty + Math.sin(a) * (r - 5)); X.stroke(); }
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'spike') {
+          if (v.state === 1) {
+            X.fillStyle = '#443311'; X.globalAlpha = v.age / 15; X.fillRect(v.tx - v.spell.spikeW / 2, v.gy - 2, v.spell.spikeW, 4); X.globalAlpha = 1;
+          }
+        } else if (v.type === 'firewall') {
+          if (v.state === 1) {
+            X.fillStyle = v.spell.color; X.globalAlpha = v.age / 10; X.fillRect(v.tx - v.spell.wallW / 2, v.gy - 2, v.spell.wallW, 4); X.globalAlpha = 1;
+          }
+        } else if (v.type === 'tornado') {
+          if (v.state === 0) {
+            X.strokeStyle = v.spell.color; X.lineWidth = 2; X.globalAlpha = v.age / 15 * 0.5;
+            X.beginPath(); X.ellipse(v.cx, v.cy, v.spell.torR, v.spell.torR * .3, 0, 0, Math.PI * 2); X.stroke();
+            X.globalAlpha = 1;
+          }
+        } else if (v.type === 'blackhole') {
+          if (v.state === 0) {
+            const r = v.spell.wellR * (1 - v.age / 20);
+            X.strokeStyle = v.spell.color; X.lineWidth = 3; X.globalAlpha = 0.8; X.beginPath(); X.arc(v.cx, v.cy, r, 0, Math.PI * 2); X.stroke();
+            X.globalAlpha = 1;
+          } else if (v.state === 1) {
+            X.fillStyle = v.spell.color; X.globalAlpha = (1 - v.age / 5) * 0.8; X.beginPath(); X.arc(v.cx, v.cy, v.spell.wellR, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+          }
+        } else if (v.type === 'frostnova' && v.state === 0) {
+          const maxR = v.spell.frostR, r = maxR * (1 - v.age / 16);
+          X.strokeStyle = '#fff'; X.lineWidth = 2; X.globalAlpha = 0.6;
+          for (let j = 0; j < 8; j++) { const a = (j / 8) * Math.PI * 2 + v.age * .1; X.beginPath(); X.moveTo(v.cx + Math.cos(a) * maxR, v.cy + Math.sin(a) * maxR); X.lineTo(v.cx + Math.cos(a) * r, v.cy + Math.sin(a) * r); X.stroke(); }
+          X.globalAlpha = 1;
+        } else if (v.type === 'meteor') {
+          if (v.state === 0) {
+            X.fillStyle = '#ff0000'; X.globalAlpha = Math.min(1, v.age / 60) * 0.3; X.beginPath(); X.arc(v.tx, v.ty, 60, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+            X.strokeStyle = '#ff0000'; X.lineWidth = 2; X.beginPath(); X.arc(v.tx, v.ty, 60 * (1 - v.age / 60), 0, Math.PI * 2); X.stroke();
+          } else if (v.state === 1) {
+            X.fillStyle = '#110000'; X.globalAlpha = Math.max(0, 1 - v.age / 200) * 0.6; X.beginPath(); X.ellipse(v.tx, v.ty + 5, 40, 10, 0, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+          }
+        } else if (v.type === 'timebomb') {
+          const pulse = Math.sin(performance.now() * .02) * .3 + .7; const urgency = v.state === 1 ? 1 : .5;
+          X.fillStyle = '#ffaa00'; X.globalAlpha = pulse * urgency; X.beginPath(); X.arc(v.cx, v.cy, 6 + Math.sin(performance.now() * .03) * 2, 0, Math.PI * 2); X.fill();
+          X.fillStyle = '#fff'; X.globalAlpha = .8; X.beginPath(); X.arc(v.cx, v.cy, 3, 0, Math.PI * 2); X.fill();
+          if (v.state === 1) { X.globalAlpha = .4; X.fillStyle = '#ff0000'; X.beginPath(); X.arc(v.cx, v.cy, v.spell.bombR * .4 * (v.age / 20), 0, Math.PI * 2); X.fill(); }
+          X.globalAlpha = 1;
+        } else if (v.type === 'worldtree') {
+          // ═══ DRAW WORLD TREE ═══
+          const s2 = v.spell;
+          if (!v.gy) { X.globalAlpha = 1; continue; }
+          const gy = v.gy;
+
+          // State 0: Rune circle on ground
+          if (v.state === 0) {
+            const pr = Math.min(1, v.age / 50);
+            X.save(); X.translate(v.cx, gy);
+            for (let k = 0; k < 8; k++) {
+              const a = (k / 8) * Math.PI * 2 + v.age * 0.04;
+              const r = 55 * pr;
+              X.strokeStyle = s2.core; X.lineWidth = 1.5; X.globalAlpha = 0.5 * pr;
+              X.beginPath(); X.moveTo(Math.cos(a) * r * 0.5, Math.sin(a) * r * 0.25); X.lineTo(Math.cos(a) * r, Math.sin(a) * r * 0.5); X.stroke();
+            }
+            X.strokeStyle = s2.c2; X.lineWidth = 2; X.globalAlpha = 0.6 * pr;
+            X.beginPath(); X.ellipse(0, 0, 55 * pr, 18 * pr, 0, 0, Math.PI * 2); X.stroke();
+            X.restore(); X.globalAlpha = 1;
+          }
+
+          // States 1-6: Draw the living tree
+          if (v.state >= 1) {
+            X.save(); X.translate(v.cx, gy);
+
+            // Trunk
+            const trunkH = v.state === 1 ? Math.min(200, v.age * 4.5) :
+                           v.state === 2 ? Math.min(200, v.age * 4.5) : 200;
+            const trunkAlpha = v.state === 6 ? Math.max(0, 1 - v.age / 60) : 0.9;
+            if (trunkH > 5) {
+              const tg = X.createLinearGradient(0, 0, 0, -trunkH);
+              tg.addColorStop(0, '#553311'); tg.addColorStop(0.5, '#442211'); tg.addColorStop(1, '#336622');
+              X.fillStyle = tg; X.globalAlpha = trunkAlpha;
+              // Trunk body (tapered)
+              X.beginPath();
+              X.moveTo(-14, 0); X.quadraticCurveTo(-10, -trunkH * 0.5, -6, -trunkH);
+              X.lineTo(6, -trunkH); X.quadraticCurveTo(10, -trunkH * 0.5, 14, 0);
+              X.closePath(); X.fill();
+            }
+
+            // Roots (state >= 1)
+            if (v.roots && v.state <= 2) {
+              X.strokeStyle = '#442211'; X.lineWidth = 5; X.globalAlpha = trunkAlpha * 0.8;
+              for (const root of v.roots) {
+                if (root.h <= 0) continue;
+                X.beginPath();
+                X.moveTo(root.ox - v.cx, 0);
+                X.quadraticCurveTo(root.ox - v.cx + Math.sin(root.angle * 3) * 15, -root.h * 0.5, root.ox - v.cx + Math.sin(root.angle * 5) * 8, -root.h);
+                X.stroke();
+              }
+            }
+
+            // Branches (state >= 3)
+            if (v.state >= 3 && v.branchL !== undefined) {
+              const bL = v.state === 3 ? (v.branchL || 0) : 130;
+              const bR = v.state === 3 ? (v.branchR || 0) : 130;
+              X.strokeStyle = '#442211'; X.lineWidth = 7; X.globalAlpha = trunkAlpha;
+              // Left branch
+              X.beginPath(); X.moveTo(-6, -trunkH); X.quadraticCurveTo(-bL * 0.5, -trunkH - 20, -bL, -trunkH - 10 + Math.sin(v.age * 0.05) * 5); X.stroke();
+              // Right branch
+              X.beginPath(); X.moveTo(6, -trunkH); X.quadraticCurveTo(bR * 0.5, -trunkH - 20, bR, -trunkH - 10 + Math.sin(v.age * 0.05 + 1) * 5); X.stroke();
+              // Sub-branches
+              X.lineWidth = 4;
+              X.beginPath(); X.moveTo(-bL * 0.6, -trunkH - 15); X.lineTo(-bL * 0.9, -trunkH - 45); X.stroke();
+              X.beginPath(); X.moveTo(-bL * 0.4, -trunkH - 10); X.lineTo(-bL * 0.6, -trunkH - 40); X.stroke();
+              X.beginPath(); X.moveTo(bR * 0.6, -trunkH - 15); X.lineTo(bR * 0.9, -trunkH - 45); X.stroke();
+              X.beginPath(); X.moveTo(bR * 0.4, -trunkH - 10); X.lineTo(bR * 0.6, -trunkH - 40); X.stroke();
+            }
+
+            // Canopy (state >= 4)
+            if (v.state >= 4 && trunkH >= 190) {
+              const canopyAlpha = v.state === 6 ? Math.max(0, 1 - v.age / 60) : 0.85;
+              const canopyR = v.state === 4 ? Math.min(160, (v.state === 4 ? v.age * 3 : 160)) : 160;
+              // Multi-layer canopy
+              for (let layer = 0; layer < 3; layer++) {
+                const lr = (160 - layer * 30) * (v.state === 6 ? Math.max(0, 1 - v.age / 60) : 1);
+                const ly = -trunkH - 20 - layer * 35;
+                const cg = X.createRadialGradient(0, ly, 0, 0, ly, lr);
+                cg.addColorStop(0, s2.c2); cg.addColorStop(0.5, s2.color); cg.addColorStop(1, 'transparent');
+                X.fillStyle = cg; X.globalAlpha = canopyAlpha * (0.7 - layer * 0.15);
+                X.beginPath(); X.ellipse(0, ly, lr, lr * 0.7, 0, 0, Math.PI * 2); X.fill();
+              }
+              // Healing zone indicator
+              if (v.state === 5) {
+                X.strokeStyle = s2.core; X.lineWidth = 1.5; X.globalAlpha = 0.2 + Math.sin(v.age * 0.08) * 0.1;
+                X.beginPath(); X.arc(0, 0, v.spell.treeR, 0, Math.PI * 2); X.stroke();
+              }
+            }
+
+            X.restore(); X.globalAlpha = 1;
+          }
+        } else if (v.type === 'vine') {
+          // ─── DRAW VINE BRIDGE ───
+          if (v.state === 1 && v.vinePts) {
+            const s2 = v.spell, t = performance.now() * 0.002;
+            X.save();
+            // Draw each vine strand
+            for (let si = 0; si < v.vinePts.length; si++) {
+              const pts = v.vinePts[si];
+              if (!pts || pts.length < 2) continue;
+              const wave = Math.sin(t * 1.5 + si * 1.2) * 3;
+              X.strokeStyle = si % 2 === 0 ? s2.color : s2.c2;
+              X.lineWidth = 3 - si * 0.6;
+              X.globalAlpha = 0.8 - si * 0.15;
+              X.beginPath();
+              X.moveTo(pts[0].x, pts[0].y + wave);
+              for (let pi = 1; pi < pts.length; pi++) {
+                X.lineTo(pts[pi].x, pts[pi].y + wave * Math.sin(pi / pts.length * Math.PI));
+              }
+              X.stroke();
+              // Leaf buds along vine
+              if (si === 0) {
+                for (let pi = 0; pi < pts.length; pi += 8) {
+                  const lx = pts[pi].x, ly = pts[pi].y + wave * Math.sin(pi / pts.length * Math.PI);
+                  X.fillStyle = s2.c2; X.globalAlpha = 0.7;
+                  X.beginPath(); X.ellipse(lx, ly, 4, 2, pi * 0.3, 0, Math.PI * 2); X.fill();
+                }
+              }
+            }
+            X.restore(); X.globalAlpha = 1;
+          }
+        }
+      }
+    }
+
+    function updateParticles() {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i]; p.vy += p.grav; p.x += p.vx; p.y += p.vy; p.vx *= .97; p.vy *= .97; if (p.rot !== undefined) p.rot += p.rotV || 0; p.life--;
+        for (const gw of gravityWells) { const dx = gw.x - p.x, dy = gw.y - p.y, d = Math.hypot(dx, dy); if (d < gw.r && d > 2) { p.vx += dx / d * .35; p.vy += dy / d * .35; } }
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+    }
+    function updateLightning() { for (let i = lightningBolts.length - 1; i >= 0; i--) { const lb = lightningBolts[i]; lb.life--; for (let j = 1; j < lb.segments.length - 1; j++) { lb.segments[j].x += (Math.random() - .5) * 5; lb.segments[j].y += (Math.random() - .5) * 5; } if (lb.life <= 0) lightningBolts.splice(i, 1); } }
+    function updateShockwaves() { for (let i = shockwaves.length - 1; i >= 0; i--) { shockwaves[i].r += (shockwaves[i].maxR - shockwaves[i].r) * .2; shockwaves[i].life--; if (shockwaves[i].life <= 0) shockwaves.splice(i, 1); } }
+    function updateDynLights() { for (let i = dynamicLights.length - 1; i >= 0; i--) { dynamicLights[i].life--; if (dynamicLights[i].life <= 0) dynamicLights.splice(i, 1); } }
+    function updateDmgNums() { for (let i = damageNumbers.length - 1; i >= 0; i--) { const d = damageNumbers[i]; d.y += d.vy; d.vy *= .95; d.life--; if (d.life <= 0) damageNumbers.splice(i, 1); } }
+
+    // ═══ PLAYER ═══
+    function updatePlayer(keys, dt) {
+      const p = player; p.mana = Math.min(p.maxMana, p.mana + .08); p.hatWave += .07; p.capeWave += .09;
+      if (p.castAnim > 0) p.castAnim -= dt; if (p.staffGlow > 0) p.staffGlow -= dt;
+      p.lean += (p.vx * .04 - p.lean) * .2; p.sq += (1 - p.sq) * .15; p.st += (1 - p.st) * .15;
+      if (p.inv) return; // frozen by spell
+      let mv = false;
+      if (keys['a'] || keys['A']) { p.vx -= .55; if (p.castAnim <= 0) p.facing = -1; mv = true; }
+      if (keys['d'] || keys['D']) { p.vx += .55; if (p.castAnim <= 0) p.facing = 1; mv = true; }
+      if ((keys['w'] || keys['W'] || keys[' ']) && p.jumpCount < p.maxJumps) { p.vy = -8; p.jumpCount++; keys['w'] = keys['W'] = keys[' '] = false; p.sq = .6; p.st = 1.4; spawnP(p.x + p.w / 2, p.y + p.h, '#776655', 6, 'dust'); if (p.jumpCount === 2) spawnP(p.x + p.w / 2, p.y + p.h, '#aaddff', 5, 'burst'); }
+      for (const gw of gravityWells) { const dx = gw.x - (p.x + p.w / 2), dy = gw.y - (p.y + p.h / 2), dist = Math.hypot(dx, dy); if (dist < gw.r && dist > 5) { const f = gw.str * .4 * (1 - dist / gw.r); p.vx += (dx / dist) * f; p.vy += (dy / dist) * f; } }
+      for (const fw of fireWalls) { if (p.x + p.w > fw.x && p.x < fw.x + fw.w && p.y + p.h > fw.y && p.y < fw.y + fw.h && fw.dur % 20 === 0) { p.hp -= 2; p.vy -= 1; } }
+      p.vy += PHY.gravity; p.vx = Math.max(-5, Math.min(5, p.vx)); p.vx *= p.onGround ? PHY.groundFric : PHY.airDrag; p.x += p.vx; p.y += p.vy;
+      const wasP = p.onGround; p.onGround = false;
+      for (const pl of platforms) { if (p.x + p.w > pl.x && p.x < pl.x + pl.w) { if (p.vy >= 0 && p.y + p.h > pl.y && p.y + p.h < pl.y + pl.h + Math.abs(p.vy) + 2) { p.y = pl.y - p.h; p.vy = 0; if (!wasP) { p.sq = 1.4; p.st = .6; } p.onGround = true; p.jumpCount = 0; } } }
+      if (p.x < 0) { p.x = 0; p.vx = 0; } if (p.x + p.w > W) { p.x = W - p.w; p.vx = 0; } if (p.y > H + 50) { p.y = 50; p.vy = 0; p.x = 100; }
+      p.animT += Math.abs(p.vx) * dt * .9 + dt * .2; if (mv && p.onGround) { if (p.animT > 100) { p.frame = (p.frame + 1) % 6; p.animT = 0; } } else if (!p.onGround) p.frame = p.vy < 0 ? 7 : 8; else p.frame = 0;
+      if (p.castAnim > 0) p.facing = mouse.x > p.x + p.w / 2 ? 1 : -1; else if (mv) p.facing = Math.sign(p.vx) || 1; else p.facing = mouse.x > p.x + p.w / 2 ? 1 : -1;
+    }
+    function normA(a) { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; }
+    function hexRgb(hex) { try { if (!hex || hex[0] !== '#') return [128, 128, 128]; hex = hex.replace(/^#([a-f\d])([a-f\d])([a-f\d])$/i, (_, r, g, b) => '#' + r + r + g + g + b + b); return [parseInt(hex.slice(1, 3), 16) || 0, parseInt(hex.slice(3, 5), 16) || 0, parseInt(hex.slice(5, 7), 16) || 0]; } catch (e) { return [128, 128, 128]; } }
+    function darken(hex, amt) { try { const [r, g, b] = hexRgb(hex); return `rgb(${Math.floor(r * (1 - amt))},${Math.floor(g * (1 - amt))},${Math.floor(b * (1 - amt))})`; } catch (e) { return hex; } }
+
+    // ═══ DRAWING ═══
+    function drawBG() {
+      const grad = X.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, '#030310'); grad.addColorStop(.4, '#080820'); grad.addColorStop(1, '#101038'); X.fillStyle = grad; X.fillRect(0, 0, W, H);
+      const t = performance.now() * .0001; X.globalAlpha = .04;
+      for (let i = 0; i < 3; i++) { const nx = 200 + Math.sin(t + i * 2) * 80 + i * 180, ny = 60 + Math.cos(t * .7 + i) * 30 + i * 20, ng = X.createRadialGradient(nx, ny, 0, nx, ny, 80 + i * 20); ng.addColorStop(0, ['#4422aa', '#aa2266', '#2266aa'][i]); ng.addColorStop(1, 'transparent'); X.fillStyle = ng; X.fillRect(0, 0, W, H); } X.globalAlpha = 1;
+      for (let i = 0; i < 100; i++) { const sx = (i * 137 + 1302) % W, sy = (i * 89 + 714) % (H - 80), tw = Math.sin(performance.now() * .002 + i * .7) * .3 + .7, sz = i % 7 === 0 ? 2.5 : i % 5 === 0 ? 2 : 1; X.globalAlpha = tw * (i % 7 === 0 ? .9 : .6); X.fillStyle = i % 11 === 0 ? '#aaccff' : i % 13 === 0 ? '#ffccaa' : '#fff'; X.fillRect(sx | 0, sy | 0, sz, sz); if (sz > 1.5) { X.globalAlpha = tw * .15; X.fillStyle = '#aaccff'; X.beginPath(); X.arc(sx, sy, 4, 0, Math.PI * 2); X.fill(); } } X.globalAlpha = 1;
+      for (let l = 0; l < 4; l++) { const sh = ['#06061a', '#08081e', '#0b0b26', '#0e0e30'], am = [55, 40, 28, 15], fr = [.012, .02, .035, .05], bY = H - 24 - [90, 60, 38, 18][l]; X.fillStyle = sh[l]; X.beginPath(); X.moveTo(0, H - 24); for (let x = 0; x <= W; x += 3)X.lineTo(x, bY - (am[l] + Math.sin(x * fr[l] + l * 2) * am[l] * .6 + Math.sin(x * fr[l] * 2.3 + l) * am[l] * .3)); X.lineTo(W, H - 24); X.fill(); }
+      const mx = 600, my = 50; X.globalAlpha = .03; X.fillStyle = '#ccccbb'; X.beginPath(); X.arc(mx, my, 60, 0, Math.PI * 2); X.fill(); X.globalAlpha = .15; X.beginPath(); X.arc(mx, my, 25, 0, Math.PI * 2); X.fill(); X.globalAlpha = .5; X.fillStyle = '#eeeedd'; X.beginPath(); X.arc(mx, my, 14, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+    }
+
+    function drawPlatforms() {
+      for (let i = 0; i < platforms.length; i++) {
+        const p = platforms[i];
+        if (p.ground) {
+          X.fillStyle = '#1c1c34'; X.fillRect(p.x, p.y, p.w, p.h); X.fillStyle = '#252542'; X.fillRect(p.x, p.y, p.w, 6); X.fillStyle = '#181830'; X.fillRect(p.x, p.y + 6, p.w, 4);
+          for (let gx = 0; gx < p.w; gx += 6 + ((Math.sin(gx * .5) * 2) | 0)) { const gc = Math.sin(gx * .1) > .3 ? '#1a4422' : '#163a1e'; X.fillStyle = gc; const gh = 2 + ((Math.sin(gx * .7) * 2) | 0); X.fillRect(gx, p.y - gh, 2, gh + 1); }
+        } else {
+          X.fillStyle = 'rgba(0,0,0,.2)'; X.beginPath(); X.ellipse(p.x + p.w / 2, p.y + p.h + 14, p.w * .45, 4, 0, 0, Math.PI * 2); X.fill();
+          const sg = X.createLinearGradient(0, p.y + p.h, 0, p.y + p.h + 8); sg.addColorStop(0, '#1a1a3a'); sg.addColorStop(1, '#111128'); X.fillStyle = sg; X.fillRect(p.x + 1, p.y + p.h, p.w - 1, 8);
+          X.fillStyle = '#151530'; for (let bx = p.x + 8; bx < p.x + p.w; bx += 12)X.fillRect(bx, p.y + p.h, 1, 8);
+          const fg = X.createLinearGradient(0, p.y, 0, p.y + p.h); fg.addColorStop(0, '#333366'); fg.addColorStop(1, '#222248'); X.fillStyle = fg; X.fillRect(p.x, p.y, p.w, p.h);
+          X.fillStyle = '#444480'; X.fillRect(p.x, p.y, p.w, 1); X.fillStyle = '#3a3a70'; X.fillRect(p.x, p.y + 1, p.w, 1);
+          X.fillStyle = '#1a1a38'; X.fillRect(p.x + p.w - 2, p.y, 2, p.h);
+          const gt = Math.sin(performance.now() * .003 + i * 1.5) * .2 + .3; X.globalAlpha = gt; X.fillStyle = '#5555bb';
+          const rs = Math.floor(p.w / 5); for (let rx = p.x + rs; rx < p.x + p.w - 8; rx += rs) { X.fillRect(rx, p.y + 4, 5, 1); X.fillRect(rx + 1, p.y + 6, 3, 1); } X.globalAlpha = 1;
+        }
+      }
+    }
+
+    function drawDecorations() {
+      const t = performance.now();
+      for (const tc of torches) {
+        X.fillStyle = '#5a4020'; X.fillRect(tc.x + 1, tc.y + 2, 3, 8); X.fillStyle = '#887040'; X.fillRect(tc.x, tc.y, 5, 3);
+        const fh = 4 + Math.sin(t * .015 + tc.fl) * 2, fw = 3 + Math.sin(t * .02 + tc.fl + 1) * .8; X.fillStyle = '#ff6622'; X.globalAlpha = .9; X.fillRect(tc.x + 2 - fw / 2, tc.y - fh, fw, fh); X.fillStyle = '#ffaa44'; X.globalAlpha = .8; X.fillRect(tc.x + 2 - fw / 3, tc.y - fh + 1, fw * .6, fh * .6); X.fillStyle = '#ffee88'; X.globalAlpha = .7; X.fillRect(tc.x + 1, tc.y - fh + 2, 2, fh * .3);
+        X.globalAlpha = .08 + Math.sin(t * .012 + tc.fl) * .03; X.fillStyle = '#ff8844'; X.beginPath(); X.arc(tc.x + 2, tc.y - 2, 18, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+        if (t % (16 + ((tc.fl | 0) % 4)) < 17) dynamicLights.push({ x: tc.x + 2, y: tc.y - 2, r: 40 + Math.sin(t * .01 + tc.fl) * 5, color: '#ff8844', int: .25, life: 2, ml: 2 });
+      }
+      for (const cr of crystals) { const glow = .4 + Math.sin(t * .004 + cr.x) * .2; X.globalAlpha = glow; X.fillStyle = cr.color; X.beginPath(); X.moveTo(cr.x, cr.y); X.lineTo(cr.x - 2, cr.y + cr.h); X.lineTo(cr.x + 3, cr.y + cr.h); X.fill(); X.globalAlpha = glow * .12; X.fillStyle = cr.color; X.beginPath(); X.arc(cr.x + 1, cr.y + cr.h / 2, 8, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1; }
+      X.strokeStyle = '#1a3a22'; X.lineWidth = 1; for (const v of vines) { X.globalAlpha = .6; X.beginPath(); X.moveTo(v.x, v.y); const wave = Math.sin(t * .002 + v.seed) * 3; X.quadraticCurveTo(v.x + wave, v.y + v.len * .5, v.x + wave * .5, v.y + v.len); X.stroke(); X.globalAlpha = 1; }
+    }
+
+    function drawStickman(p, color, accent, sCol) {
+      const { x, y, w, h, facing: f, frame, castAnim, castType, hatWave, capeWave, staffGlow: sG, lean, sq, st } = p;
+      const cx = x + w / 2, cy = y + h, cA = castAnim > 0 ? castAnim / 280 : 0;
+      if (p.inv) return;
+      X.save();
+      X.globalAlpha = .18; X.fillStyle = '#000'; X.beginPath(); X.ellipse(cx, cy + 3, 9 * sq, 3.5 / st, 0, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+
+      X.translate(cx, cy); X.scale(f, 1); X.rotate(lean * f); X.scale(sq, st);
+      const tRun = frame > 0 && frame < 7 ? frame / 6 : 0;
+      const bob = frame === 0 ? Math.sin(p.animT * .05) * -1.5 : frame < 7 ? Math.sin(tRun * Math.PI * 2) * -3 : frame === 7 ? -1 : frame === 8 ? -3 : 0;
+      let pY = -14 + bob, nY = -23 + bob;
+      let l1x = -3, l1y = 0, l2x = 3, l2y = 0, k1x, k1y, k2x, k2y;
+      if (frame === 0) { l1x = 4; l2x = -4; k1x = 2; k1y = -7; k2x = -2; k2y = -7; }
+      else if (frame < 7) {
+        const a1 = tRun * Math.PI * 2, a2 = a1 + Math.PI;
+        l1x = Math.sin(a1) * 8 + 2; l1y = Math.cos(a1) > 0 ? 0 : -Math.cos(a1) * 5;
+        l2x = Math.sin(a2) * 8 + 2; l2y = Math.cos(a2) > 0 ? 0 : -Math.cos(a2) * 5;
+        k1x = l1x + 2; k1y = -7 + l1y * .5; k2x = l2x + 2; k2y = -7 + l2y * .5; pY += Math.sin(a1 * 2) * -1;
+      } else if (frame === 7) { l1x = 2; l1y = -6; k1x = 4; k1y = -10; l2x = -4; l2y = -2; k2x = -2; k2y = -8; }
+      else if (frame === 8) { l1x = 3; l1y = -2; k1x = 4; k1y = -8; l2x = -3; l2y = -8; k2x = -5; k2y = -12; }
+
+      X.strokeStyle = '#443322'; X.lineWidth = 2.5; X.lineCap = 'round'; X.lineJoin = 'round';
+      X.beginPath(); X.moveTo(0, pY); X.lineTo(k2x, k2y); X.lineTo(l2x, l2y); X.stroke(); X.fillStyle = '#3a2a18'; X.fillRect(l2x - 3, l2y - 3, 5, 4);
+      X.beginPath(); X.moveTo(0, pY); X.lineTo(k1x, k1y); X.lineTo(l1x, l1y); X.stroke(); X.fillRect(l1x - 3, l1y - 3, 5, 4);
+
+      X.globalAlpha = .65; X.fillStyle = color; const cw1 = Math.sin(capeWave) * 4, cw2 = Math.sin(capeWave * .7 + 1) * 3;
+      X.beginPath(); X.moveTo(0, nY + 2); X.bezierCurveTo(-6, nY + 4 + cw1, -12, nY + 10 + cw1, -15 + cw2, nY + 16 + p.vy); X.lineTo(-12 + Math.sin(capeWave * 1.3) * 3, nY + 18 + p.vy); X.bezierCurveTo(-8, nY + 13 + cw1 * .5, -4, nY + 6, 2, nY + 4); X.fill(); X.globalAlpha = 1;
+
+      X.strokeStyle = color; X.lineWidth = 3.5; X.beginPath(); X.moveTo(0, pY); X.lineTo(0, nY); X.stroke();
+      X.fillStyle = color; X.globalAlpha = .5; X.beginPath(); X.moveTo(-6, nY); X.lineTo(6, nY); X.lineTo(8, pY); X.lineTo(-8, pY); X.fill(); X.globalAlpha = 1;
+      X.fillStyle = accent; X.fillRect(-4, nY + 4, 8, 2); X.fillStyle = darken(color, .1); X.fillRect(-5, nY - 2, 3, 3); X.fillRect(3, nY - 2, 3, 3);
+
+      let a1x, a1y, e1x, e1y, a2x, a2y, e2x, e2y, sAx, sAy, sAngle;
+      if (cA > 0) {
+        let mdx = (mouse.x - cx) * f, mdy = mouse.y - (cy + nY), tAngle = Math.atan2(mdy, mdx) * 0.7; const cE = cA > 0.5 ? 1 : cA * 2;
+        if (castType === 'thrust') { a1x = 12 * cE + Math.cos(tAngle) * 4; a1y = nY + 2 + Math.sin(tAngle) * 4; e1x = 6; e1y = nY + 2; a2x = -4; a2y = nY + 6; e2x = -8; e2y = nY + 8; sAx = a1x; sAy = a1y; sAngle = tAngle; }
+        else if (castType === 'slam') { const up = cA > 0.5 ? -1 : 1; a1x = 10 * up; a1y = nY + (up < 0 ? -12 : 10); e1x = 8 * up; e1y = nY + (up < 0 ? -6 : 4); a2x = 6 * up; a2y = nY + (up < 0 ? -10 : 8); e2x = 4 * up; e2y = nY + (up < 0 ? -4 : 2); sAx = a1x; sAy = a1y; sAngle = up < 0 ? -Math.PI / 3 : Math.PI / 4; }
+        else if (castType === 'up') { a1x = 6; a1y = nY - 14; e1x = 8; e1y = nY - 6; a2x = -4; a2y = nY - 10; e2x = -6; e2y = nY - 4; sAx = a1x; sAy = a1y; sAngle = -Math.PI / 2; }
+        else if (castType === 'channel' || castType === 'burst') { a1x = 14 + Math.cos(tAngle) * 5; a1y = nY - 2 + Math.sin(tAngle) * 5 + (Math.random() - .5) * 2; e1x = 8; e1y = nY; a2x = 8 + Math.cos(tAngle) * 2; a2y = nY + 4 + Math.sin(tAngle) * 2; e2x = 4; e2y = nY + 6; sAx = a1x; sAy = a1y; sAngle = tAngle; nY += Math.sin(p.animT) * 0.5; }
+        else if (castType === 'slash') { a1x = Math.max(-10, Math.cos(cA * Math.PI * 2) * 15); a1y = nY + Math.sin(cA * Math.PI * 2) * 15; e1x = 4; e1y = nY; a2x = a1x - 4; a2y = a1y + 2; e2x = -2; e2y = nY + 4; sAx = a1x; sAy = a1y; sAngle = cA * Math.PI * 2; }
+        else if (castType === 'struggle') { a1x = -6; a1y = nY - 6; e1x = -8; e1y = nY - 2; a2x = -4; a2y = nY - 4; e2x = -6; e2y = nY + 2; sAx = a1x; sAy = a1y; sAngle = -0.5; }
+        else if (castType === 'front_pose') { a1x = 4; a1y = nY + 12; e1x = 6; e1y = nY + 6; a2x = -4; a2y = nY + 12; e2x = -6; e2y = nY + 6; sAx = 4; sAy = nY + 12; sAngle = 1.5; }
+        else { a1x = 10; a1y = nY; e1x = 5; e1y = nY + 2; a2x = -4; a2y = nY + 4; e2x = -6; e2y = nY + 6; sAx = a1x; sAy = a1y; sAngle = 0; }
+      } else {
+        e1x = 2; e1y = nY + 6; a1x = 8; a1y = nY + 4; e2x = -4; e2y = nY + 6; a2x = -6; a2y = nY + 12; sAx = a1x; sAy = a1y; sAngle = -0.2;
+        if (frame > 0 && frame < 7) { const a1 = tRun * Math.PI * 2, a2 = a1 + Math.PI; a1x = Math.sin(a2) * 6; a1y = nY + 6 - Math.cos(a2) * 4; e1x = a1x * .5; e1y = nY + 2; a2x = Math.sin(a1) * 8; a2y = nY + 6 - Math.cos(a1) * 4; e2x = a2x * .5; e2y = nY + 2; sAx = a1x; sAy = a1y; sAngle = a1x * 0.05 - 0.2; }
+        else if (frame > 6) { a1x = 8; a1y = nY - 6; e1x = 6; e1y = nY - 2; a2x = -8; a2y = nY - 6; e2x = -6; e2y = nY - 2; sAx = a1x; sAy = a1y; sAngle = -0.5; }
+      }
+
+      X.strokeStyle = '#e0d0b8'; X.lineWidth = 2.5; X.beginPath(); X.moveTo(0, nY + 2); X.lineTo(e2x, e2y); X.lineTo(a2x, a2y); X.stroke();
+      X.save(); X.translate(sAx, sAy); X.rotate(sAngle * f);
+      X.strokeStyle = '#5B4210'; X.lineWidth = 2.5; X.beginPath(); X.moveTo(0, -18); X.lineTo(0, 14); X.stroke();
+      X.fillStyle = '#888'; X.fillRect(-2, -2, 4, 2); X.fillStyle = '#6B4A10'; X.beginPath(); X.moveTo(-4, -18); X.lineTo(0, -22); X.lineTo(4, -18); X.fill();
+      X.fillStyle = sCol; X.fillRect(-3, -21, 6, 6); X.fillStyle = '#fff'; X.globalAlpha = .6; X.fillRect(-1, -20, 2, 2); X.globalAlpha = 1;
+      const glI = sG > 0 ? sG / 200 : .15 + Math.sin(performance.now() * .008) * .08;
+      X.globalAlpha = glI * .5; X.beginPath(); X.arc(0, -18, 10 + glI * 5, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+      if (cA > 0.5 && cA < 0.9) { const ci = (cA - 0.5) * 2.5; X.globalAlpha = ci * .7; X.beginPath(); X.arc(0, -18, 16 * ci, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1; } X.restore();
+      X.beginPath(); X.moveTo(0, nY + 2); X.lineTo(e1x, e1y); X.lineTo(a1x, a1y); X.stroke();
+
+      X.fillStyle = '#f0dab0'; X.fillRect(-5, nY - 8, 10, 10);
+      X.fillStyle = '#111'; X.fillRect(1, nY - 5, 2, 2); X.fillRect(-3, nY - 5, 2, 2);
+      if (cA > 0) { X.fillStyle = sCol; X.globalAlpha = .7 * cA; X.fillRect(1, nY - 5, 2, 2); X.fillRect(-3, nY - 5, 2, 2); X.globalAlpha = 1; }
+
+      X.save(); X.translate(0, nY - 8); const hy = Math.sin(hatWave) * .5 + (p.vy < 0 ? 2 : 0) + p.vy * .1;
+      X.rotate(Math.sin(hatWave * .5) * .04 + (p.vx * 0.02 * f)); X.translate(0, hy);
+      X.fillStyle = color; X.fillRect(-10, -1, 20, 3); X.fillStyle = darken(color, .2); X.fillRect(-10, 1, 20, 1);
+      X.fillStyle = color; X.fillRect(-6, -6, 12, 5); X.fillRect(-5, -10, 10, 4); X.fillRect(-4, -14, 8, 4); X.fillRect(-2, -18, 4, 4);
+      X.fillStyle = accent; X.fillRect(-6, -6, 12, 2); X.fillStyle = '#ffee44'; X.fillRect(0, -12, 2, 2);
+      X.fillStyle = color; X.fillRect(2, -19, 3, 2); X.fillRect(4, -18, 2, 2);
+      X.fillStyle = accent; X.globalAlpha = .5 + Math.sin(performance.now() * .01) * .3; X.fillRect(7, -17, 2, 2); X.globalAlpha = 1;
+      X.restore(); X.restore();
+    }
+
+    function drawEntities() {
+      for (const e of entities) {
+        if (!e.active) continue; const fl = e.hitF > 0 && ((e.hitF / 25 | 0) % 2 === 0);
+        const frozen = frozenEntities.get(e); const isFrozen = frozen && frozen > 0;
+        X.save();
+        if (e.rot !== undefined && e.type !== 'dummy') { X.translate(e.x + e.w / 2, e.y + e.h / 2); X.rotate(e.rot); X.translate(-e.w / 2, -e.h / 2); } else X.translate(e.x, e.y);
+        // Frozen tint
+        if (isFrozen) { X.globalAlpha = .3; X.fillStyle = '#88ddff'; X.fillRect(-2, -2, e.w + 4, e.h + 4); X.globalAlpha = 1; }
+
+        if (e.type === 'dummy') {
+          const dc = fl ? '#fff' : '#cc8844'; const cx2 = e.w / 2;
+          X.fillStyle = '#5a4020'; X.fillRect(cx2 - 1, e.h - 4, 2, 6); X.fillRect(cx2 - 6, e.h + 1, 12, 2);
+          X.strokeStyle = dc; X.lineWidth = 2; X.beginPath(); X.moveTo(cx2, 8); X.lineTo(cx2, 20); X.stroke(); X.beginPath(); X.moveTo(cx2, 20); X.lineTo(cx2 - 4, e.h - 4); X.stroke(); X.beginPath(); X.moveTo(cx2, 20); X.lineTo(cx2 + 4, e.h - 4); X.stroke(); X.beginPath(); X.moveTo(cx2, 12); X.lineTo(cx2 - 6, 18); X.stroke(); X.beginPath(); X.moveTo(cx2, 12); X.lineTo(cx2 + 6, 18); X.stroke();
+          X.fillStyle = fl ? '#fff' : '#ddc088'; X.fillRect(cx2 - 4, 0, 8, 8); X.fillStyle = '#333'; X.fillRect(cx2 - 2, 3, 2, 2); X.fillRect(cx2 + 1, 3, 2, 2);
+          X.strokeStyle = '#cc3333'; X.lineWidth = 1.5; X.beginPath(); X.arc(cx2, 14, 6, 0, Math.PI * 2); X.stroke(); X.beginPath(); X.arc(cx2, 14, 3, 0, Math.PI * 2); X.stroke(); X.fillStyle = '#cc3333'; X.beginPath(); X.arc(cx2, 14, 1.5, 0, Math.PI * 2); X.fill();
+          X.fillStyle = 'rgba(0,0,0,.5)'; X.fillRect(-1, -8, e.w + 2, 4); X.fillStyle = '#222'; X.fillRect(0, -7, e.w, 2); X.fillStyle = fl ? '#ff8888' : '#cc2222'; X.fillRect(0, -7, e.w * (e.hp / e.maxHp), 2);
+        } else if (e.type === 'crate') {
+          X.fillStyle = fl ? '#fff' : '#5B3E08'; X.fillRect(2, e.h, e.w - 2, 5);
+          const cG = X.createLinearGradient(0, 0, 0, e.h); cG.addColorStop(0, '#9B7924'); cG.addColorStop(1, '#7B5914'); X.fillStyle = fl ? '#fff' : cG; X.fillRect(0, 0, e.w, e.h);
+          X.strokeStyle = '#5B3900'; X.lineWidth = 1; X.beginPath(); X.moveTo(0, e.h / 2); X.lineTo(e.w, e.h / 2); X.stroke(); X.beginPath(); X.moveTo(e.w / 2, 0); X.lineTo(e.w / 2, e.h); X.stroke();
+          X.fillStyle = '#aaa'; X.fillRect(2, 2, 2, 2); X.fillRect(e.w - 4, 2, 2, 2); X.fillRect(2, e.h - 4, 2, 2); X.fillRect(e.w - 4, e.h - 4, 2, 2);
+        } else if (e.type === 'barrel') {
+          X.fillStyle = fl ? '#fff' : '#4B2810'; X.fillRect(1, e.h, e.w - 2, 5);
+          const bG = X.createLinearGradient(0, 0, e.w, 0); bG.addColorStop(0, '#6B3A18'); bG.addColorStop(.5, '#7B4A28'); bG.addColorStop(1, '#5B2A10'); X.fillStyle = fl ? '#fff' : bG;
+          X.beginPath(); X.moveTo(2, 0); X.lineTo(e.w - 2, 0); X.lineTo(e.w, 3); X.lineTo(e.w, e.h - 3); X.lineTo(e.w - 2, e.h); X.lineTo(2, e.h); X.lineTo(0, e.h - 3); X.lineTo(0, 3); X.fill();
+          X.fillStyle = '#999'; X.fillRect(0, 3, e.w, 2); X.fillRect(0, e.h - 5, e.w, 2); X.fillRect(0, (e.h / 2 | 0) - 1, e.w, 2);
+          if (e.explosive) { X.fillStyle = '#ff4444'; X.globalAlpha = .7 + Math.sin(performance.now() * .01) * .3; X.fillRect(e.w / 2 - 3, e.h / 2 - 3, 6, 6); X.fillStyle = '#ffaa00'; X.fillRect(e.w / 2 - 2, e.h / 2 - 2, 4, 4); X.globalAlpha = 1; }
+        } else if (e.type === 'boulder') {
+          X.fillStyle = fl ? '#fff' : '#3a3a4a'; X.beginPath(); X.moveTo(5, 0); X.lineTo(e.w - 3, 0); X.lineTo(e.w, 5); X.lineTo(e.w + 1, e.h - 5); X.lineTo(e.w - 4, e.h); X.lineTo(4, e.h + 1); X.lineTo(-1, e.h - 4); X.lineTo(0, 4); X.fill();
+          X.fillStyle = '#444458'; X.beginPath(); X.moveTo(6, 1); X.lineTo(e.w - 4, 1); X.lineTo(e.w - 1, 4); X.lineTo(e.w - 2, e.h * .4); X.lineTo(4, e.h * .35); X.lineTo(1, 4); X.fill();
+          X.strokeStyle = '#2a2a38'; X.lineWidth = 1; X.beginPath(); X.moveTo(5, 3); X.lineTo(13, 11); X.lineTo(9, 19); X.stroke(); X.fillStyle = '#282838'; X.fillRect(3, e.h, e.w - 6, 4);
+        }
+        // Frozen ice overlay
+        if (isFrozen) {
+          X.strokeStyle = '#88ddff'; X.lineWidth = 1; X.globalAlpha = .5; X.strokeRect(-1, -1, e.w + 2, e.h + 2);
+          X.fillStyle = '#aaeeff'; X.fillRect(0, 0, 2, 2); X.fillRect(e.w - 3, e.h - 3, 2, 2); X.globalAlpha = 1;
+        }
+        X.restore(); if (e.hitF > 0) e.hitF -= 16;
+      }
+    }
+
+    function drawProjectiles() {
+      for (const p of projectiles) {
+        const s = p.spell, r = p.growR || s.r;
+        if (p.trail.length > 1) { X.lineWidth = r * .7; X.globalAlpha = .15; X.strokeStyle = s.color; X.beginPath(); p.trail.forEach((t, i) => i === 0 ? X.moveTo(t.x, t.y) : X.lineTo(t.x, t.y)); X.stroke(); X.globalAlpha = 1; }
+        X.globalAlpha = .08; X.fillStyle = s.color; X.beginPath(); X.arc(p.x, p.y, r * 4, 0, Math.PI * 2); X.fill();
+        X.globalAlpha = .35; X.beginPath(); X.arc(p.x, p.y, r * 1.8, 0, Math.PI * 2); X.fill();
+        X.globalAlpha = 1; X.fillStyle = s.core; X.beginPath(); X.arc(p.x, p.y, r * .6, 0, Math.PI * 2); X.fill();
+        X.fillStyle = s.color; X.beginPath(); X.arc(p.x, p.y, r * .9, 0, Math.PI * 2); X.fill();
+        X.fillStyle = '#fff'; X.globalAlpha = .5; X.beginPath(); X.arc(p.x - r * .2, p.y - r * .2, r * .3, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+      }
+    }
+
+    function drawGravityWells() {
+      for (const gw of gravityWells) {
+        const a = gw.life / gw.maxLife;
+        if (gw.isTornado) {
+          // Tornado visual
+          for (let ring = 0; ring < 6; ring++) { const r = gw.r * (.1 + ring * .15), yOff = -ring * 8; X.strokeStyle = gw.color; X.lineWidth = 3 - ring * .3; X.globalAlpha = a * (.4 - ring * .05); X.beginPath(); X.ellipse(gw.x, gw.y + yOff, r * (1 + Math.sin(performance.now() * .01 + ring) * .15), r * .3, 0, 0, Math.PI * 2); X.stroke(); }
+          X.globalAlpha = 1;
+        } else {
+          for (let ring = 0; ring < 5; ring++) { const r = gw.r * (.2 + ring * .18) * (1 + Math.sin(performance.now() * .012 + ring) * .12); X.strokeStyle = ring % 2 === 0 ? gw.color : '#3311aa'; X.lineWidth = 2.5 - ring * .3; X.globalAlpha = a * (.35 - ring * .05); X.beginPath(); X.arc(gw.x, gw.y, r, 0, Math.PI * 2); X.stroke(); }
+          X.globalAlpha = a * .5; X.fillStyle = '#000'; X.beginPath(); X.arc(gw.x, gw.y, 6, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+        }
+      }
+    }
+
+    function drawLightning() {
+      for (const lb of lightningBolts) {
+        const a = lb.life / 18;
+        X.strokeStyle = lb.color; X.lineWidth = lb.width + 6; X.globalAlpha = a * .15; X.beginPath(); lb.segments.forEach((s2, i) => i === 0 ? X.moveTo(s2.x, s2.y) : X.lineTo(s2.x, s2.y)); X.stroke();
+        X.strokeStyle = '#fff'; X.lineWidth = lb.width; X.globalAlpha = a; X.beginPath(); lb.segments.forEach((s2, i) => i === 0 ? X.moveTo(s2.x, s2.y) : X.lineTo(s2.x, s2.y)); X.stroke(); X.globalAlpha = 1;
+      }
+    }
+
+    function drawShockwaves() { for (const s2 of shockwaves) { const a = s2.life / s2.maxLife; X.strokeStyle = s2.color; X.lineWidth = 3 * a; X.globalAlpha = a * .5; X.beginPath(); X.arc(s2.x, s2.y, s2.r, 0, Math.PI * 2); X.stroke(); X.globalAlpha = 1; } }
+
+    function drawZones() {
+      // poison clouds handled by vfxEngine
+      // Fire walls
+      for (const fw of fireWalls) {
+        const a = Math.min(1, fw.dur / 30);
+        X.globalAlpha = a * .3; X.fillStyle = fw.color; X.fillRect(fw.x, fw.y, fw.w, fw.h);
+        X.globalAlpha = a * .15; const fg = X.createLinearGradient(fw.x, fw.y, fw.x, fw.y + fw.h); fg.addColorStop(0, fw.c2); fg.addColorStop(1, fw.color); X.fillStyle = fg; X.fillRect(fw.x, fw.y, fw.w, fw.h); X.globalAlpha = 1;
+      }
+      // Spikes
+      for (const sk of spikes) {
+        const a = sk.life / sk.maxLife; X.globalAlpha = Math.min(1, a * 2);
+        X.fillStyle = sk.color;
+        const bx = sk.x, by = sk.y;
+        // Draw spike columns
+        for (let sx2 = bx; sx2 < bx + sk.w; sx2 += 8) {
+          const sh = sk.h * (1 - Math.abs(sx2 - bx - sk.w / 2) / (sk.w / 2) * .4);
+          X.fillStyle = sk.color; X.fillRect(sx2, by - sh, 6, sh);
+          X.fillStyle = sk.c2; X.fillRect(sx2, by - sh, 2, sh * .6);
+          X.fillStyle = darken(sk.color, .3); X.fillRect(sx2 + 4, by - sh + 2, 2, sh - 2);
+          // Tip
+          X.fillStyle = sk.c2; X.beginPath(); X.moveTo(sx2, by - sh); X.lineTo(sx2 + 3, by - sh - 6); X.lineTo(sx2 + 6, by - sh); X.fill();
+        }
+        X.globalAlpha = 1;
+      }
+      // timebombs handled by vfxEngine
+    }
+
+    function drawParticles() {
+      for (const p of particles) {
+        const a = Math.max(0, p.life / p.ml); X.globalAlpha = a; X.fillStyle = p.color; const s2 = p.size * Math.min(1, a + .3);
+        if (p.type === 'debris') { X.save(); X.translate(p.x, p.y); X.rotate(p.rot || 0); X.fillRect(-s2 / 2, -s2 / 2, s2, s2); X.restore(); }
+        else X.fillRect(p.x - s2 / 2 | 0, p.y - s2 / 2 | 0, Math.ceil(s2), Math.ceil(s2));
+      } X.globalAlpha = 1;
+    }
+
+    function drawDmgNumbers() {
+      for (const d of damageNumbers) {
+        const a = Math.max(0, d.life / 70), sz = Math.min(9, 6 + (d.sc || 1));
+        X.font = `${sz}px "Press Start 2P"`; X.globalAlpha = a; X.fillStyle = '#000'; X.fillText((d.color === '#44ff44' ? '+' : '-') + d.val, d.x + 1, d.y + 1);
+        X.fillStyle = d.color; X.fillText((d.color === '#44ff44' ? '+' : '-') + d.val, d.x, d.y);
+      } X.globalAlpha = 1;
+    }
+
+    function drawLighting() {
+      LX.clearRect(0, 0, W, H); LX.fillStyle = 'rgba(0,0,10,0.35)'; LX.fillRect(0, 0, W, H);
+      LX.globalCompositeOperation = 'destination-out';
+      const pg = LX.createRadialGradient(player.x + player.w / 2, player.y + player.h / 2, 0, player.x + player.w / 2, player.y + player.h / 2, 70); pg.addColorStop(0, 'rgba(0,0,0,0.3)'); pg.addColorStop(1, 'rgba(0,0,0,0)'); LX.fillStyle = pg; LX.fillRect(player.x - 70, player.y - 70, 154, 160);
+      for (const l of dynamicLights) { const a = l.life / l.ml * l.int, lg = LX.createRadialGradient(l.x, l.y, 0, l.x, l.y, l.r); lg.addColorStop(0, `rgba(0,0,0,${Math.min(1, a * .6)})`); lg.addColorStop(1, 'rgba(0,0,0,0)'); LX.fillStyle = lg; LX.beginPath(); LX.arc(l.x, l.y, l.r, 0, Math.PI * 2); LX.fill(); }
+      LX.globalCompositeOperation = 'source-atop';
+      for (const l of dynamicLights) { const a = l.life / l.ml * l.int, [r, g, b] = hexRgb(l.color), cg = LX.createRadialGradient(l.x, l.y, 0, l.x, l.y, l.r * .7); cg.addColorStop(0, `rgba(${r},${g},${b},${Math.min(.3, a * .15)})`); cg.addColorStop(1, 'rgba(0,0,0,0)'); LX.fillStyle = cg; LX.beginPath(); LX.arc(l.x, l.y, l.r * .7, 0, Math.PI * 2); LX.fill(); }
+      LX.globalCompositeOperation = 'source-over'; X.drawImage(lightCanvas, 0, 0);
+    }
+
+    function drawAimLine() {
+      const px = player.x + player.w / 2 + player.facing * 8, py = player.y + 10 + (player.castAnim > 0 ? -8 : 0), s = SPELLS[selSpell];
+      X.strokeStyle = s.color; X.lineWidth = 1; X.globalAlpha = .2; X.setLineDash([3, 5]); X.beginPath(); X.moveTo(px, py); X.lineTo(mouse.x, mouse.y); X.stroke(); X.setLineDash([]); X.globalAlpha = 1;
+      if (!s.instant && !s.isMeteor && !s.isWind && !s.isSpike && !s.isNova && !s.isWall && !s.isQuake && !s.isFrostNova && !s.isTeleport && !s.isLaser && s.speed > 0) {
+        const angle = Math.atan2(mouse.y - py, mouse.x - px); let tx = px, ty = py, tvx = Math.cos(angle) * s.speed, tvy = Math.sin(angle) * s.speed;
+        X.fillStyle = s.color; for (let step = 0; step < 50; step++) { tvy += s.grav; tvx *= s.drag; tvy *= s.drag; tx += tvx; ty += tvy; X.globalAlpha = (1 - step / 50) * .25; if (step % 2 === 0) X.fillRect((tx | 0) - 1, (ty | 0) - 1, 2, 2); let hit = false; for (const pl of platforms) { if (tx > pl.x && tx < pl.x + pl.w && ty > pl.y && ty < pl.y + pl.h) { hit = true; break; } } if (hit || tx < 0 || tx > W || ty > H) break; } X.globalAlpha = 1;
+      }
+      const mx = mouse.x, my = mouse.y; X.strokeStyle = s.color; X.lineWidth = 1; X.globalAlpha = .5;
+      X.beginPath(); X.moveTo(mx - 7, my); X.lineTo(mx - 3, my); X.stroke(); X.beginPath(); X.moveTo(mx + 3, my); X.lineTo(mx + 7, my); X.stroke(); X.beginPath(); X.moveTo(mx, my - 7); X.lineTo(mx, my - 3); X.stroke(); X.beginPath(); X.moveTo(mx, my + 3); X.lineTo(mx, my + 7); X.stroke(); X.beginPath(); X.arc(mx, my, 5, 0, Math.PI * 2); X.stroke(); X.globalAlpha = 1;
+      if (s.isMeteor || s.isSpike || s.isWall) { X.globalAlpha = .12; X.fillStyle = s.color; X.beginPath(); X.arc(mx, my, (s.exR || s.spikeW || s.wallW || 30) * .5, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1; }
+      if (s.isQuake || s.isFrostNova) { X.globalAlpha = .1; X.strokeStyle = s.color; X.lineWidth = 1; X.beginPath(); X.arc(player.x + player.w / 2, player.y + player.h / 2, s.quakeR || s.frostR || 80, 0, Math.PI * 2); X.stroke(); X.globalAlpha = 1; }
+    }
+
+    function drawVignette() { const vg = X.createRadialGradient(W / 2, H / 2, W * .25, W / 2, H / 2, W * .7); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,5,0.4)'); X.fillStyle = vg; X.fillRect(0, 0, W, H); }
+
+    let ambientT = 0;
+    function updateAmbient(dt) { ambientT += dt; if (ambientT > 200) { ambientT = 0; for (let i = 0; i < 2; i++)particles.push({ x: Math.random() * W, y: H - 30 + Math.random() * 10, vx: (Math.random() - .5) * .3, vy: -.2 - Math.random() * .4, life: 80 + Math.random() * 50, ml: 130, color: ['#3a2860', '#2a3870', '#4a2050'][(Math.random() * 3) | 0], size: .8 + Math.random(), grav: -.008, type: 'ambient' }); } }
+
+    // ═══ MAIN LOOP ═══
+    const keysDown = {}; let lastT = 0;
+    function loop(t) {
+      const dt = Math.min(t - lastT, 33); lastT = t;
+      updatePlayer(keysDown, dt);
+      entities.forEach(e => { if (e.active) { physBody(e); e.age += dt; } });
+      collideEntities(); updateProjectiles(dt); updateZones(dt);
+      updateVFX(dt); updateParticles(); updateLightning(); updateShockwaves(); updateDynLights(); updateDmgNums(); updateAmbient(dt);
+      if (screenShake > 0) screenShake *= .88; if (screenShake < .05) screenShake = 0;
+      entities = entities.filter(e => e.active || e.age < 5000);
+
+      X.save(); if (screenShake > 0) X.translate((Math.random() - .5) * screenShake * 3, (Math.random() - .5) * screenShake * 3);
+      drawBG(); drawPlatforms(); drawDecorations(); drawGravityWells(); drawZones(); drawVFX(); drawParticles(); drawEntities(); drawProjectiles(); drawLightning(); drawShockwaves();
+      drawStickman(player, '#4488ff', '#ffcc00', SPELLS[selSpell].color);
+      drawAimLine(); drawLighting(); drawDmgNumbers(); drawVignette();
+      X.restore();
+
+      document.getElementById('hpBar').style.width = (player.hp / player.maxHp * 100) + '%';
+      document.getElementById('mpBar').style.width = (player.mana / player.maxMana * 100) + '%';
+      const si = document.getElementById('spellInfo');
+      const sp = SPELLS[selSpell]; const cdLeft = Math.max(0, sp.cd - (performance.now() - lastCastPerSpell[selSpell]));
+      si.innerHTML = `${sp.icon} <span style="color:${sp.color}">${sp.name}</span> — ${sp.desc} | DMG:${sp.dmg} MANA:${sp.mana} ${cdLeft > 0 ? 'CD:' + Math.ceil(cdLeft / 100) * 100 + 'ms' : 'READY'}`;
+      si.style.color = '#888';
+
+      requestAnimationFrame(loop);
+    }
+
+    // ═══ INPUT ═══
+    const spellKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'q', 'e', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\', 'z', 'x'];
+    document.addEventListener('keydown', e => {
+      keysDown[e.key.toLowerCase()] = true;
+      const ki = spellKeys.indexOf(e.key.toLowerCase());
+      if (ki >= 0 && ki < SPELLS.length) selectSpell(ki);
+      if (e.key.toLowerCase() === 'r') resetWorld();
+      if (['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].includes(e.key) || ['q', 'e', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\', 'z', 'x'].includes(e.key.toLowerCase())) e.preventDefault();
+    });
+    document.addEventListener('keyup', e => { keysDown[e.key.toLowerCase()] = false; });
+    C.addEventListener('mousemove', e => { const rect = C.getBoundingClientRect(); mouse.x = (e.clientX - rect.left) * (W / rect.width); mouse.y = (e.clientY - rect.top) * (H / rect.height); });
+    C.addEventListener('mousedown', e => {
+      e.preventDefault(); mouse.down = true;
+      if (spawnMode) { entities.push(createBody(spawnMode, mouse.x - 10, mouse.y - 10)); return; }
+      const ox = player.x + player.w / 2 + player.facing * 10, oy = player.y + 8; fireSpell(selSpell, ox, oy, mouse.x, mouse.y);
+    });
+    C.addEventListener('mouseup', () => { mouse.down = false; });
+    C.addEventListener('contextmenu', e => e.preventDefault());
+    setInterval(() => { if (mouse.down && !spawnMode) { const s = SPELLS[selSpell]; if (s.cd <= 200 || s.isLaser) { const ox = player.x + player.w / 2 + player.facing * 10, oy = player.y + 8; fireSpell(selSpell, ox, oy, mouse.x, mouse.y); } } }, 80);
+
+    function selectSpell(idx) {
+      selSpell = idx; spawnMode = null;
+      document.querySelectorAll('.spell-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+      document.querySelectorAll('[data-spawn]').forEach(b => b.classList.remove('active'));
+      SoundFX.playTone(600 + idx * 20, 'square', 0.05, 0.1);
+    }
+
+    function resetWorld() {
+      SoundFX.playSweep(150, 400, 'sine', 0.3, 0.2);
+      vfxSequences = []; entities = []; vfxSequences = []; projectiles = []; particles = []; gravityWells = []; lightningBolts = []; damageNumbers = []; shockwaves = []; dynamicLights = []; poisonClouds = []; fireWalls = []; spikes = []; timeBombs = []; frozenEntities.clear(); player.x = 100; player.y = 300; player.vx = 0; player.vy = 0; player.hp = player.maxHp; player.mana = player.maxMana; lastCastPerSpell.fill(0); spawnInitial();
+    }
+
+    function spawnInitial() {
+      entities.push(createBody('dummy', 350, 200)); entities.push(createBody('dummy', 500, 340)); entities.push(createBody('dummy', 270, 80)); entities.push(createBody('dummy', 150, 260));
+      entities.push(createBody('crate', 400, 310)); entities.push(createBody('crate', 420, 310)); entities.push(createBody('crate', 410, 290));
+      entities.push(createBody('barrel', 480, 240)); entities.push(createBody('barrel', 150, 155)); entities.push(createBody('barrel', 600, 345));
+      entities.push(createBody('boulder', 320, 180)); entities.push(createBody('boulder', 100, 160));
+    }
+
+    // ═══ BUILD TOOLBAR ═══
+    const spellRow = document.getElementById('spellRow');
+    SPELLS.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'spell-btn tb-btn' + (i === 0 ? ' active' : '');
+      btn.innerHTML = `${s.icon}<span class="key-hint">${s.key.toUpperCase()}</span>`;
+      btn.title = `${s.name}: ${s.desc}\nDmg:${s.dmg} Mana:${s.mana} CD:${s.cd}ms\nKey: ${s.key.toUpperCase()}`;
+      btn.addEventListener('click', () => selectSpell(i));
+      spellRow.appendChild(btn);
+    });
+
+    document.querySelectorAll('[data-spawn]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const t = btn.dataset.spawn;
+        if (spawnMode === t) { spawnMode = null; btn.classList.remove('active'); SoundFX.playTone(300, 'triangle', 0.1, 0.1); }
+        else { spawnMode = t; document.querySelectorAll('[data-spawn]').forEach(b2 => b2.classList.remove('active')); document.querySelectorAll('.spell-btn').forEach(b2 => b2.classList.remove('active')); btn.classList.add('active'); SoundFX.playTone(400, 'square', 0.1, 0.1); }
+      });
+    });
+    document.getElementById('btnGravUp').addEventListener('click', () => { PHY.gravity = Math.min(1.5, PHY.gravity + .1); document.getElementById('gravLabel').textContent = PHY.gravity.toFixed(2); SoundFX.playTone(400, 'sine', 0.05, 0.1); });
+    document.getElementById('btnGravDn').addEventListener('click', () => { PHY.gravity = Math.max(-.5, PHY.gravity - .1); document.getElementById('gravLabel').textContent = PHY.gravity.toFixed(2); SoundFX.playTone(300, 'sine', 0.05, 0.1); });
+    document.getElementById('btnClear').addEventListener('click', () => { entities = []; projectiles = []; particles = []; gravityWells = []; lightningBolts = []; damageNumbers = []; shockwaves = []; dynamicLights = []; poisonClouds = []; fireWalls = []; spikes = []; timeBombs = []; frozenEntities.clear(); });
+    document.getElementById('btnReset').addEventListener('click', resetWorld);
+
+    spawnInitial(); requestAnimationFrame(loop);
+    function resize() { const mW = window.innerWidth - 20, mH = window.innerHeight - 20, s2 = Math.min(mW / W, mH / H, 1.6); C.style.width = (W * s2) + 'px'; C.style.height = (H * s2) + 'px'; }
+    resize(); window.addEventListener('resize', resize);
+  </script>
+</body>
+
+</html>

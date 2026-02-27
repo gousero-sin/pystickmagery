@@ -1,0 +1,115 @@
+{
+  "coordSystem": "origin top-left; +x right; +y down",
+  "selectedSpell": "Air Pressure",
+  "selectedSpellCategory": "Manifest",
+  "player": {
+    "x": 100,
+    "y": 355,
+    "vx": 0,
+    "vy": 0,
+    "hp": 100,
+    "mana": 100
+  },
+  "entities": [
+    {
+      "type": "dummy",
+      "x": 405,
+      "y": 105,
+      "vx": 1.71,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 680,
+      "y": 345,
+      "vx": 1.78,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 361,
+      "y": 315,
+      "vx": -1.39,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 238,
+      "y": 124,
+      "vx": 1.65,
+      "vy": 4.64,
+      "hp": 80
+    },
+    {
+      "type": "crate",
+      "x": 425,
+      "y": 325,
+      "vx": 0,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 447,
+      "y": 325,
+      "vx": 0,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 480,
+      "y": 325,
+      "vx": 0,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "barrel",
+      "x": 480,
+      "y": 253,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 298,
+      "y": 454,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 600,
+      "y": 353,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "boulder",
+      "x": 366,
+      "y": 454,
+      "vx": 0,
+      "vy": 0,
+      "hp": 120
+    },
+    {
+      "type": "boulder",
+      "x": 100,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 120
+    }
+  ],
+  "projectiles": [],
+  "vfx": [],
+  "manifestDraft": null,
+  "manifests": []
+}

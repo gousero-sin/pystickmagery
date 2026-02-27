@@ -1,0 +1,29 @@
+{
+  "coordSystem": "origin top-left; +x right; +y down",
+  "selectedSpell": "Glacier Path",
+  "selectedSpellCategory": "Manifest",
+  "player": {
+    "x": 100,
+    "y": 355,
+    "vx": 0,
+    "vy": 0,
+    "hp": 100,
+    "mana": 77
+  },
+  "entities": [],
+  "projectiles": [],
+  "vfx": [],
+  "manifestDraft": null,
+  "manifests": [
+    {
+      "type": "manifest_construct",
+      "state": 0,
+      "builtSegments": 3,
+      "totalSegments": 6,
+      "x1": 119,
+      "y1": 269,
+      "x2": 206,
+      "y2": 225
+    }
+  ]
+}
