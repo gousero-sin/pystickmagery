@@ -1,0 +1,104 @@
+{
+  "errors": [],
+  "common": {
+    "selectedSpell": "Redlight Perfume",
+    "selectedSpellCategory": "Aura",
+    "vfx": [
+      {
+        "type": "lust_status",
+        "state": 0,
+        "age": 126,
+        "profile": null,
+        "captured": 0,
+        "targets": 0,
+        "slashes": 0,
+        "marks": 0,
+        "lockCount": 0,
+        "mirrored": 0,
+        "heads": 0,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "type": "lust_scent_spiral",
+        "state": 0,
+        "age": 98,
+        "profile": null,
+        "captured": 0,
+        "targets": 0,
+        "slashes": 0,
+        "marks": 0,
+        "lockCount": 0,
+        "mirrored": 0,
+        "heads": 0,
+        "x": 410,
+        "y": 213
+      }
+    ]
+  },
+  "blackout": {
+    "selectedSpell": "Cabaret Blackout",
+    "selectedSpellCategory": "Pulse",
+    "vfx": [
+      {
+        "type": "lust_status",
+        "state": 0,
+        "age": 77,
+        "profile": null,
+        "captured": 0,
+        "targets": 0,
+        "slashes": 0,
+        "marks": 0,
+        "lockCount": 0,
+        "mirrored": 0,
+        "heads": 0,
+        "x": 0,
+        "y": 0
+      }
+    ]
+  },
+  "ultimate": {
+    "selectedSpell": "Forbidden Encore",
+    "selectedSpellCategory": "Ultimate",
+    "vfx": [
+      {
+        "type": "lust_euphoria_bloom",
+        "state": 1,
+        "age": 103,
+        "profile": null,
+        "captured": 0,
+        "targets": 0,
+        "slashes": 0,
+        "marks": 0,
+        "lockCount": 0,
+        "mirrored": 0,
+        "heads": 0,
+        "x": 107,
+        "y": 370
+      },
+      {
+        "type": "lust_status",
+        "state": 0,
+        "age": 103,
+        "profile": null,
+        "captured": 0,
+        "targets": 0,
+        "slashes": 0,
+        "marks": 0,
+        "lockCount": 0,
+        "mirrored": 0,
+        "heads": 0,
+        "x": 0,
+        "y": 0
+      }
+    ]
+  },
+  "pixelSummary": {
+    "width": 800,
+    "height": 500,
+    "sampledUniqueColors": 161,
+    "brightSamples": 269,
+    "redlightSamples": 1024,
+    "darkStageSamples": 37208
+  }
+}

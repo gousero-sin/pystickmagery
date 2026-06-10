@@ -1,0 +1,2201 @@
+{
+  "generatedAt": "2026-06-08T17:50:22.015Z",
+  "schools": [
+    {
+      "name": "Nature",
+      "icon": "🌿",
+      "color": "#44cc22",
+      "count": 13,
+      "totalCount": 13,
+      "spells": [
+        {
+          "name": "Poison Cloud",
+          "icon": "☁️",
+          "dmg": 8,
+          "mana": 20,
+          "cd": 700,
+          "category": null,
+          "desc": "Toxic AoE — damages over time"
+        },
+        {
+          "name": "Earth Spike",
+          "icon": "⛰️",
+          "dmg": 55,
+          "mana": 25,
+          "cd": 800,
+          "category": null,
+          "desc": "Ground eruption at cursor"
+        },
+        {
+          "name": "Earthquake",
+          "icon": "🌍",
+          "dmg": 40,
+          "mana": 35,
+          "cd": 1200,
+          "category": null,
+          "desc": "Shakes ground — launches all"
+        },
+        {
+          "name": "Razor Leaf",
+          "icon": "🍃",
+          "dmg": 18,
+          "mana": 12,
+          "cd": 200,
+          "category": null,
+          "desc": "Piercing fan that drops toxic puddles"
+        },
+        {
+          "name": "Seed Barrage",
+          "icon": "🌱",
+          "dmg": 10,
+          "mana": 4,
+          "cd": 80,
+          "category": null,
+          "desc": "Rapid-fire spreading seeds"
+        },
+        {
+          "name": "Vine Grapple",
+          "icon": "🪴",
+          "dmg": 20,
+          "mana": 20,
+          "cd": 600,
+          "category": null,
+          "desc": "Roots and poisons targets"
+        },
+        {
+          "name": "Spore Burst",
+          "icon": "🍄",
+          "dmg": 18,
+          "mana": 25,
+          "cd": 500,
+          "category": null,
+          "desc": "Explodes into floating spores"
+        },
+        {
+          "name": "Petrify",
+          "icon": "🪨",
+          "dmg": 35,
+          "mana": 28,
+          "cd": 900,
+          "category": null,
+          "desc": "Turns enemies to stone, then shatters"
+        },
+        {
+          "name": "Gaia's Wrath",
+          "icon": "🧝",
+          "dmg": 12,
+          "mana": 32,
+          "cd": 1100,
+          "category": null,
+          "desc": "Three gaia spirits orbit and unleash sap rays — finale petal nova"
+        },
+        {
+          "name": "Forest Guardian",
+          "icon": "🌳",
+          "dmg": 15,
+          "mana": 35,
+          "cd": 2000,
+          "category": "Summon",
+          "desc": "Summons a treant that hunts enemies"
+        },
+        {
+          "name": "Bramble Clutch",
+          "icon": "🌿",
+          "dmg": 4,
+          "mana": 18,
+          "cd": 900,
+          "category": "Hold",
+          "desc": "Hold to grow a briar cradle that roots and crushes anything inside"
+        },
+        {
+          "name": "Wooden Construct",
+          "icon": "🪵",
+          "dmg": 0,
+          "mana": 24,
+          "cd": 900,
+          "category": "Manifest",
+          "desc": "Manifest wood and vines from point 1 to point 2"
+        },
+        {
+          "name": "World Tree",
+          "icon": "🌳",
+          "dmg": 60,
+          "mana": 80,
+          "cd": 6000,
+          "category": null,
+          "desc": "Spawns a massive healing tree (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Wind",
+      "icon": "🌪️",
+      "color": "#aaddff",
+      "count": 11,
+      "totalCount": 11,
+      "spells": [
+        {
+          "name": "Wind Blast",
+          "icon": "💨",
+          "dmg": 8,
+          "mana": 14,
+          "cd": 350,
+          "category": null,
+          "desc": "Massive knockback push"
+        },
+        {
+          "name": "Air Blade",
+          "icon": "🗡️",
+          "dmg": 18,
+          "mana": 10,
+          "cd": 200,
+          "category": null,
+          "desc": "High-speed piercing wind cutter"
+        },
+        {
+          "name": "Updraft",
+          "icon": "🌪️",
+          "dmg": 15,
+          "mana": 20,
+          "cd": 600,
+          "category": null,
+          "desc": "Launches enemies high into the air"
+        },
+        {
+          "name": "Tornado",
+          "icon": "🌪️",
+          "dmg": 6,
+          "mana": 30,
+          "cd": 800,
+          "category": null,
+          "desc": "Moving vortex lifts objects"
+        },
+        {
+          "name": "Zephyr Dash",
+          "icon": "🪽",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 950,
+          "category": "Dash",
+          "desc": "Air-step burst that parts enemies aside and leaves a soft slipstream"
+        },
+        {
+          "name": "Vacuum Bomb",
+          "icon": "🫧",
+          "dmg": 30,
+          "mana": 24,
+          "cd": 700,
+          "category": null,
+          "desc": "Implodes on impact, then detonates"
+        },
+        {
+          "name": "Sonic Boom",
+          "icon": "💥",
+          "dmg": 20,
+          "mana": 20,
+          "cd": 600,
+          "category": null,
+          "desc": "Directional shockwave cone"
+        },
+        {
+          "name": "Cyclone Blades",
+          "icon": "🔄",
+          "dmg": 12,
+          "mana": 28,
+          "cd": 1200,
+          "category": "Orbit",
+          "desc": "Orbiting wind blades slice enemies"
+        },
+        {
+          "name": "Slipstream",
+          "icon": "🪽",
+          "dmg": 0,
+          "mana": 16,
+          "cd": 820,
+          "category": "Hold",
+          "desc": "Hold to sustain a semi-invisible pressure current that makes bodies fly"
+        },
+        {
+          "name": "Air Pressure",
+          "icon": "🪶",
+          "dmg": 0,
+          "mana": 22,
+          "cd": 850,
+          "category": "Manifest",
+          "desc": "Manifest a semi-invisible pressure current that makes targets fly"
+        },
+        {
+          "name": "Eye of the Storm",
+          "icon": "🌀",
+          "dmg": 10,
+          "mana": 80,
+          "cd": 6000,
+          "category": null,
+          "desc": "Massive hurricane (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Fire",
+      "icon": "🔥",
+      "color": "#ff4400",
+      "count": 12,
+      "totalCount": 12,
+      "spells": [
+        {
+          "name": "Fireball",
+          "icon": "🔥",
+          "dmg": 22,
+          "mana": 12,
+          "cd": 300,
+          "category": null,
+          "desc": "Weighted ember orb with a layered blast bloom"
+        },
+        {
+          "name": "Flame Wall",
+          "icon": "🧱",
+          "dmg": 6,
+          "mana": 22,
+          "cd": 800,
+          "category": null,
+          "desc": "Raises a cinematic cinder barricade — five towering pillars of flame"
+        },
+        {
+          "name": "Cluster Bomb",
+          "icon": "🎆",
+          "dmg": 8,
+          "mana": 22,
+          "cd": 500,
+          "category": null,
+          "desc": "Shell bursts into emberlets with staggered pop timing"
+        },
+        {
+          "name": "Time Bomb",
+          "icon": "⏱️",
+          "dmg": 0,
+          "mana": 20,
+          "cd": 600,
+          "category": null,
+          "desc": "Sticks, ticks with a hot fuse, then blooms outward"
+        },
+        {
+          "name": "Meteor",
+          "icon": "☄️",
+          "dmg": 45,
+          "mana": 40,
+          "cd": 1500,
+          "category": null,
+          "desc": "Telegraphed skyfall with a bright ground omen"
+        },
+        {
+          "name": "Ignite Chain",
+          "icon": "🔗",
+          "dmg": 18,
+          "mana": 20,
+          "cd": 500,
+          "category": null,
+          "desc": "Sends cinder links through nearby enemies"
+        },
+        {
+          "name": "Backdraft",
+          "icon": "🌡️",
+          "dmg": 45,
+          "mana": 30,
+          "cd": 1000,
+          "category": null,
+          "desc": "Sealed heat pocket with a clear inhale before release"
+        },
+        {
+          "name": "Phoenix Step",
+          "icon": "🪶",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 780,
+          "category": "Dash",
+          "desc": "Cinder recoil dash that sheds smoke and grants brief slow-fall"
+        },
+        {
+          "name": "Pyroblast",
+          "icon": "💣",
+          "dmg": 20,
+          "mana": 30,
+          "cd": 1500,
+          "category": "Charge",
+          "desc": "Charge to amplify — recast to unleash"
+        },
+        {
+          "name": "Kiln Arc",
+          "icon": "🏺",
+          "dmg": 4,
+          "mana": 18,
+          "cd": 900,
+          "category": "Hold",
+          "desc": "Hold to keep a smoldering ribbon hot until it collapses in cinder bursts"
+        },
+        {
+          "name": "Cinder Rampart",
+          "icon": "♨️",
+          "dmg": 0,
+          "mana": 26,
+          "cd": 950,
+          "category": "Manifest",
+          "desc": "Manifest a cinder barricade that scorches and then collapses"
+        },
+        {
+          "name": "Cataclysm",
+          "icon": "🌋",
+          "dmg": 150,
+          "mana": 80,
+          "cd": 8000,
+          "category": null,
+          "desc": "Massive eruption (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Water",
+      "icon": "💧",
+      "color": "#4488ff",
+      "count": 20,
+      "totalCount": 20,
+      "spells": [
+        {
+          "name": "Ice Lance",
+          "icon": "❄️",
+          "dmg": 15,
+          "mana": 8,
+          "cd": 150,
+          "category": null,
+          "desc": "Fast piercing, bounces walls"
+        },
+        {
+          "name": "Frost Nova",
+          "icon": "❆",
+          "dmg": 12,
+          "mana": 20,
+          "cd": 500,
+          "category": null,
+          "desc": "Freezes all nearby enemies"
+        },
+        {
+          "name": "Chain Frost",
+          "icon": "💎",
+          "dmg": 18,
+          "mana": 18,
+          "cd": 500,
+          "category": null,
+          "desc": "Chains between targets"
+        },
+        {
+          "name": "Water Geyser",
+          "icon": "⛲",
+          "dmg": 25,
+          "mana": 20,
+          "cd": 600,
+          "category": null,
+          "desc": "Erupting water launches foes"
+        },
+        {
+          "name": "Tsunami",
+          "icon": "🌊",
+          "dmg": 55,
+          "mana": 48,
+          "cd": 1400,
+          "category": null,
+          "desc": "Three-wave sweeping cataclysm with foam crest"
+        },
+        {
+          "name": "Tidal Prison",
+          "icon": "🫧",
+          "dmg": 14,
+          "mana": 30,
+          "cd": 1000,
+          "category": null,
+          "desc": "Orbits and crushes — pressure increases over time"
+        },
+        {
+          "name": "Healing Rain",
+          "icon": "🌧️",
+          "dmg": 0,
+          "mana": 30,
+          "cd": 1500,
+          "category": null,
+          "desc": "Regens HP/Mana, slows enemies"
+        },
+        {
+          "name": "Whirlpool",
+          "icon": "🌀",
+          "dmg": 5,
+          "mana": 35,
+          "cd": 1000,
+          "category": null,
+          "desc": "Ground vortex slows and pulls"
+        },
+        {
+          "name": "Riptide",
+          "icon": "🌊",
+          "dmg": 12,
+          "mana": 20,
+          "cd": 700,
+          "category": null,
+          "desc": "Undertow ribbon drags bodies and shots back toward you"
+        },
+        {
+          "name": "Depth Charge",
+          "icon": "💣",
+          "dmg": 50,
+          "mana": 30,
+          "cd": 1200,
+          "category": null,
+          "desc": "Sinking bomb detonates with crushing pressure"
+        },
+        {
+          "name": "Hydra Heads",
+          "icon": "🐉",
+          "dmg": 15,
+          "mana": 35,
+          "cd": 1500,
+          "category": null,
+          "desc": "Water serpent heads emerge and auto-bite nearby foes"
+        },
+        {
+          "name": "Mirror Pool",
+          "icon": "🪞",
+          "dmg": 14,
+          "mana": 26,
+          "cd": 1100,
+          "category": null,
+          "desc": "Reflective pool duplicates projectiles that skim its surface"
+        },
+        {
+          "name": "Maelstrom",
+          "icon": "🌀",
+          "dmg": 18,
+          "mana": 55,
+          "cd": 2200,
+          "category": null,
+          "desc": "Three-stage devastation — pulls shots, then enemies, then erupts in tidal column"
+        },
+        {
+          "name": "Steam Vent",
+          "icon": "♨️",
+          "dmg": 15,
+          "mana": 18,
+          "cd": 500,
+          "category": null,
+          "desc": "Steam eruption launches and obscures"
+        },
+        {
+          "name": "Permafrost",
+          "icon": "🧊",
+          "dmg": 5,
+          "mana": 22,
+          "cd": 800,
+          "category": null,
+          "desc": "Icy ground slows enemies"
+        },
+        {
+          "name": "Tidal Link",
+          "icon": "🔗",
+          "dmg": 10,
+          "mana": 26,
+          "cd": 900,
+          "category": "Tether",
+          "desc": "Two-click tether — damages enemies crossing it"
+        },
+        {
+          "name": "Tidal Surf",
+          "icon": "🏄",
+          "dmg": 0,
+          "mana": 24,
+          "cd": 760,
+          "category": "Dash",
+          "desc": "Hold-style surf dash that lifts the caster onto a curling wave"
+        },
+        {
+          "name": "Tide Harness",
+          "icon": "🫧",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 880,
+          "category": "Hold",
+          "desc": "Hold to suspend targets inside a rotating undertow and slam them down on release"
+        },
+        {
+          "name": "Glacier Path",
+          "icon": "🧊",
+          "dmg": 0,
+          "mana": 24,
+          "cd": 900,
+          "category": "Manifest",
+          "desc": "Manifest an ice span that chills foes, feeds mana, and slowly melts away"
+        },
+        {
+          "name": "Absolute Zero",
+          "icon": "❄️",
+          "dmg": 40,
+          "mana": 70,
+          "cd": 6000,
+          "category": null,
+          "desc": "Freezes entire screen (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Lightning",
+      "icon": "⚡",
+      "color": "#ffcc00",
+      "count": 13,
+      "totalCount": 13,
+      "spells": [
+        {
+          "name": "Lightning",
+          "icon": "⚡",
+          "dmg": 38,
+          "mana": 22,
+          "cd": 550,
+          "category": null,
+          "desc": "Instant strike at cursor — 38 dmg, AoE 60"
+        },
+        {
+          "name": "Ball Lightning",
+          "icon": "🔵",
+          "dmg": 14,
+          "mana": 28,
+          "cd": 800,
+          "category": null,
+          "desc": "Floating orb zaps nearby enemies (14 dmg/zap)"
+        },
+        {
+          "name": "Tesla Coil",
+          "icon": "🗼",
+          "dmg": 18,
+          "mana": 35,
+          "cd": 1200,
+          "category": null,
+          "desc": "Static coil arcs to nearby enemies (18 dmg/arc, x3 chain)"
+        },
+        {
+          "name": "Thunder Mark",
+          "icon": "🎯",
+          "dmg": 72,
+          "mana": 28,
+          "cd": 800,
+          "category": "Mark",
+          "desc": "Place a rune — recast to call devastation (72 dmg AoE)"
+        },
+        {
+          "name": "Faraday Snare",
+          "icon": "🪤",
+          "dmg": 5,
+          "mana": 20,
+          "cd": 980,
+          "category": "Hold",
+          "desc": "Hold to charge a snare cage that pins targets in place with repeated arcs"
+        },
+        {
+          "name": "Volt Conduit",
+          "icon": "🔌",
+          "dmg": 0,
+          "mana": 28,
+          "cd": 1000,
+          "category": "Manifest",
+          "desc": "Manifest a charged conduit that lashes nearby foes with arcing current"
+        },
+        {
+          "name": "Thunderbolt Cascade",
+          "icon": "🌩️",
+          "dmg": 32,
+          "mana": 28,
+          "cd": 800,
+          "category": null,
+          "desc": "1→3→6 fractal lightning cascade — 32 → 24 → 16 dmg per wave"
+        },
+        {
+          "name": "Magnetar Pulse",
+          "icon": "🧲",
+          "dmg": 48,
+          "mana": 32,
+          "cd": 1100,
+          "category": null,
+          "desc": "Pulls then detonates — 48 dmg + shockwave knockback"
+        },
+        {
+          "name": "Arc Pylon",
+          "icon": "🗼",
+          "dmg": 30,
+          "mana": 30,
+          "cd": 1200,
+          "category": "Structure",
+          "desc": "Two-click: place pylons that crackle a deadly beam between them"
+        },
+        {
+          "name": "Chain Lightning",
+          "icon": "🔗",
+          "dmg": 34,
+          "mana": 26,
+          "cd": 700,
+          "category": null,
+          "desc": "Bolt arcs through up to 5 enemies, 34 dmg fading per jump"
+        },
+        {
+          "name": "Plasma Lance",
+          "icon": "🪡",
+          "dmg": 26,
+          "mana": 24,
+          "cd": 650,
+          "category": null,
+          "desc": "Pierces every enemy in a straight searing beam line"
+        },
+        {
+          "name": "Voltaic Aegis",
+          "icon": "🛡️",
+          "dmg": 14,
+          "mana": 32,
+          "cd": 1400,
+          "category": "Buff",
+          "desc": "Three plasma orbs orbit you, zapping nearby foes for 6 seconds"
+        },
+        {
+          "name": "Stormcaller",
+          "icon": "⛈️",
+          "dmg": 52,
+          "mana": 90,
+          "cd": 9000,
+          "category": null,
+          "desc": "Ascend and summon a catastrophic lightning storm (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Arcane",
+      "icon": "🔮",
+      "color": "#aa55ff",
+      "count": 10,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Arcane Missile",
+          "icon": "🔮",
+          "dmg": 12,
+          "mana": 10,
+          "cd": 180,
+          "category": null,
+          "desc": "Homing to nearest target"
+        },
+        {
+          "name": "Ricochet",
+          "icon": "🔷",
+          "dmg": 14,
+          "mana": 12,
+          "cd": 250,
+          "category": null,
+          "desc": "Bounces 8 times off surfaces"
+        },
+        {
+          "name": "Plasma Orb",
+          "icon": "🟣",
+          "dmg": 8,
+          "mana": 30,
+          "cd": 800,
+          "category": null,
+          "desc": "Grows in size and damage"
+        },
+        {
+          "name": "Nova",
+          "icon": "💥",
+          "dmg": 15,
+          "mana": 28,
+          "cd": 600,
+          "category": null,
+          "desc": "360° ring of projectiles"
+        },
+        {
+          "name": "Laser Beam",
+          "icon": "📡",
+          "dmg": 2,
+          "mana": 1,
+          "cd": 30,
+          "category": null,
+          "desc": "Continuous beam — hold click"
+        },
+        {
+          "name": "Mirror Image",
+          "icon": "👥",
+          "dmg": 20,
+          "mana": 25,
+          "cd": 1000,
+          "category": null,
+          "desc": "Illusory clones that explode on contact"
+        },
+        {
+          "name": "Mana Drain",
+          "icon": "💜",
+          "dmg": 15,
+          "mana": 12,
+          "cd": 450,
+          "category": null,
+          "desc": "Restores mana on hit"
+        },
+        {
+          "name": "Spell Parry",
+          "icon": "🛡️",
+          "dmg": 30,
+          "mana": 18,
+          "cd": 600,
+          "category": "Riposte",
+          "desc": "Brief parry — reflects next attack"
+        },
+        {
+          "name": "Vector Frame",
+          "icon": "🟪",
+          "dmg": 0,
+          "mana": 20,
+          "cd": 960,
+          "category": "Hold",
+          "desc": "Hold to freeze projectiles in a programmable frame and fire them back on release"
+        },
+        {
+          "name": "Sigil Lattice",
+          "icon": "🔳",
+          "dmg": 0,
+          "mana": 24,
+          "cd": 900,
+          "category": "Manifest",
+          "desc": "Manifest floating sigil panels that stabilize and restore arcane focus"
+        }
+      ]
+    },
+    {
+      "name": "Void",
+      "icon": "🌑",
+      "color": "#7722cc",
+      "count": 10,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Gravity Well",
+          "icon": "🌀",
+          "dmg": 5,
+          "mana": 30,
+          "cd": 900,
+          "category": null,
+          "desc": "Vortex that pulls everything"
+        },
+        {
+          "name": "Black Hole",
+          "icon": "⚫",
+          "dmg": 8,
+          "mana": 50,
+          "cd": 2000,
+          "category": null,
+          "desc": "Massive pull — devours all"
+        },
+        {
+          "name": "Soul Drain",
+          "icon": "👻",
+          "dmg": 20,
+          "mana": 18,
+          "cd": 400,
+          "category": null,
+          "desc": "Heals you on hit"
+        },
+        {
+          "name": "Shadow Step",
+          "icon": "🌑",
+          "dmg": 0,
+          "mana": 22,
+          "cd": 900,
+          "category": "Teleport",
+          "desc": "Short delayed blink with a punishable shadow wind-up"
+        },
+        {
+          "name": "Dimensional Rift",
+          "icon": "🕳️",
+          "dmg": 25,
+          "mana": 30,
+          "cd": 900,
+          "category": null,
+          "desc": "Portal that teleports enemies randomly"
+        },
+        {
+          "name": "Entropy",
+          "icon": "☠️",
+          "dmg": 3,
+          "mana": 25,
+          "cd": 800,
+          "category": null,
+          "desc": "Decaying field — slows and damages"
+        },
+        {
+          "name": "Void Mine",
+          "icon": "💣",
+          "dmg": 40,
+          "mana": 22,
+          "cd": 700,
+          "category": "Trap",
+          "desc": "Invisible trap — detonates on proximity"
+        },
+        {
+          "name": "Abyss Grip",
+          "icon": "🖐️",
+          "dmg": 4,
+          "mana": 20,
+          "cd": 980,
+          "category": "Hold",
+          "desc": "Hold to suspend a focal target in a crushing void while nearby matter folds inward"
+        },
+        {
+          "name": "Null Causeway",
+          "icon": "🕳️",
+          "dmg": 0,
+          "mana": 26,
+          "cd": 950,
+          "category": "Manifest",
+          "desc": "Manifest floating null fragments that drag matter into their path"
+        },
+        {
+          "name": "Singularity",
+          "icon": "🌌",
+          "dmg": 60,
+          "mana": 90,
+          "cd": 10000,
+          "category": null,
+          "desc": "Devours space and time (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Holy",
+      "icon": "✨",
+      "color": "#ffdd44",
+      "count": 10,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Choir Column",
+          "icon": "🎶",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 900,
+          "category": "Hold",
+          "desc": "Hold to raise a luminous column that suspends foes and restores the caster"
+        },
+        {
+          "name": "Sanctuary Steps",
+          "icon": "🕊️",
+          "dmg": 0,
+          "mana": 26,
+          "cd": 950,
+          "category": "Manifest",
+          "desc": "Manifest radiant steps that heal allies, repel foes, and fade gently away"
+        },
+        {
+          "name": "Judgment",
+          "icon": "✨",
+          "dmg": 130,
+          "mana": 85,
+          "cd": 7000,
+          "category": null,
+          "desc": "Divine orbital strike (Ultimate)"
+        },
+        {
+          "name": "Smite",
+          "icon": "⚔️",
+          "dmg": 40,
+          "mana": 22,
+          "cd": 500,
+          "category": null,
+          "desc": "Divine beam strike from above"
+        },
+        {
+          "name": "Guardian Spirit",
+          "icon": "👼",
+          "dmg": 25,
+          "mana": 30,
+          "cd": 1500,
+          "category": null,
+          "desc": "Orbiting spirit blocks and counterattacks"
+        },
+        {
+          "name": "Divine Presence",
+          "icon": "🌟",
+          "dmg": 6,
+          "mana": 35,
+          "cd": 2000,
+          "category": "Aura",
+          "desc": "Radiant aura heals you, repels foes"
+        },
+        {
+          "name": "Seraphic Wings",
+          "icon": "🪽",
+          "dmg": 0,
+          "mana": 20,
+          "cd": 650,
+          "category": "Dash",
+          "desc": "First cast unfurls wings for boosted jumps; recast flies forward and opens in place"
+        },
+        {
+          "name": "Radiant Cross",
+          "icon": "✝️",
+          "dmg": 45,
+          "mana": 25,
+          "cd": 700,
+          "category": null,
+          "desc": "Holy light erupts in 4 directions, burning all in its path"
+        },
+        {
+          "name": "Consecrate",
+          "icon": "🔆",
+          "dmg": 12,
+          "mana": 30,
+          "cd": 1400,
+          "category": null,
+          "desc": "Hallow the ground — enemies within are scorched by divine fire"
+        },
+        {
+          "name": "Sacred Seal",
+          "icon": "🔯",
+          "dmg": 80,
+          "mana": 35,
+          "cd": 1600,
+          "category": null,
+          "desc": "Place a divine trap — enemies who cross it are blasted by sacred fire"
+        }
+      ]
+    },
+    {
+      "name": "Chrono",
+      "icon": "⏳",
+      "color": "#ffaa00",
+      "count": 15,
+      "totalCount": 15,
+      "spells": [
+        {
+          "name": "Temporal Echo",
+          "icon": "🔄",
+          "dmg": 14,
+          "mana": 12,
+          "cd": 300,
+          "category": null,
+          "desc": "Leaves afterimages that replay damage"
+        },
+        {
+          "name": "Rewind Bolt",
+          "icon": "⏪",
+          "dmg": 18,
+          "mana": 10,
+          "cd": 250,
+          "category": null,
+          "desc": "Reverses enemy momentum on hit"
+        },
+        {
+          "name": "Phase Shift",
+          "icon": "👤",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 620,
+          "category": "Dash",
+          "desc": "Dash through delayed time, leaving a slow-motion echo lane"
+        },
+        {
+          "name": "Paradox Mine",
+          "icon": "⏱️",
+          "dmg": 0,
+          "mana": 15,
+          "cd": 400,
+          "category": null,
+          "desc": "Invisible mine — freezes enemies in time"
+        },
+        {
+          "name": "Haste Zone",
+          "icon": "⚡",
+          "dmg": 0,
+          "mana": 25,
+          "cd": 800,
+          "category": null,
+          "desc": "Creates a speed boost zone"
+        },
+        {
+          "name": "Entropy Cascade",
+          "icon": "🧬",
+          "dmg": 15,
+          "mana": 22,
+          "cd": 600,
+          "category": null,
+          "desc": "Decay chains between enemies"
+        },
+        {
+          "name": "Temporal Rift",
+          "icon": "🌀",
+          "dmg": 0,
+          "mana": 30,
+          "cd": 1000,
+          "category": null,
+          "desc": "Opens portal pair — redirects projectiles"
+        },
+        {
+          "name": "Age Decay",
+          "icon": "💀",
+          "dmg": 10,
+          "mana": 14,
+          "cd": 350,
+          "category": null,
+          "desc": "Ages enemies — shrinks and weakens"
+        },
+        {
+          "name": "Déjà Vu",
+          "icon": "🔁",
+          "dmg": 5,
+          "mana": 20,
+          "cd": 700,
+          "category": null,
+          "desc": "Marks enemy — replays all damage after delay"
+        },
+        {
+          "name": "Frame Hold",
+          "icon": "🎞️",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 940,
+          "category": "Hold",
+          "desc": "Hold to trap motion inside a temporal frame, then release its delayed recoil"
+        },
+        {
+          "name": "Delay Track",
+          "icon": "🕰️",
+          "dmg": 0,
+          "mana": 24,
+          "cd": 900,
+          "category": "Manifest",
+          "desc": "Manifest a temporal track that slows motion without becoming a full bridge"
+        },
+        {
+          "name": "Stasis Trap",
+          "icon": "🪤",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 600,
+          "category": null,
+          "desc": "Hidden trap freezes enemies in time"
+        },
+        {
+          "name": "Afterimage",
+          "icon": "👻",
+          "dmg": 0,
+          "mana": 15,
+          "cd": 500,
+          "category": null,
+          "desc": "Echoes next attack as a time ghost"
+        },
+        {
+          "name": "Time Dilation",
+          "icon": "⏰",
+          "dmg": 0,
+          "mana": 5,
+          "cd": 200,
+          "category": "Toggle",
+          "desc": "Toggle — slows all nearby enemies while active"
+        },
+        {
+          "name": "Chrono Break",
+          "icon": "⏳",
+          "dmg": 80,
+          "mana": 85,
+          "cd": 8000,
+          "category": null,
+          "desc": "Stops time — rains destruction (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Celestial",
+      "icon": "🌟",
+      "color": "#88ccff",
+      "count": 10,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Comet",
+          "icon": "☄️",
+          "dmg": 35,
+          "mana": 18,
+          "cd": 500,
+          "category": null,
+          "desc": "Accelerating comet — devastating impact"
+        },
+        {
+          "name": "Star Collapse",
+          "icon": "💫",
+          "dmg": 50,
+          "mana": 30,
+          "cd": 900,
+          "category": null,
+          "desc": "Forms a star that implodes violently"
+        },
+        {
+          "name": "Aurora Veil",
+          "icon": "🌌",
+          "dmg": 8,
+          "mana": 25,
+          "cd": 700,
+          "category": null,
+          "desc": "Shimmering cosmic shield — blocks and burns"
+        },
+        {
+          "name": "Meteor Shower",
+          "icon": "🌠",
+          "dmg": 28,
+          "mana": 35,
+          "cd": 1200,
+          "category": null,
+          "desc": "Rains meteors from the heavens"
+        },
+        {
+          "name": "Star Beacon",
+          "icon": "🔭",
+          "dmg": 10,
+          "mana": 30,
+          "cd": 1500,
+          "category": "Totem",
+          "desc": "Stationary beacon — pulses starlight damage"
+        },
+        {
+          "name": "Orbit Halo",
+          "icon": "🪐",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 920,
+          "category": "Hold",
+          "desc": "Hold to spin a stellar halo that turns nearby bodies into satellites"
+        },
+        {
+          "name": "Starway",
+          "icon": "🌠",
+          "dmg": 0,
+          "mana": 24,
+          "cd": 900,
+          "category": "Manifest",
+          "desc": "Manifest a fading starway that lightens every step"
+        },
+        {
+          "name": "Solar Flare",
+          "icon": "☀️",
+          "dmg": 25,
+          "mana": 28,
+          "cd": 900,
+          "category": null,
+          "desc": "Blinding flash stuns all nearby enemies"
+        },
+        {
+          "name": "Nebula",
+          "icon": "🌫️",
+          "dmg": 4,
+          "mana": 32,
+          "cd": 1200,
+          "category": null,
+          "desc": "Cosmic cloud heals allies, damages foes"
+        },
+        {
+          "name": "Big Bang",
+          "icon": "✨",
+          "dmg": 90,
+          "mana": 90,
+          "cd": 9000,
+          "category": null,
+          "desc": "The birth of a universe (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "PureCinema",
+      "icon": "🎬",
+      "color": "#c4a060",
+      "count": 14,
+      "totalCount": 14,
+      "spells": [
+        {
+          "name": "Dust to Dust",
+          "icon": "🏜️",
+          "dmg": 35,
+          "mana": 25,
+          "cd": 800,
+          "category": null,
+          "desc": "Click: sandplosion · Hold: form rock then throw"
+        },
+        {
+          "name": "Ace of Spades",
+          "icon": "♠️",
+          "dmg": 30,
+          "mana": 18,
+          "cd": 4000,
+          "category": null,
+          "desc": "Giant card that cuts through everything"
+        },
+        {
+          "name": "Queen of Hearts",
+          "icon": "♛",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 4000,
+          "category": null,
+          "desc": "Portal that teleports the nearest enemy to where you click"
+        },
+        {
+          "name": "Joker",
+          "icon": "🃏",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 4000,
+          "category": null,
+          "desc": "Reflector shield that bounces projectiles"
+        },
+        {
+          "name": "O Paradigma",
+          "icon": "🔺",
+          "dmg": 0,
+          "mana": 50,
+          "cd": 20000,
+          "category": null,
+          "desc": "Summons a prism that stores nearby spells and refracts them forward"
+        },
+        {
+          "name": "Practical Effects",
+          "icon": "🎥",
+          "dmg": 46,
+          "mana": 45,
+          "cd": 12000,
+          "category": null,
+          "desc": "Studio rig hoists the set into a brutal stunt drop"
+        },
+        {
+          "name": "Dolly Zoom",
+          "icon": "📽️",
+          "dmg": 12,
+          "mana": 34,
+          "cd": 5400,
+          "category": null,
+          "desc": "Vertigo shot locks the center while the frame breathes in and out"
+        },
+        {
+          "name": "Final Cut",
+          "icon": "✂️",
+          "dmg": 24,
+          "mana": 38,
+          "cd": 6800,
+          "category": null,
+          "desc": "Rapid montage slashes jump through the frame and carve multiple marks"
+        },
+        {
+          "name": "Freeze Frame",
+          "icon": "🖼️",
+          "dmg": 0,
+          "mana": 20,
+          "cd": 980,
+          "category": "Hold",
+          "desc": "Hold to lock the scene inside a drifting film frame, then smash-cut the tableau apart"
+        },
+        {
+          "name": "Tesseract",
+          "icon": "⬜",
+          "dmg": 8,
+          "mana": 55,
+          "cd": 15000,
+          "category": null,
+          "desc": "Summons a 4D hypercube that folds reality and crushes all within"
+        },
+        {
+          "name": "Set Extension",
+          "icon": "🎞️",
+          "dmg": 0,
+          "mana": 25,
+          "cd": 950,
+          "category": "Manifest",
+          "desc": "Manifest a practical set extension that locks the scene in place for a take"
+        },
+        {
+          "name": "Bullet Time",
+          "icon": "🐌",
+          "dmg": 0,
+          "mana": 38,
+          "cd": 5000,
+          "category": null,
+          "desc": "Time slows to a crawl — you move freely while enemies are nearly frozen"
+        },
+        {
+          "name": "Rack Focus",
+          "icon": "🔍",
+          "dmg": 55,
+          "mana": 30,
+          "cd": 2400,
+          "category": null,
+          "desc": "Rack focus onto the frame — enemies in sharp focus are struck with precision damage"
+        },
+        {
+          "name": "Director's Cut",
+          "icon": "🎬",
+          "dmg": 75,
+          "mana": 80,
+          "cd": 18000,
+          "category": null,
+          "desc": "The director shouts CUT — a 5-act cinematic obliterates everything on screen (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Aetherforge",
+      "icon": "🜂",
+      "color": "#39f0ff",
+      "count": 7,
+      "totalCount": 7,
+      "spells": [
+        {
+          "name": "Helix Rivet",
+          "icon": "🧲",
+          "dmg": 18,
+          "mana": 14,
+          "cd": 260,
+          "category": "Common",
+          "desc": "Gyroscopic rivet that accelerates in flight and detonates in a delayed forge implosion"
+        },
+        {
+          "name": "Forgeheart Eidolon",
+          "icon": "⚒️",
+          "dmg": 14,
+          "mana": 32,
+          "cd": 1450,
+          "category": "Summon",
+          "desc": "Summon a cinematic forge spirit with orbiting hammers that pull and slam enemies"
+        },
+        {
+          "name": "Prism Snare",
+          "icon": "🕸️",
+          "dmg": 34,
+          "mana": 24,
+          "cd": 900,
+          "category": "Trap",
+          "desc": "Hidden lattice bends projectiles, implodes enemies inward, then detonates"
+        },
+        {
+          "name": "Foundry Bastion",
+          "icon": "⚙️",
+          "dmg": 16,
+          "mana": 32,
+          "cd": 1300,
+          "category": "Structure",
+          "desc": "Floating bastion captures nearby projectiles and reforges them into shard volleys"
+        },
+        {
+          "name": "Graviton Crucible",
+          "icon": "⚙️",
+          "dmg": 4,
+          "mana": 24,
+          "cd": 1080,
+          "category": "Hold",
+          "desc": "Aether gyros lock space into a molten vortex, then vent the chamber in a charged release"
+        },
+        {
+          "name": "Foundry Causeway",
+          "icon": "⛓️",
+          "dmg": 0,
+          "mana": 28,
+          "cd": 1020,
+          "category": "Manifest",
+          "desc": "Forge a kinetic bridge that rails allies forward while grinding enemies and projectiles through hot conduits"
+        },
+        {
+          "name": "Parallax Crucible",
+          "icon": "🜂",
+          "dmg": 95,
+          "mana": 95,
+          "cd": 9800,
+          "category": null,
+          "desc": "Bends space-time into a radiant crucible, then collapses reality (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Echolith",
+      "icon": "⚖️",
+      "color": "#f4d36a",
+      "count": 9,
+      "totalCount": 9,
+      "spells": [
+        {
+          "name": "Absolution Thorn",
+          "icon": "✦",
+          "dmg": 24,
+          "mana": 16,
+          "cd": 220,
+          "category": "Ray",
+          "desc": "A white-gold thorn of mercy brands sinners, then blossoms into a halo verdict"
+        },
+        {
+          "name": "Confessional Maw",
+          "icon": "⚖",
+          "dmg": 4,
+          "mana": 20,
+          "cd": 900,
+          "category": "Hold",
+          "desc": "Channel a confession circle where sin and mercy argue, then release a verdict blast"
+        },
+        {
+          "name": "Twin Altar",
+          "icon": "⛧",
+          "dmg": 12,
+          "mana": 30,
+          "cd": 1450,
+          "category": "Summon",
+          "desc": "Raise a split altar: angel light on one side, demon teeth on the other, judging nearby souls"
+        },
+        {
+          "name": "Stigmata Bloom",
+          "icon": "✹",
+          "dmg": 34,
+          "mana": 24,
+          "cd": 700,
+          "category": "Cast",
+          "desc": "Open a sacred wound-flower: divine petals pull the guilty inward, infernal thorns tear sin back out"
+        },
+        {
+          "name": "Seraph Verdict",
+          "icon": "☼",
+          "dmg": 28,
+          "mana": 28,
+          "cd": 1300,
+          "category": "Charge",
+          "desc": "Hold a halo charge, then loose a seraph lance that writes judgment through the wicked"
+        },
+        {
+          "name": "Demon Step",
+          "icon": "♆",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 780,
+          "category": "Dash",
+          "desc": "Blink through an infernal brimstone cut, leaving demon hoof-marks and damned afterimages"
+        },
+        {
+          "name": "Altar of Scales",
+          "icon": "⚖",
+          "dmg": 8,
+          "mana": 26,
+          "cd": 980,
+          "category": "Manifest",
+          "desc": "Mark two altars and draw a black-gold road where mercy carries allies and damnation grinds enemies"
+        },
+        {
+          "name": "Choir of Absolution",
+          "icon": "☀",
+          "dmg": 92,
+          "mana": 86,
+          "cd": 9000,
+          "category": "Ultimate",
+          "desc": "A divine choir lowers halos and saint pillars before a final absolution smites the arena (Ultimate)"
+        },
+        {
+          "name": "Black Mass: Abyss Bell",
+          "icon": "⛧",
+          "dmg": 120,
+          "mana": 95,
+          "cd": 11000,
+          "category": "Ultimate (Adicional)",
+          "desc": "Begin an infernal black mass: silence souls, harvest sin, and ring the abyss into final damnation (Ultimate)"
+        }
+      ]
+    },
+    {
+      "name": "Tensorveil",
+      "icon": "🧮",
+      "color": "#9dff5a",
+      "count": 9,
+      "totalCount": 9,
+      "spells": [
+        {
+          "name": "Eigen Spike",
+          "icon": "🧬",
+          "dmg": 0,
+          "mana": 14,
+          "cd": 230,
+          "category": "Ray",
+          "desc": "A self-rotating vector spike that side-launches targets on puncture."
+        },
+        {
+          "name": "Null Axis",
+          "icon": "⊣",
+          "dmg": 4,
+          "mana": 20,
+          "cd": 980,
+          "category": "Hold",
+          "desc": "Channels an axis field that rotates local velocity tensors, then detonates determinant stress."
+        },
+        {
+          "name": "Jacobian Idol",
+          "icon": "🗿",
+          "dmg": 10,
+          "mana": 30,
+          "cd": 1500,
+          "category": "Summon",
+          "desc": "A tensor idol that alternates compress/expand pulses and mirrors nearby projectile vectors."
+        },
+        {
+          "name": "Determinant Slice",
+          "icon": "✣",
+          "dmg": 33,
+          "mana": 24,
+          "cd": 720,
+          "category": "Cast",
+          "desc": "Instant cross-shear that cuts along two tensor diagonals and bends impact vectors."
+        },
+        {
+          "name": "Singular Vector",
+          "icon": "⬗",
+          "dmg": 28,
+          "mana": 28,
+          "cd": 1320,
+          "category": "Charge",
+          "desc": "Charge a singular axis and release a vector bolt with anisotropic impact."
+        },
+        {
+          "name": "Permutation Step",
+          "icon": "⇄",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 820,
+          "category": "Dash",
+          "desc": "Permutation dash that can swap positions with struck targets and leaves replay echoes."
+        },
+        {
+          "name": "Parity Gate",
+          "icon": "⛩️",
+          "dmg": 8,
+          "mana": 26,
+          "cd": 980,
+          "category": "Manifest",
+          "desc": "Two-point manifest gate that boosts co-directional flow and reflects opposite flow."
+        },
+        {
+          "name": "Tensor Chorus",
+          "icon": "🕸️",
+          "dmg": 96,
+          "mana": 86,
+          "cd": 9200,
+          "category": "Ultimate",
+          "desc": "Creates a tensor choir domain that remaps velocities before collapsing into a matrix break."
+        },
+        {
+          "name": "Rank Collapse",
+          "icon": "🧯",
+          "dmg": 122,
+          "mana": 95,
+          "cd": 11200,
+          "category": "Ultimate (Adicional)",
+          "desc": "Decomposes world momentum into orthogonal ranks, then releases one catastrophic axis."
+        }
+      ]
+    },
+    {
+      "name": "Lust",
+      "icon": "💘",
+      "color": "#ff5caa",
+      "count": 10,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Velvet Bite",
+          "icon": "◆",
+          "dmg": 13,
+          "mana": 12,
+          "cd": 260,
+          "category": "Tempt",
+          "desc": "A redlight velvet glyph snaps shut on impact, cutting to a censor-bar close-up"
+        },
+        {
+          "name": "Redlight Perfume",
+          "icon": "✦",
+          "dmg": 4,
+          "mana": 22,
+          "cd": 760,
+          "category": "Aura",
+          "desc": "Cinematic perfume coils under redlight neon, dragging enemies into a fever haze"
+        },
+        {
+          "name": "Cabaret Blackout",
+          "icon": "▰",
+          "dmg": 16,
+          "mana": 24,
+          "cd": 900,
+          "category": "Pulse",
+          "desc": "Cabaret curtains slam into blackout, then a hot silhouette flash stuns the room"
+        },
+        {
+          "name": "Silk Bind",
+          "icon": "∞",
+          "dmg": 7,
+          "mana": 20,
+          "cd": 680,
+          "category": "Bind",
+          "desc": "Silk restraints cinch the nearest target into a staged, censor-lit tug"
+        },
+        {
+          "name": "Afterglow Dash",
+          "icon": "»",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 920,
+          "category": "Dash",
+          "desc": "Dash through a heated film splice, leaving lipstick neon and breathy afterimages"
+        },
+        {
+          "name": "Heat Rhythm",
+          "icon": "♫",
+          "dmg": 8,
+          "mana": 26,
+          "cd": 1050,
+          "category": "Rhythm",
+          "desc": "A forbidden club beat punches through black film bars and red velvet light"
+        },
+        {
+          "name": "Boudoir Mirror",
+          "icon": "◇",
+          "dmg": 20,
+          "mana": 30,
+          "cd": 1250,
+          "category": "Illusion",
+          "desc": "Boudoir mirrors tease censored silhouettes before shattering into glassy cuts"
+        },
+        {
+          "name": "Censor Veil",
+          "icon": "▦",
+          "dmg": 5,
+          "mana": 24,
+          "cd": 1100,
+          "category": "Veil",
+          "desc": "Pixel censor bars orbit the caster, turning pressure into voyeur neon focus"
+        },
+        {
+          "name": "Velvet Rope",
+          "icon": "◉",
+          "dmg": 6,
+          "mana": 28,
+          "cd": 1180,
+          "category": "Ward",
+          "desc": "Drop a velvet rope stage ward that rejects intruders with suggestive red pulses"
+        },
+        {
+          "name": "Forbidden Encore",
+          "icon": "✹",
+          "dmg": 42,
+          "mana": 82,
+          "cd": 6200,
+          "category": "Ultimate",
+          "desc": "Ultimate redlight stage ritual: curtains, silhouettes, censor bars, neon climax"
+        }
+      ]
+    },
+    {
+      "name": "Elemental",
+      "icon": "🏹",
+      "color": "#5db75c",
+      "count": 7,
+      "totalCount": 7,
+      "spells": [
+        {
+          "name": "Caçador da Jurema",
+          "icon": "🏹",
+          "dmg": 7,
+          "mana": 30,
+          "cd": 2800,
+          "category": "Summon",
+          "desc": "Firma um caboclo de Oxóssi que dispara flechas de luz da jurema, perfurando inimigos à distância."
+        },
+        {
+          "name": "Espada de Ogum",
+          "icon": "⚔️",
+          "dmg": 10,
+          "mana": 36,
+          "cd": 3200,
+          "category": "Summon",
+          "desc": "Invoca o guerreiro de ferro de Ogum, que avança até os inimigos e cliva com a espada, abrindo caminhos."
+        },
+        {
+          "name": "Manto de Pombagira",
+          "icon": "🌹",
+          "dmg": 7,
+          "mana": 28,
+          "cd": 2000,
+          "category": "Stand",
+          "desc": "Um manto de rosas que orbita o jogador, seduz inimigos próximos e absorve projéteis. Reconjure para a Gargalhada: giro de espinhos e cura."
+        },
+        {
+          "name": "Tranca-Ruas",
+          "icon": "🔱",
+          "dmg": 8,
+          "mana": 32,
+          "cd": 3000,
+          "category": "Summon",
+          "desc": "Firma um Exu na encruzilhada que teleporta entre inimigos golpeando com o tridente e deixa marcas que fecham os caminhos."
+        },
+        {
+          "name": "Defumação",
+          "icon": "🕯️",
+          "dmg": 2,
+          "mana": 30,
+          "cd": 4000,
+          "category": "Summon",
+          "desc": "Assenta um Preto-Velho que fuma o cachimbo. A fumaça da defumação cura o jogador e adoece inimigos próximos com lentidão."
+        },
+        {
+          "name": "Falange das Crianças",
+          "icon": "🎈",
+          "dmg": 4,
+          "mana": 34,
+          "cd": 3400,
+          "category": "Summon",
+          "desc": "Chama a falange dos Erês: cinco espíritos rápidos e brincalhões que correm e esbarram nos inimigos numa algazarra."
+        },
+        {
+          "name": "Gira de Abertura",
+          "icon": "🪘",
+          "dmg": 38,
+          "mana": 82,
+          "cd": 6500,
+          "category": "Ultimate",
+          "desc": "Ritual maior (Ultimate): os tambores chamam toda a falange. Os guias manifestam em roda, puxam os inimigos e desferem um golpe conjunto."
+        }
+      ]
+    },
+    {
+      "name": "Dream",
+      "icon": "🌙",
+      "color": "#9d8bf0",
+      "count": 10,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Lullaby Mote",
+          "icon": "🎐",
+          "dmg": 6,
+          "mana": 10,
+          "cd": 320,
+          "category": "Common",
+          "desc": "Drowsy mote — adormece brevemente quem acerta"
+        },
+        {
+          "name": "Pixie Spark",
+          "icon": "🧚",
+          "dmg": 9,
+          "mana": 8,
+          "cd": 220,
+          "category": "Common",
+          "desc": "Faísca de fada que persegue o alvo mais próximo"
+        },
+        {
+          "name": "Vivid Nightmare",
+          "icon": "🌑",
+          "dmg": 10,
+          "mana": 22,
+          "cd": 720,
+          "category": "Common",
+          "desc": "Pesadelo vívido — nuvem que fere e confunde os sonhadores"
+        },
+        {
+          "name": "Deep Slumber",
+          "icon": "💤",
+          "dmg": 4,
+          "mana": 26,
+          "cd": 1100,
+          "category": "Cast",
+          "desc": "Sono profundo — adormece os inimigos ao redor"
+        },
+        {
+          "name": "Oneiric Cage",
+          "icon": "🌌",
+          "dmg": 8,
+          "mana": 24,
+          "cd": 1000,
+          "category": "Trap",
+          "desc": "Prisão onírica — aprisiona o primeiro inimigo que entra"
+        },
+        {
+          "name": "False Awakening",
+          "icon": "🪞",
+          "dmg": 0,
+          "mana": 18,
+          "cd": 900,
+          "category": "Teleport",
+          "desc": "Falso despertar — pisca deixando um duplo onírico para trás"
+        },
+        {
+          "name": "Fairy Swarm",
+          "icon": "✨",
+          "dmg": 5,
+          "mana": 28,
+          "cd": 1300,
+          "category": "Summon",
+          "desc": "Convoca um enxame de fadas que orbita e fere os inimigos"
+        },
+        {
+          "name": "Reverie Ray",
+          "icon": "🌠",
+          "dmg": 2,
+          "mana": 1,
+          "cd": 30,
+          "category": "Ray",
+          "desc": "Raio de devaneio contínuo — segure o clique; às vezes adormece"
+        },
+        {
+          "name": "Mirage Step",
+          "icon": "👣",
+          "dmg": 0,
+          "mana": 16,
+          "cd": 760,
+          "category": "Dash",
+          "desc": "Reposiciona como miragem, deixando ecos oníricos pelo caminho"
+        },
+        {
+          "name": "Dreamscape Collapse",
+          "icon": "🌙",
+          "dmg": 40,
+          "mana": 80,
+          "cd": 60000,
+          "category": "Ultimate",
+          "desc": "(Ultimate) Colapso onírico — o mundo dorme enquanto o sonho desaba"
+        }
+      ]
+    },
+    {
+      "name": "Constante",
+      "icon": "🜏",
+      "color": "#d6b56d",
+      "count": 3,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Hellblazer Ward",
+          "icon": "🛡️",
+          "dmg": 0,
+          "mana": 20,
+          "cd": 700,
+          "category": "Shield",
+          "desc": "Escudo ritual de 5s que segura a pressao infernal enquanto os outros casts terminam."
+        },
+        {
+          "name": "Sigil Script",
+          "icon": "✒️",
+          "dmg": 0,
+          "mana": 12,
+          "cd": 260,
+          "category": "Writing",
+          "desc": "Abre o overlay ritual: realidade em 5% de velocidade, sete sigilos aparecem e voce desenha uma magia sem limite de tempo."
+        },
+        {
+          "name": "Infernal Breach",
+          "icon": "🜏",
+          "dmg": 12,
+          "mana": 44,
+          "cd": 4200,
+          "category": "Summon",
+          "desc": "Canaliza 8s; knockback cancela. Abre um portal do submundo que solta demonios melee e ranged."
+        }
+      ]
+    },
+    {
+      "name": "Aracnidea",
+      "icon": "🕷️",
+      "color": "#8f3dff",
+      "count": 10,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Silk Fang",
+          "icon": "🦷",
+          "dmg": 9,
+          "mana": 8,
+          "cd": 280,
+          "category": "Common",
+          "desc": "Presa de seda comprimida que estoura fios venenosos no impacto."
+        },
+        {
+          "name": "Web Snare",
+          "icon": "🕸️",
+          "dmg": 5,
+          "mana": 18,
+          "cd": 1100,
+          "category": "Bind",
+          "desc": "Rede que prende o primeiro inimigo, travando-o e drenando vida."
+        },
+        {
+          "name": "Venom Bloom",
+          "icon": "☣️",
+          "dmg": 3,
+          "mana": 24,
+          "cd": 1600,
+          "category": "Trap",
+          "desc": "Flor de veneno que pulsa no chão e envenena inimigos próximos."
+        },
+        {
+          "name": "Threadstep",
+          "icon": "➰",
+          "dmg": 0,
+          "mana": 22,
+          "cd": 1400,
+          "category": "Dash",
+          "desc": "Dissolve-se em fios e reaparece junto ao alvo, repelindo quem estiver perto."
+        },
+        {
+          "name": "Broodlings",
+          "icon": "🕷️",
+          "dmg": 6,
+          "mana": 35,
+          "cd": 2600,
+          "category": "Summon",
+          "desc": "Três aranhas de seda caçam inimigos e explodem em veneno."
+        },
+        {
+          "name": "Cocoon Ward",
+          "icon": "🥚",
+          "dmg": 8,
+          "mana": 38,
+          "cd": 5200,
+          "category": "Ward",
+          "desc": "Casulo de seda absorve dano e estoura em fios ao terminar."
+        },
+        {
+          "name": "Ceiling Hunger",
+          "icon": "🪤",
+          "dmg": 24,
+          "mana": 32,
+          "cd": 2400,
+          "category": "Cast",
+          "desc": "Abre uma fenda de teia e uma aranha espectral despenca sobre o alvo."
+        },
+        {
+          "name": "Looming Web",
+          "icon": "🪢",
+          "dmg": 0,
+          "mana": 30,
+          "cd": 2800,
+          "category": "Structure",
+          "desc": "Tece uma teia territorial que lentifica inimigos e amplia Silk Fang."
+        },
+        {
+          "name": "Eightfold Riposte",
+          "icon": "✴️",
+          "dmg": 6,
+          "mana": 34,
+          "cd": 3600,
+          "category": "Riposte",
+          "desc": "Postura de aranha: ao ser ameaçado dispara oito lâminas de seda em arco."
+        },
+        {
+          "name": "Matriarch Eclipse",
+          "icon": "🌘",
+          "dmg": 18,
+          "mana": 90,
+          "cd": 12000,
+          "category": "Ultimate",
+          "desc": "Torna-se a Matriarca Aracnídea: a arena escurece e presas espectrais caem (Ultimate)."
+        }
+      ]
+    },
+    {
+      "name": "Mycobiota",
+      "icon": "🍄",
+      "color": "#8fcf5a",
+      "count": 10,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Spore Needle",
+          "icon": "✹",
+          "dmg": 9,
+          "mana": 8,
+          "cd": 260,
+          "category": "Common",
+          "desc": "Fast fungal spore dart; infects a colony under the skin on hit."
+        },
+        {
+          "name": "Petri Bloom",
+          "icon": "◉",
+          "dmg": 4,
+          "mana": 22,
+          "cd": 1250,
+          "category": "Trap",
+          "desc": "A petri dish opens in cinematic time-lapse, blooming bacterial colony rings."
+        },
+        {
+          "name": "Bacillus Swarm",
+          "icon": "⋯",
+          "dmg": 8,
+          "mana": 16,
+          "cd": 680,
+          "category": "Common",
+          "desc": "Homing bacteria rods chain through the air and split like bacillus cells."
+        },
+        {
+          "name": "Quorum Pulse",
+          "icon": "⌁",
+          "dmg": 18,
+          "mana": 26,
+          "cd": 1400,
+          "category": "Cast",
+          "desc": "Bacterial quorum signal: infected colonies answer together in a macro-cinema pulse."
+        },
+        {
+          "name": "Mycelium Lash",
+          "icon": "〽",
+          "dmg": 16,
+          "mana": 24,
+          "cd": 1250,
+          "category": "Bind",
+          "desc": "Mycelium hyphae snap from the staff, bind a target, and feed the fungal network."
+        },
+        {
+          "name": "Biofilm Ward",
+          "icon": "▱",
+          "dmg": 3,
+          "mana": 32,
+          "cd": 2600,
+          "category": "Ward",
+          "desc": "A translucent biofilm membrane catches hostile shots and slicks infected enemies."
+        },
+        {
+          "name": "Fermentation Flask",
+          "icon": "⚗",
+          "dmg": 12,
+          "mana": 20,
+          "cd": 980,
+          "category": "Lob",
+          "desc": "Fermentation gas pops from a flask, leaving fizzy bacterial vapor and knockback."
+        },
+        {
+          "name": "Antibiotic Halo",
+          "icon": "◎",
+          "dmg": 20,
+          "mana": 34,
+          "cd": 2400,
+          "category": "Ward",
+          "desc": "Clean antibiotic ring clears hostile projectiles and burns overgrown colonies."
+        },
+        {
+          "name": "Cordyceps Marionette",
+          "icon": "♟",
+          "dmg": 9,
+          "mana": 42,
+          "cd": 4200,
+          "category": "Summon",
+          "desc": "Cordyceps puppet rises under a mushroom cap and hunts through fungal impulses."
+        },
+        {
+          "name": "Fruiting Crown",
+          "icon": "♛",
+          "dmg": 52,
+          "mana": 90,
+          "cd": 60000,
+          "category": "Ultimate",
+          "desc": "(Ultimate) Giant mushroom caps erupt in time-lapse; spores rain over every colony."
+        }
+      ]
+    },
+    {
+      "name": "Prismatica",
+      "icon": "🔆",
+      "color": "#5ec8ff",
+      "count": 10,
+      "totalCount": 10,
+      "spells": [
+        {
+          "name": "Prism Bolt",
+          "icon": "🔆",
+          "dmg": 8,
+          "mana": 7,
+          "cd": 260,
+          "category": "Common",
+          "desc": "Feixe de luz branca que se estilhaça em cacos coloridos no impacto."
+        },
+        {
+          "name": "Refract",
+          "icon": "🌈",
+          "dmg": 6,
+          "mana": 14,
+          "cd": 720,
+          "category": "Cast",
+          "desc": "Separa a luz em três feixes — vermelho, verde e azul — que abrem em leque."
+        },
+        {
+          "name": "Spectrum Ray",
+          "icon": "📐",
+          "dmg": 16,
+          "mana": 22,
+          "cd": 1500,
+          "category": "Ray",
+          "desc": "Raio prismático que perfura em linha reta e dispersa cacos na ponta."
+        },
+        {
+          "name": "Iris Nova",
+          "icon": "💠",
+          "dmg": 12,
+          "mana": 20,
+          "cd": 1700,
+          "category": "Pulse",
+          "desc": "Detona um anel de luz espectral ao redor, ferindo e repelindo inimigos."
+        },
+        {
+          "name": "Prism Sentinel",
+          "icon": "🔮",
+          "dmg": 7,
+          "mana": 34,
+          "cd": 2800,
+          "category": "Summon",
+          "desc": "Invoca um prisma flutuante que fragmenta a luz em feixes contra inimigos."
+        },
+        {
+          "name": "Stained Mosaic",
+          "icon": "🪟",
+          "dmg": 6,
+          "mana": 28,
+          "cd": 2600,
+          "category": "Structure",
+          "desc": "Ergue um painel de vitral que fragmenta a luz e fere inimigos próximos."
+        },
+        {
+          "name": "Coruscate",
+          "icon": "💥",
+          "dmg": 5,
+          "mana": 24,
+          "cd": 2200,
+          "category": "Cast",
+          "desc": "Clarão prismático cegante que prende e atordoa os inimigos próximos."
+        },
+        {
+          "name": "Lightstride",
+          "icon": "✦",
+          "dmg": 0,
+          "mana": 20,
+          "cd": 1300,
+          "category": "Dash",
+          "desc": "Refrata-se em um feixe e reaparece adiante, dispersando quem estiver perto."
+        },
+        {
+          "name": "Rose Window",
+          "icon": "🌸",
+          "dmg": 10,
+          "mana": 36,
+          "cd": 5000,
+          "category": "Ward",
+          "desc": "Uma rosácea de vitral gira ao redor, absorve dano e estilhaça em cacos de luz."
+        },
+        {
+          "name": "Cathedral of Light",
+          "icon": "⛪",
+          "dmg": 20,
+          "mana": 92,
+          "cd": 12000,
+          "category": "Ultimate",
+          "desc": "Ergue uma catedral de vitral que implode em mil cacos de luz (Ultimate)."
+        }
+      ]
+    }
+  ]
+}

@@ -5,7 +5,40 @@
 // (no hidden globals) and are easily testable.
 // ═══════════════════════════════════════════════════════
 
-import { state } from './state.js';
+import { state } from './state.js?v=7';
+
+const ENEMY_TYPES = new Set(['dummy', 'fireMage', 'iceMage']);
+const PROP_TYPES = new Set(['crate', 'barrel', 'boulder']);
+
+export function isEnemyEntity(entity) {
+  if (!entity || !entity.active) return false;
+  if (entity.targetable === 'enemy') return true;
+  if (entity.targetable === 'prop') return false;
+  return ENEMY_TYPES.has(entity.type);
+}
+
+export function isPropEntity(entity) {
+  if (!entity || !entity.active) return false;
+  if (entity.targetable === 'prop') return true;
+  if (entity.targetable === 'enemy') return false;
+  return PROP_TYPES.has(entity.type);
+}
+
+export function nearestEnemyEntity(x, y, maxDist = Infinity, entities = state.entities) {
+  let best = null;
+  let bestD = maxDist;
+  for (const entity of entities) {
+    if (!isEnemyEntity(entity)) continue;
+    const ex = entity.x + entity.w / 2;
+    const ey = entity.y + entity.h / 2;
+    const dist = Math.hypot(ex - x, ey - y);
+    if (dist < bestD) {
+      best = entity;
+      bestD = dist;
+    }
+  }
+  return best;
+}
 
 // ─── Particle spawner ─────────────────────────────────
 const PARTICLE_PRESETS = {
@@ -41,6 +74,7 @@ export function spawnP(x, y, color, count = 1, type = 'burst') {
 
 // ─── Damage ───────────────────────────────────────────
 export function hurtEntity(e, dmg, fx, fy) {
+  if (dmg <= 0) return;
   e.hp -= dmg; e.hitF = 180;
   state.damageNumbers = state.damageNumbers || [];
   state.damageNumbers.push({

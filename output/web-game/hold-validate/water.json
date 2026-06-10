@@ -1,0 +1,131 @@
+{
+  "coordSystem": "origin top-left; +x right; +y down",
+  "selectedSpell": "Tide Harness",
+  "selectedSpellCategory": "Hold",
+  "player": {
+    "x": 100,
+    "y": 355,
+    "vx": 0,
+    "vy": 0,
+    "hp": 100,
+    "mana": 83
+  },
+  "entities": [
+    {
+      "type": "dummy",
+      "x": 300,
+      "y": 67,
+      "vx": -1.17,
+      "vy": -3.4,
+      "hp": 74
+    },
+    {
+      "type": "dummy",
+      "x": 589,
+      "y": 446,
+      "vx": 1.74,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 357,
+      "y": 440,
+      "vx": -0.15,
+      "vy": -1.53,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 377,
+      "y": 252,
+      "vx": 1.61,
+      "vy": 4.19,
+      "hp": 77
+    },
+    {
+      "type": "crate",
+      "x": 400,
+      "y": 325,
+      "vx": 0,
+      "vy": 0.34,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 420,
+      "y": 325,
+      "vx": 0,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 410,
+      "y": 306,
+      "vx": 0,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "barrel",
+      "x": 480,
+      "y": 253,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 150,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 600,
+      "y": 353,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "boulder",
+      "x": 264,
+      "y": 68,
+      "vx": -2.72,
+      "vy": -3.86,
+      "hp": 114
+    },
+    {
+      "type": "boulder",
+      "x": 100,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 120
+    }
+  ],
+  "projectiles": [],
+  "vfx": [
+    {
+      "type": "element_hold",
+      "state": 0,
+      "age": 35,
+      "profile": "water_undertow",
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 289,
+      "y": 182
+    }
+  ],
+  "manifestDraft": null,
+  "manifests": []
+}

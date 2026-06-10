@@ -1,0 +1,131 @@
+{
+  "coordSystem": "origin top-left; +x right; +y down",
+  "selectedSpell": "Kiln Arc",
+  "selectedSpellCategory": "Hold",
+  "player": {
+    "x": 100,
+    "y": 355,
+    "vx": 0,
+    "vy": 0,
+    "hp": 100,
+    "mana": 82
+  },
+  "entities": [
+    {
+      "type": "dummy",
+      "x": 323,
+      "y": 185,
+      "vx": -0.83,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 528,
+      "y": 446,
+      "vx": 4.37,
+      "vy": -11.04,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 367,
+      "y": 435,
+      "vx": 1.75,
+      "vy": 0.1,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 259,
+      "y": 255,
+      "vx": 0.52,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "crate",
+      "x": 400,
+      "y": 325,
+      "vx": 0,
+      "vy": 0.34,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 420,
+      "y": 325,
+      "vx": 0,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 410,
+      "y": 306,
+      "vx": 0,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "barrel",
+      "x": 480,
+      "y": 253,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 150,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 600,
+      "y": 353,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "boulder",
+      "x": 299,
+      "y": 193,
+      "vx": -0.36,
+      "vy": 0,
+      "hp": 120
+    },
+    {
+      "type": "boulder",
+      "x": 100,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 120
+    }
+  ],
+  "projectiles": [],
+  "vfx": [
+    {
+      "type": "element_hold",
+      "state": 0,
+      "age": 35,
+      "profile": "fire_kiln",
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 257,
+      "y": 168
+    }
+  ],
+  "manifestDraft": null,
+  "manifests": []
+}

@@ -1,0 +1,92 @@
+/* ───── Oneiric battle-entry transition ───── */
+/* A dreamlike veil that blooms over the Lobby→Battle handoff and dissolves
+   to reveal the duel. Color is themed per school via --oneiric-color. */
+
+.oneiric {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 50%,
+      color-mix(in oklab, var(--oneiric-color) 30%, transparent) 0%,
+      transparent 55%),
+    var(--vellum-night, #0e0a06);
+}
+
+/* Soft central bloom that breathes in the school color. */
+.oneiric__bloom {
+  position: absolute;
+  width: 80vmin;
+  height: 80vmin;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in oklab, var(--oneiric-color) 60%, white 12%) 0%,
+    color-mix(in oklab, var(--oneiric-color) 38%, transparent) 38%,
+    transparent 70%);
+  filter: blur(6px);
+  opacity: 0.7;
+  animation: oneiric-breathe 1.6s ease-in-out infinite;
+}
+
+/* Concentric dream-collapse rings. */
+.oneiric__ring {
+  position: absolute;
+  width: 40vmin;
+  height: 40vmin;
+  border-radius: 50%;
+  border: 2px solid color-mix(in oklab, var(--oneiric-color) 75%, white 25%);
+  box-shadow: 0 0 24px color-mix(in oklab, var(--oneiric-color) 60%, transparent);
+}
+
+/* Rising motes / dream sparks. */
+.oneiric__mote {
+  position: absolute;
+  bottom: 18%;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--oneiric-color) 50%, white 50%);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--oneiric-color) 70%, transparent);
+}
+
+/* Center sigil — the school rune. */
+.oneiric__sigil {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.oneiric__rune {
+  font-family: var(--font-display, "Cinzel", serif);
+  font-weight: 900;
+  font-size: clamp(72px, 16vmin, 168px);
+  line-height: 1;
+  text-shadow:
+    0 0 28px color-mix(in oklab, var(--oneiric-color) 80%, transparent),
+    0 0 64px color-mix(in oklab, var(--oneiric-color) 50%, transparent);
+}
+
+.oneiric__name {
+  font-family: var(--font-display, "Cinzel", serif);
+  font-weight: 700;
+  font-size: clamp(13px, 2.2vmin, 18px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-secondary, #cbb489);
+  text-shadow: 0 2px 0 var(--ink-black, #0a0604);
+}
+
+@keyframes oneiric-breathe {
+  0%, 100% { transform: scale(0.94); opacity: 0.6; }
+  50%      { transform: scale(1.06); opacity: 0.82; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oneiric__bloom { animation: none; }
+}

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" shape-rendering="crispEdges">
+  
+  <polygon points="100,8 178,52 178,148 100,192 22,148 22,52" fill="none" stroke="currentColor" stroke-width="3"></polygon>
+  <polygon points="100,28 162,62 162,138 100,172 38,138 38,62" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3" opacity="0.55"></polygon>
+
+  <g fill="currentColor">
+    
+    <rect x="96" y="14" width="8" height="4"></rect>
+    <rect x="170" y="56" width="4" height="8"></rect>
+    <rect x="170" y="136" width="4" height="8"></rect>
+    <rect x="96" y="182" width="8" height="4"></rect>
+    <rect x="26" y="56" width="4" height="8"></rect>
+    <rect x="26" y="136" width="4" height="8"></rect>
+
+    
+    <rect x="76" y="68" width="16" height="4"></rect>
+    <rect x="72" y="72" width="24" height="4"></rect>
+    <rect x="72" y="76" width="24" height="4"></rect>
+    <rect x="76" y="80" width="16" height="4"></rect>
+    <rect x="80" y="84" width="8" height="4"></rect>
+    <rect x="76" y="88" width="16" height="4"></rect>
+    <rect x="80" y="92" width="8" height="20"></rect>
+    <rect x="88" y="88" width="8" height="4"></rect>
+    <rect x="96" y="84" width="8" height="4"></rect>
+    <rect x="104" y="80" width="8" height="4"></rect>
+    <rect x="112" y="76" width="8" height="4"></rect>
+    <rect x="68" y="92" width="8" height="4"></rect>
+    <rect x="64" y="96" width="8" height="8"></rect>
+    <rect x="72" y="112" width="8" height="4"></rect>
+    <rect x="88" y="112" width="8" height="4"></rect>
+    <rect x="68" y="116" width="8" height="8"></rect>
+    <rect x="92" y="116" width="8" height="8"></rect>
+    <rect x="64" y="124" width="8" height="4"></rect>
+    <rect x="96" y="124" width="8" height="4"></rect>
+
+    
+    <rect x="116" y="68" width="6" height="6"></rect>
+    <rect x="120" y="64" width="6" height="6"></rect>
+    <rect x="124" y="60" width="6" height="6"></rect>
+    <rect x="128" y="56" width="6" height="6"></rect>
+
+    
+    <rect x="128" y="50" width="20" height="20"></rect>
+  </g>
+</svg>

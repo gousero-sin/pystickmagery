@@ -1,0 +1,137 @@
+{
+  "summary": [
+    {
+      "school": "nature",
+      "selectedSpell": "Bramble Clutch",
+      "category": "Hold",
+      "active": true,
+      "profile": "nature_briar",
+      "targets": 2,
+      "captured": 0,
+      "manaDuring": 82,
+      "manaAfter": 84,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "wind",
+      "selectedSpell": "Slipstream",
+      "category": "Hold",
+      "active": true,
+      "profile": "wind_slipstream",
+      "targets": 0,
+      "captured": 0,
+      "manaDuring": 85,
+      "manaAfter": 86,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "fire",
+      "selectedSpell": "Kiln Arc",
+      "category": "Hold",
+      "active": true,
+      "profile": "fire_kiln",
+      "targets": 0,
+      "captured": 0,
+      "manaDuring": 82,
+      "manaAfter": 84,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "water",
+      "selectedSpell": "Tide Harness",
+      "category": "Hold",
+      "active": true,
+      "profile": "water_undertow",
+      "targets": 0,
+      "captured": 0,
+      "manaDuring": 83,
+      "manaAfter": 84,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "lightning",
+      "selectedSpell": "Faraday Snare",
+      "category": "Hold",
+      "active": true,
+      "profile": "lightning_snare",
+      "targets": 1,
+      "captured": 0,
+      "manaDuring": 80,
+      "manaAfter": 81,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "arcane",
+      "selectedSpell": "Vector Frame",
+      "category": "Hold",
+      "active": true,
+      "profile": "arcane_frame",
+      "targets": 3,
+      "captured": 0,
+      "manaDuring": 80,
+      "manaAfter": 82,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "void",
+      "selectedSpell": "Abyss Grip",
+      "category": "Hold",
+      "active": true,
+      "profile": "void_grip",
+      "targets": 1,
+      "captured": 0,
+      "manaDuring": 80,
+      "manaAfter": 82,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "holy",
+      "selectedSpell": "Choir Column",
+      "category": "Hold",
+      "active": true,
+      "profile": "holy_column",
+      "targets": 3,
+      "captured": 0,
+      "manaDuring": 83,
+      "manaAfter": 85,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "chrono",
+      "selectedSpell": "Frame Hold",
+      "category": "Hold",
+      "active": true,
+      "profile": "chrono_frame",
+      "targets": 2,
+      "captured": 0,
+      "manaDuring": 82,
+      "manaAfter": 84,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "celestial",
+      "selectedSpell": "Orbit Halo",
+      "category": "Hold",
+      "active": true,
+      "profile": "celestial_orbit",
+      "targets": 2,
+      "captured": 0,
+      "manaDuring": 82,
+      "manaAfter": 84,
+      "vfxAfterRelease": 0
+    },
+    {
+      "school": "purecinema",
+      "selectedSpell": "Freeze Frame",
+      "category": "Hold",
+      "active": true,
+      "profile": "cinema_freeze",
+      "targets": 2,
+      "captured": 0,
+      "manaDuring": 80,
+      "manaAfter": 81,
+      "vfxAfterRelease": 0
+    }
+  ],
+  "errors": []
+}

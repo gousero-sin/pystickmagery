@@ -4,6 +4,13 @@
 
 const _ac = new (window.AudioContext || window.webkitAudioContext)();
 
+// Navegadores suspendem o AudioContext até o primeiro gesto do usuário.
+// Retoma no primeiro clique/tecla para o áudio funcionar no jogo desktop.
+// (Guardas opcionais mantêm os testes em Node, que stubbam `window`, funcionando.)
+const _resumeAudio = () => { try { if (_ac.state === 'suspended') _ac.resume(); } catch (e) {} };
+window.addEventListener?.('pointerdown', _resumeAudio);
+window.addEventListener?.('keydown', _resumeAudio);
+
 export const SoundFX = {
   playTone(freq, type = 'sine', vol = 0.2, dur = 0.1) {
     try {

@@ -1,0 +1,131 @@
+{
+  "coordSystem": "origin top-left; +x right; +y down",
+  "selectedSpell": "Absolution Thorn",
+  "selectedSpellCategory": "Ray",
+  "player": {
+    "x": 100,
+    "y": 355,
+    "vx": 0,
+    "vy": 0,
+    "hp": 100,
+    "mana": 89
+  },
+  "entities": [
+    {
+      "type": "dummy",
+      "x": 337,
+      "y": 185,
+      "vx": 0.63,
+      "vy": 0,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 418,
+      "y": 409,
+      "vx": 0.97,
+      "vy": 6.24,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 324,
+      "y": 163,
+      "vx": -0.76,
+      "vy": -0.13,
+      "hp": 80
+    },
+    {
+      "type": "dummy",
+      "x": 373,
+      "y": 313,
+      "vx": 1.22,
+      "vy": 0.39,
+      "hp": 80
+    },
+    {
+      "type": "crate",
+      "x": 406,
+      "y": 325,
+      "vx": 0,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 430,
+      "y": 325,
+      "vx": 0,
+      "vy": 0.34,
+      "hp": 40
+    },
+    {
+      "type": "crate",
+      "x": 427,
+      "y": 306,
+      "vx": 0.2,
+      "vy": 0,
+      "hp": 40
+    },
+    {
+      "type": "barrel",
+      "x": 480,
+      "y": 253,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 150,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "barrel",
+      "x": 600,
+      "y": 353,
+      "vx": 0,
+      "vy": 0,
+      "hp": 50
+    },
+    {
+      "type": "boulder",
+      "x": 312,
+      "y": 193,
+      "vx": -0.01,
+      "vy": 0.11,
+      "hp": 120
+    },
+    {
+      "type": "boulder",
+      "x": 100,
+      "y": 163,
+      "vx": 0,
+      "vy": 0,
+      "hp": 120
+    }
+  ],
+  "projectiles": [],
+  "vfx": [
+    {
+      "type": "echolith_ray_fracture",
+      "state": 0,
+      "age": 24,
+      "profile": null,
+      "captured": 0,
+      "targets": 0,
+      "slashes": 0,
+      "marks": 0,
+      "lockCount": 0,
+      "mirrored": 0,
+      "heads": 0,
+      "x": 546,
+      "y": 482
+    }
+  ],
+  "manifestDraft": null,
+  "manifests": []
+}

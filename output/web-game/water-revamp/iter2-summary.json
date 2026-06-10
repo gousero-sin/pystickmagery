@@ -1,0 +1,148 @@
+{
+  "ran": [
+    "Ice Lance",
+    "Frost Nova",
+    "Chain Frost",
+    "Water Geyser",
+    "Tsunami",
+    "Tidal Prison",
+    "Healing Rain",
+    "Whirlpool",
+    "Riptide",
+    "Depth Charge",
+    "Hydra Heads",
+    "Mirror Pool",
+    "Maelstrom",
+    "Steam Vent",
+    "Permafrost",
+    "Tidal Link",
+    "Aquatic Surge",
+    "Tide Harness",
+    "Glacier Path",
+    "Absolute Zero"
+  ],
+  "errors": [],
+  "spells": {
+    "Ice Lance": {
+      "selectedSpell": "Ice Lance",
+      "mana": 96,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Frost Nova": {
+      "selectedSpell": "Frost Nova",
+      "mana": 84,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Chain Frost": {
+      "selectedSpell": "Chain Frost",
+      "mana": 86,
+      "vfx": 0,
+      "proj": 1
+    },
+    "Water Geyser": {
+      "selectedSpell": "Water Geyser",
+      "mana": 84,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Tsunami": {
+      "selectedSpell": "Tsunami",
+      "mana": 56,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Tidal Prison": {
+      "selectedSpell": "Tidal Prison",
+      "mana": 74,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Healing Rain": {
+      "selectedSpell": "Healing Rain",
+      "mana": 74,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Whirlpool": {
+      "selectedSpell": "Whirlpool",
+      "mana": 69,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Riptide": {
+      "selectedSpell": "Riptide",
+      "mana": 84,
+      "vfx": 1,
+      "proj": 0
+    },
+    "Depth Charge": {
+      "selectedSpell": "Depth Charge",
+      "mana": 74,
+      "vfx": 1,
+      "proj": 0
+    },
+    "Hydra Heads": {
+      "selectedSpell": "Hydra Heads",
+      "mana": 69,
+      "vfx": 1,
+      "proj": 0
+    },
+    "Mirror Pool": {
+      "selectedSpell": "Mirror Pool",
+      "mana": 78,
+      "vfx": 1,
+      "proj": 0
+    },
+    "Maelstrom": {
+      "selectedSpell": "Maelstrom",
+      "mana": 49,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Steam Vent": {
+      "selectedSpell": "Steam Vent",
+      "mana": 86,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Permafrost": {
+      "selectedSpell": "Permafrost",
+      "mana": 82,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Tidal Link": {
+      "selectedSpell": "Tidal Link",
+      "mana": 80,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Aquatic Surge": {
+      "selectedSpell": "Aquatic Surge",
+      "mana": 80,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Tide Harness": {
+      "selectedSpell": "Tide Harness",
+      "mana": 89,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Glacier Path": {
+      "selectedSpell": "Glacier Path",
+      "mana": 80,
+      "vfx": 0,
+      "proj": 0
+    },
+    "Absolute Zero": {
+      "selectedSpell": "Absolute Zero",
+      "mana": 34,
+      "vfx": 0,
+      "proj": 0
+    }
+  },
+  "consoleErrors": []
+}

@@ -28,6 +28,7 @@ export const state = {
   frozenEntities: new Map(),
   damageNumbers: [],
   timeBombs: [],
+  enemyProjectiles: [],
   manifestConstructs: [],
   manifestDraft: null,
 

@@ -3,3 +3,6 @@ tmp.js
 .DS_Store
 node_modules/
 .gemini/
+dist/
+.vite/
+verify-shots/

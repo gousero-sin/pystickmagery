@@ -1,0 +1,99 @@
+{
+  "errs": [],
+  "result": {
+    "gaiasWrath": [
+      {
+        "delayMs": 200,
+        "snap": null
+      },
+      {
+        "delayMs": 800,
+        "snap": null
+      },
+      {
+        "delayMs": 1800,
+        "snap": null
+      },
+      {
+        "delayMs": 2600,
+        "snap": null
+      }
+    ],
+    "forestGuardian": [
+      {
+        "delayMs": 200,
+        "snap": null
+      },
+      {
+        "delayMs": 800,
+        "snap": null
+      },
+      {
+        "delayMs": 1800,
+        "snap": null
+      }
+    ],
+    "petrify": [
+      {
+        "delayMs": 150,
+        "snap": null
+      },
+      {
+        "delayMs": 600,
+        "snap": null
+      },
+      {
+        "delayMs": 1200,
+        "snap": null
+      }
+    ],
+    "razorLeaf": [
+      {
+        "delayMs": 200,
+        "snap": null
+      },
+      {
+        "delayMs": 700,
+        "snap": null
+      }
+    ],
+    "poisonCloud": [
+      {
+        "delayMs": 300,
+        "snap": null
+      },
+      {
+        "delayMs": 1500,
+        "snap": null
+      },
+      {
+        "delayMs": 3000,
+        "snap": null
+      }
+    ],
+    "worldTree": [
+      {
+        "delayMs": 800,
+        "snap": null
+      },
+      {
+        "delayMs": 2500,
+        "snap": null
+      },
+      {
+        "delayMs": 5500,
+        "snap": null
+      }
+    ],
+    "bramble": [
+      {
+        "delayMs": 200,
+        "snap": null
+      },
+      {
+        "delayMs": 500,
+        "snap": null
+      }
+    ]
+  }
+}

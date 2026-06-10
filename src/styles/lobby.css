@@ -1,0 +1,119 @@
+/* Arcane Vellum lobby — ported from ui_kits/stickmagerybattle/Lobby.html */
+.lobby {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+}
+
+/* HEADER */
+.lobby-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--gold-dim);
+  margin-bottom: 28px;
+}
+.lobby-brand { display: flex; align-items: center; gap: 16px; cursor: pointer; background: none; border: none; padding: 0; }
+.lobby-brand img { width: 56px; height: 56px; image-rendering: pixelated; }
+.lobby-brand-text { display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.lobby-brand-name {
+  font-family: var(--font-display); font-weight: 900; font-size: 24px;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-leaf);
+  text-shadow: 0 2px 0 var(--ink-black), 0 0 18px var(--gold-glow); line-height: 1;
+}
+.lobby-brand-sub { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.4em; color: var(--gold-pale); text-transform: uppercase; }
+
+/* SPREAD */
+.lobby-spread { display: grid; grid-template-columns: 1fr 1.15fr; gap: 24px; }
+@media (max-width: 900px) { .lobby-spread { grid-template-columns: 1fr; } }
+
+.lobby-panel {
+  position: relative;
+  background-color: var(--vellum-base);
+  border: 2px solid var(--gold-pale);
+  box-shadow: var(--shadow-card), inset 0 0 0 1px var(--ink-black), inset 0 0 0 3px var(--vellum-light), inset 0 1px 0 4px var(--vellum-edge);
+  padding: 22px 24px;
+}
+.lobby-panel::before, .lobby-panel::after {
+  content: ""; position: absolute; width: 12px; height: 12px;
+  background: var(--gold-bright); box-shadow: 0 0 8px var(--gold-glow-hot);
+}
+.lobby-panel::before { top: -2px; left: -2px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+.lobby-panel::after { bottom: -2px; right: -2px; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+.lobby-panel-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; margin-bottom: 18px; border-bottom: 1px dashed var(--gold-dim); }
+.lobby-panel-title { font-family: var(--font-display); font-weight: 800; font-size: 20px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--gold-bright); text-shadow: 0 2px 0 var(--ink-black); margin: 0; }
+.lobby-panel-meta { font-family: var(--font-mono); font-size: 11px; color: var(--fg-tertiary); }
+
+.family-section { margin-bottom: 24px; }
+.family-section:last-child { margin-bottom: 0; }
+.family-label { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.20em; text-transform: uppercase; color: var(--gold-pale); padding-left: 4px; margin-bottom: 10px; }
+
+.school-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+@media (max-width: 540px) { .school-grid { grid-template-columns: repeat(4, 1fr); } }
+.school {
+  position: relative; aspect-ratio: 1; background-color: var(--vellum-deep);
+  border: 2px solid var(--gold-dim); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: inherit; padding: 0;
+  transition: transform var(--dur-snap) var(--ease-step-2), border-color var(--dur-snap) var(--ease-step-2), box-shadow var(--dur-snap) var(--ease-step-2);
+  box-shadow: 0 2px 0 var(--ink-black), inset 0 0 0 1px var(--ink-black);
+}
+.school:hover { transform: translateY(-1px); border-color: var(--gold-bright); }
+.school.active { border-color: var(--arcane-mist); box-shadow: 0 2px 0 var(--ink-black), 0 0 18px var(--arcane-glow-hot), inset 0 0 0 1px var(--ink-black); }
+.school-rune { font-family: var(--font-display); font-weight: 900; font-size: 24px; line-height: 1; text-shadow: 0 0 8px currentColor; }
+.school-name { position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); font-family: var(--font-pixel); font-size: 7px; color: var(--fg-tertiary); white-space: nowrap; letter-spacing: 0.04em; }
+.school.active .school-rune { animation: runePulse 1.4s var(--ease-step-4) infinite; }
+@keyframes runePulse { 0%,100% { text-shadow: 0 0 8px currentColor; } 50% { text-shadow: 0 0 18px currentColor, 0 0 30px currentColor; } }
+
+/* DETAIL */
+.detail-head { display: grid; grid-template-columns: 110px 1fr; gap: 18px; align-items: center; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 2px solid var(--gold-dim); }
+.sigil { position: relative; width: 110px; height: 110px; background-color: var(--vellum-deep); border: 2px solid var(--arcane-mist); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 var(--ink-black), 0 0 24px var(--arcane-glow-hot), inset 0 0 0 1px var(--ink-black), inset 0 0 0 3px var(--vellum-light); }
+.sigil-rune { font-family: var(--font-display); font-weight: 900; font-size: 64px; text-shadow: 0 0 16px currentColor; line-height: 1; }
+.sigil-corner { position: absolute; width: 6px; height: 6px; background: var(--gold-bright); }
+.sigil-corner.tl { top: 4px; left: 4px; } .sigil-corner.tr { top: 4px; right: 4px; }
+.sigil-corner.bl { bottom: 4px; left: 4px; } .sigil-corner.br { bottom: 4px; right: 4px; }
+
+.class-meta { display: flex; flex-direction: column; gap: 8px; }
+.class-eyebrow { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; color: var(--arcane-mist); }
+.class-name { font-family: var(--font-display); font-weight: 900; font-size: 42px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--gold-leaf); text-shadow: 0 2px 0 var(--ink-black), 0 0 24px var(--gold-glow); line-height: 1; margin: 0; }
+.class-flavor { font-family: var(--font-sans); font-size: 14px; font-style: italic; color: var(--fg-secondary); max-width: 540px; line-height: 1.55; margin: 0; }
+
+.vitals { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
+.vital { display: flex; flex-direction: column; gap: 6px; }
+.vital-head { display: flex; align-items: baseline; justify-content: space-between; }
+.vital-label { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; }
+.vital-value { font-family: var(--font-mono); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 16px; }
+.vital-hp .vital-label, .vital-hp .vital-value { color: var(--hp-text); }
+.vital-mana .vital-label, .vital-mana .vital-value { color: var(--mana-text); }
+
+.book-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.book-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-bright); margin: 0; }
+.book-hint { font-family: var(--font-pixel); font-size: 9px; color: var(--fg-tertiary); }
+
+.spellbook { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 22px; max-height: 360px; overflow-y: auto; padding-right: 4px; }
+@media (max-width: 540px) { .spellbook { grid-template-columns: 1fr; } }
+.spell { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; background-color: var(--vellum-deep); border: 1px solid var(--gold-dim); }
+.spell-icon { width: 32px; height: 32px; flex: none; background: var(--vellum-base); border: 1px solid var(--ink-black); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 900; font-size: 18px; text-shadow: 0 0 6px currentColor; }
+.spell-body { flex: 1; min-width: 0; }
+.spell-name { font-family: var(--font-display); font-weight: 600; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-primary); margin: 0 0 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spell-stats { display: flex; gap: 10px; font-family: var(--font-mono); font-size: 10px; color: var(--fg-tertiary); flex-wrap: wrap; }
+.spell-stats span { color: var(--gold-pale); }
+.spell-cat { font-family: var(--font-pixel); font-size: 7px; color: var(--gold-bright); background: var(--ink-black); padding: 2px 4px; border: 1px solid var(--gold-dim); }
+
+.lobby-actions { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding-top: 18px; border-top: 2px solid var(--gold-dim); }
+.lobby-foot { margin-top: 24px; text-align: center; font-family: var(--font-pixel); font-size: 9px; color: var(--fg-tertiary); letter-spacing: 0.16em; }
+
+/* Narrow screens: prevent horizontal overflow */
+@media (max-width: 540px) {
+  .lobby { padding: 16px 10px 32px; }
+  .lobby-panel { padding: 16px 14px; }
+  .detail-head { grid-template-columns: 76px 1fr; gap: 12px; }
+  .sigil { width: 76px; height: 76px; }
+  .sigil-rune { font-size: 42px; }
+  .class-name { font-size: clamp(26px, 9vw, 34px); word-break: break-word; }
+  .lobby-brand-name { font-size: 20px; }
+}
+@media (max-width: 400px) {
+  .school-grid { grid-template-columns: repeat(3, 1fr); }
+}

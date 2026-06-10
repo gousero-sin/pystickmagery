@@ -4,7 +4,8 @@
 import { state } from '../core/state.js?v=7';
 import { SoundFX } from '../core/sounds.js?v=7';
 import { spawnP, hurtEntity, explode } from '../core/utils.js?v=7';
-import { createManifestSpell, MANIFEST_FIRE_HANDLERS, MANIFEST_VFX_UPDATE, MANIFEST_VFX_DRAW } from './manifest.js?v=7';
+import { createManifestSpell, MANIFEST_FIRE_HANDLERS, MANIFEST_VFX_UPDATE, MANIFEST_VFX_DRAW } from './manifest.js?v=8';
+import { createHoldSpell, HOLD_FIRE_HANDLERS, HOLD_VFX_UPDATE, HOLD_VFX_DRAW } from './hold.js?v=7';
 
 // ── Spell Definitions ──────────────────────────────────────────────────────
 export const SPELL_DEFS = [
@@ -44,6 +45,24 @@ export const SPELL_DEFS = [
     desc: 'Rains meteors from the heavens'
   },
 
+  // 5. Star Beacon — stationary totem that pulses damage and heals
+  {
+    name: 'Star Beacon', icon: '🔭', key: 'G', category: 'Totem', color: '#aaddff', c2: '#ddeeff', core: '#ffffff',
+    speed: 0, dmg: 10, mana: 30, cd: 1500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'stellar',
+    isStarBeacon: true, beaconDur: 400, beaconR: 100, beaconRate: 20,
+    desc: 'Stationary beacon — pulses starlight damage'
+  },
+
+  createHoldSpell({
+    name: 'Orbit Halo', icon: '🪐', key: 'A',
+    color: '#7fa2ff', c2: '#ffe39d', core: '#ffffff',
+    mana: 18, cd: 920, dmg: 0,
+    holdStyle: 'celestial', holdProfile: 'celestial_orbit',
+    holdR: 86, holdDrain: 0.22, holdLift: 0.3,
+    releaseR: 94, releaseDmg: 0,
+    desc: 'Hold to spin a stellar halo that turns nearby bodies into satellites'
+  }),
+
   createManifestSpell({
     name: 'Starway', icon: '🌠',
     color: '#7aa4ff', c2: '#ffd680', core: '#ffffff',
@@ -53,7 +72,23 @@ export const SPELL_DEFS = [
     desc: 'Manifest a fading starway that lightens every step'
   }),
 
-  // 5. Big Bang (ULTIMATE) — cosmic creation: compress → singularity → expansion → nebula
+  // 5. Solar Flare — instant blinding flash from player position. Fast and powerful.
+  {
+    name: 'Solar Flare', icon: '☀️', key: 'G', color: '#ffcc00', c2: '#ffee66',
+    core: '#ffffff', speed: 0, dmg: 25, mana: 28, cd: 900, r: 0, grav: 0,
+    drag: 1, bounce: 0, trail: 'sparkle', isSolarFlare: true, flareR: 200,
+    desc: 'Blinding flash stuns all nearby enemies'
+  },
+
+  // 6. Nebula — creates a persistent cosmic cloud that heals player inside and damages enemies inside.
+  {
+    name: 'Nebula', icon: '🌫️', key: 'H', color: '#8855cc', c2: '#cc77ff',
+    core: '#ff99dd', speed: 0, dmg: 4, mana: 32, cd: 1200, r: 0, grav: 0,
+    drag: 1, bounce: 0, trail: 'sparkle', isNebula: true, nebR: 90, nebDur: 300,
+    nebHeal: 0.4, desc: 'Cosmic cloud heals allies, damages foes'
+  },
+
+  // 7. Big Bang (ULTIMATE) — cosmic creation: compress → singularity → expansion → nebula
   {
     name: 'Big Bang', icon: '✨', key: 'T', color: '#cc44ff', c2: '#ff66aa',
     core: '#ffffff', speed: 0, dmg: 90, mana: 90, cd: 9000, r: 0, grav: 0,
@@ -65,6 +100,7 @@ export const SPELL_DEFS = [
 
 // ── Fire Handlers ──────────────────────────────────────────────────────────
 export const FIRE_HANDLERS = {
+  ...HOLD_FIRE_HANDLERS,
   ...MANIFEST_FIRE_HANDLERS,
   isStarCollapse(s, ox, oy, tx, ty) {
     state.vfxSequences.push({
@@ -101,6 +137,34 @@ export const FIRE_HANDLERS = {
       spell: s, stars: [], nebulaParticles: []
     });
     state.player.inv = true;
+    return true;
+  },
+
+  isSolarFlare(s, ox, oy, tx, ty) {
+    state.vfxSequences.push({
+      type: 'solar_flare', state: 0, age: 0,
+      cx: state.player.x + state.player.w / 2,
+      cy: state.player.y + state.player.h / 2,
+      spell: s
+    });
+    return true;
+  },
+
+  isStarBeacon(s, ox, oy, tx, ty) {
+    state.vfxSequences.push({ type: 'star_beacon', state: 0, age: 0, cx: tx, cy: ty, spell: s, hp: 60 });
+    SoundFX.playTone(800, 'sine', 0.3, 0.3);
+    SoundFX.playTone(1200, 'sine', 0.2, 0.3);
+    spawnP(tx, ty, s.color, 12, 'sparkle');
+    state.dynamicLights.push({ x: tx, y: ty, r: 100, color: s.core, int: 3, life: 10, ml: 10 });
+    return true;
+  },
+
+  isNebula(s, ox, oy, tx, ty) {
+    state.vfxSequences.push({
+      type: 'nebula_cloud', state: 0, age: 0,
+      cx: tx, cy: ty, spell: s
+    });
+    SoundFX.playTone(400, 'sine', 0.3, 0.3);
     return true;
   },
 };
@@ -181,6 +245,7 @@ export const PROJ_HOOKS = {
           });
         }
       }
+      return true;
     },
   },
 };
@@ -265,7 +330,142 @@ export const TRAIL_EMITTERS = {
 
 // ── VFX Update Handlers ────────────────────────────────────────────────────
 export const VFX_UPDATE = {
+  ...HOLD_VFX_UPDATE,
   ...MANIFEST_VFX_UPDATE,
+
+  // ─── STAR BEACON — stationary totem that pulses damage ───
+  'star_beacon': (v) => {
+    const s = v.spell;
+    // Periodic damage pulse
+    if (v.age % s.beaconRate === 0 && v.age > 0) {
+        let hitAny = false;
+        for (const e of state.entities) {
+            if (!e.active) continue;
+            const d = Math.hypot(e.x + e.w/2 - v.cx, e.y + e.h/2 - v.cy);
+            if (d < s.beaconR) {
+                hurtEntity(e, s.dmg, v.cx, v.cy);
+                spawnP(e.x + e.w/2, e.y + e.h/2, s.color, 4, 'burst');
+                hitAny = true;
+                // Light beam from beacon to enemy
+                for (let i = 0; i < 3; i++) {
+                    const t = i / 3;
+                    state.particles.push({
+                        x: v.cx + (e.x + e.w/2 - v.cx) * t, y: v.cy + (e.y + e.h/2 - v.cy) * t,
+                        vx: (Math.random()-.5)*2, vy: (Math.random()-.5)*2,
+                        life: 8, ml: 8, color: s.core, size: 2, grav: 0, type: 'sparkle'
+                    });
+                }
+            }
+        }
+        if (hitAny) {
+            state.shockwaves.push({ x: v.cx, y: v.cy, r: 0, maxR: s.beaconR * 0.5, life: 6, maxLife: 6, color: s.c2 });
+            SoundFX.playTone(1000 + Math.random() * 400, 'sine', 0.1, 0.1);
+        }
+    }
+    // Heal player if nearby (every 40 frames)
+    if (v.age % 40 === 0) {
+        const pd = Math.hypot(state.player.x + state.player.w/2 - v.cx, state.player.y + state.player.h/2 - v.cy);
+        if (pd < s.beaconR && state.player.hp < 100) {
+            state.player.hp = Math.min(100, state.player.hp + 2);
+            spawnP(state.player.x + state.player.w/2, state.player.y, s.core, 3, 'sparkle');
+        }
+    }
+    // Ambient sparkles
+    if (v.age % 4 === 0) {
+        const a = Math.random() * Math.PI * 2;
+        const r = Math.random() * 15;
+        state.particles.push({
+            x: v.cx + Math.cos(a) * r, y: v.cy - 25 + Math.sin(a) * r,
+            vx: (Math.random()-.5)*1.5, vy: -1 - Math.random(),
+            life: 15, ml: 15, color: Math.random() > 0.5 ? s.color : s.core,
+            size: 1 + Math.random(), grav: -0.02, type: 'sparkle'
+        });
+    }
+    state.dynamicLights.push({ x: v.cx, y: v.cy - 15, r: 50 + Math.sin(v.age * 0.1) * 10, color: s.color, int: 1 + Math.sin(v.age * 0.05) * 0.5, life: 2, ml: 2 });
+    if (v.age > s.beaconDur) {
+        // Fade out
+        spawnP(v.cx, v.cy, s.core, 20, 'sparkle');
+        state.shockwaves.push({ x: v.cx, y: v.cy, r: 0, maxR: 40, life: 8, maxLife: 8, color: s.c2 });
+        const idx = state.vfxSequences.indexOf(v);
+        if (idx !== -1) state.vfxSequences.splice(idx, 1);
+    }
+  },
+
+  // ─── SOLAR FLARE — instant blinding flash that stuns ───
+  'solar_flare'(v) {
+    const s = v.spell;
+    if (v.state === 0) {
+      if (v.age === 1) {
+        // Full screen white flash
+        // Damage all entities within flareR
+        for (const e of state.entities) {
+          if (!e.active) continue;
+          const dist = Math.hypot(e.x + e.w / 2 - v.cx, e.y + e.h / 2 - v.cy);
+          if (dist < s.flareR) {
+            hurtEntity(e, s.dmg, v.cx, v.cy);
+            e.stunned = 60;
+            e.vx *= 0.1;
+            e.vy *= 0.1;
+            spawnP(e.x + e.w / 2, e.y + e.h / 2, s.color, 4, 'sparkle');
+          }
+        }
+        // Screen shake and effects
+        state.shake(12);
+        state.dynamicLights.push({ x: v.cx, y: v.cy, r: 300, color: '#fff', int: 4, life: 10, ml: 10 });
+        state.shockwaves.push({ x: v.cx, y: v.cy, r: 0, maxR: 250, life: 12, maxLife: 12, color: s.color });
+        spawnP(v.cx, v.cy, '#ffff99', 20, 'burst');
+      }
+      if (v.age > 25) {
+        const idx = state.vfxSequences.indexOf(v);
+        if (idx !== -1) state.vfxSequences.splice(idx, 1);
+      }
+    }
+  },
+
+  // ─── NEBULA CLOUD — healing persistent cloud ───
+  'nebula_cloud'(v) {
+    const s = v.spell;
+    if (v.state === 0) {
+      // Every 6 frames: damage entities, heal player
+      if (v.age % 6 === 0) {
+        for (const e of state.entities) {
+          if (!e.active) continue;
+          const dist = Math.hypot(e.x + e.w / 2 - v.cx, e.y + e.h / 2 - v.cy);
+          if (dist < s.nebR) {
+            hurtEntity(e, s.dmg, v.cx, v.cy);
+            spawnP(e.x + e.w / 2, e.y + e.h / 2, s.color, 2, 'dust');
+          }
+        }
+        // Heal player if inside
+        const playerDist = Math.hypot(state.player.x + state.player.w / 2 - v.cx, state.player.y + state.player.h / 2 - v.cy);
+        if (playerDist < s.nebR) {
+          state.player.hp = Math.min(state.player.maxHp, state.player.hp + s.nebHeal);
+          spawnP(state.player.x + state.player.w / 2, state.player.y + state.player.h / 2, '#ff99dd', 2, 'sparkle');
+        }
+      }
+
+      // Spawn multicolor cosmic particles
+      if (v.age % 4 === 0) {
+        const colors = [s.color, s.c2, '#9955ff'];
+        spawnP(
+          v.cx + (Math.random() - 0.5) * s.nebR,
+          v.cy + (Math.random() - 0.5) * s.nebR,
+          colors[Math.floor(Math.random() * colors.length)],
+          1,
+          'smoke'
+        );
+      }
+
+      // Dynamic light with alternating colors
+      const lightColor = v.age % 20 < 10 ? s.color : s.c2;
+      state.dynamicLights.push({ x: v.cx, y: v.cy, r: s.nebR * 0.9, color: lightColor, int: 1.5, life: 2, ml: 2 });
+
+      if (v.age > s.nebDur) {
+        const idx = state.vfxSequences.indexOf(v);
+        if (idx !== -1) state.vfxSequences.splice(idx, 1);
+      }
+    }
+  },
 
   // ─── STAR COLLAPSE — gravitational star that implodes ───
   'star-collapse'(v) {
@@ -819,7 +1019,127 @@ export const VFX_UPDATE = {
 
 // ── VFX Draw Handlers ──────────────────────────────────────────────────────
 export const VFX_DRAW = {
+  ...HOLD_VFX_DRAW,
   ...MANIFEST_VFX_DRAW,
+
+  // ─── STAR BEACON — crystalline beacon tower ───
+  'star_beacon': (v, X) => {
+    const s = v.spell;
+    const fade = v.age > v.spell.beaconDur - 40 ? Math.max(0, (v.spell.beaconDur - v.age) / 40) : 1;
+    // Crystalline star base
+    X.save();
+    X.translate(v.cx, v.cy);
+    X.fillStyle = s.c2;
+    X.globalAlpha = 0.7 * fade;
+    // Base pillar
+    X.fillRect(-4, -5, 8, 15);
+    // Star shape at top
+    X.translate(0, -15);
+    X.fillStyle = s.core;
+    X.globalAlpha = 0.9 * fade;
+    for (let i = 0; i < 4; i++) {
+        X.save();
+        X.rotate((i / 4) * Math.PI * 2 + v.age * 0.02);
+        X.fillRect(-1.5, -10, 3, 20);
+        X.restore();
+    }
+    // Center orb
+    const orbGrad = X.createRadialGradient(0, 0, 0, 0, 0, 8);
+    orbGrad.addColorStop(0, s.core);
+    orbGrad.addColorStop(0.5, s.color);
+    orbGrad.addColorStop(1, 'transparent');
+    X.fillStyle = orbGrad;
+    X.globalAlpha = fade;
+    X.beginPath();
+    X.arc(0, 0, 8, 0, Math.PI * 2);
+    X.fill();
+    X.restore();
+    // Pulse ring on damage frames
+    if (v.age % s.beaconRate < 3) {
+        X.strokeStyle = s.color;
+        X.lineWidth = 2;
+        X.globalAlpha = 0.3 * fade;
+        X.beginPath();
+        X.arc(v.cx, v.cy, s.beaconR * (v.age % s.beaconRate) / 3, 0, Math.PI * 2);
+        X.stroke();
+    }
+    X.globalAlpha = 1;
+  },
+
+  // ─── SOLAR FLARE — blinding flash ───
+  'solar_flare'(v, X) {
+    const s = v.spell;
+    if (v.age <= 3) {
+      // Full screen white fill at high alpha
+      X.fillStyle = '#fff';
+      X.globalAlpha = Math.max(0, 1 - v.age / 3);
+      X.fillRect(0, 0, state.W, state.H);
+    }
+    // Radial light rays emanating from center
+    X.globalAlpha = Math.max(0, 1 - v.age / 20) * 0.5;
+    X.strokeStyle = s.color;
+    X.lineWidth = 2;
+    for (let i = 0; i < 16; i++) {
+      const angle = (i / 16) * Math.PI * 2;
+      X.beginPath();
+      X.moveTo(v.cx, v.cy);
+      X.lineTo(v.cx + Math.cos(angle) * 250, v.cy + Math.sin(angle) * 250);
+      X.stroke();
+    }
+    // Golden ring expanding
+    X.strokeStyle = s.c2;
+    X.lineWidth = 3;
+    X.globalAlpha = Math.max(0, 1 - v.age / 25);
+    X.beginPath();
+    X.arc(v.cx, v.cy, 50 + v.age * 5, 0, Math.PI * 2);
+    X.stroke();
+    X.globalAlpha = 1;
+  },
+
+  // ─── NEBULA CLOUD — layered cosmic cloud ───
+  'nebula_cloud'(v, X) {
+    const s = v.spell;
+    const fadeAlpha = 1 - v.age / s.nebDur;
+    X.globalAlpha = fadeAlpha * 0.6;
+
+    // Draw layered translucent circles
+    const colors = [s.color, s.c2, '#ff99dd'];
+    for (let i = 0; i < 3; i++) {
+      X.fillStyle = colors[i];
+      X.beginPath();
+      X.arc(v.cx, v.cy, s.nebR - i * 25, 0, Math.PI * 2);
+      X.fill();
+    }
+
+    // Twinkling star points inside
+    X.fillStyle = '#ffff99';
+    X.globalAlpha = fadeAlpha * 0.8;
+    for (let i = 0; i < 12; i++) {
+      const angle = (i / 12) * Math.PI * 2 + v.age * 0.02;
+      const dist = 20 + Math.sin(v.age * 0.05 + i) * 10;
+      const x = v.cx + Math.cos(angle) * dist;
+      const y = v.cy + Math.sin(angle) * dist;
+      X.beginPath();
+      X.arc(x, y, 2, 0, Math.PI * 2);
+      X.fill();
+    }
+
+    // Slowly rotating effect
+    X.globalAlpha = fadeAlpha * 0.3;
+    X.strokeStyle = s.core;
+    X.lineWidth = 1;
+    const rotation = v.age * 0.01;
+    X.save();
+    X.translate(v.cx, v.cy);
+    X.rotate(rotation);
+    for (let i = 0; i < 4; i++) {
+      X.beginPath();
+      X.arc(0, 0, s.nebR * (0.5 + i * 0.15), 0, Math.PI * 2);
+      X.stroke();
+    }
+    X.restore();
+    X.globalAlpha = 1;
+  },
 
   // ─── STAR COLLAPSE — glowing star with accretion disk ───
   'star-collapse'(v, X) {

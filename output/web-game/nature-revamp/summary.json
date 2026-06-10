@@ -1,0 +1,99 @@
+{
+  "ran": [
+    "Poison Cloud",
+    "Earth Spike",
+    "Earthquake",
+    "Razor Leaf",
+    "Seed Barrage",
+    "Vine Grapple",
+    "Spore Burst",
+    "Petrify",
+    "Gaia's Wrath",
+    "Forest Guardian",
+    "Bramble Clutch",
+    "Wooden Construct",
+    "World Tree"
+  ],
+  "errors": [],
+  "spells": {
+    "Poison Cloud": {
+      "selectedSpell": "Poison Cloud",
+      "mana": 84,
+      "vfxCount": 0,
+      "projectiles": 0
+    },
+    "Earth Spike": {
+      "selectedSpell": "Earth Spike",
+      "mana": 67,
+      "vfxCount": 0,
+      "projectiles": 0
+    },
+    "Earthquake": {
+      "selectedSpell": "Earthquake",
+      "mana": 39,
+      "vfxCount": 0,
+      "projectiles": 0
+    },
+    "Razor Leaf": {
+      "selectedSpell": "Razor Leaf",
+      "mana": 34,
+      "vfxCount": 0,
+      "projectiles": 1
+    },
+    "Seed Barrage": {
+      "selectedSpell": "Seed Barrage",
+      "mana": 36,
+      "vfxCount": 0,
+      "projectiles": 0
+    },
+    "Vine Grapple": {
+      "selectedSpell": "Vine Grapple",
+      "mana": 24,
+      "vfxCount": 0,
+      "projectiles": 1
+    },
+    "Spore Burst": {
+      "selectedSpell": "Spore Burst",
+      "mana": 6,
+      "vfxCount": 0,
+      "projectiles": 8
+    },
+    "Petrify": {
+      "selectedSpell": "Petrify",
+      "mana": 14,
+      "vfxCount": 0,
+      "projectiles": 2
+    },
+    "Gaia's Wrath": {
+      "selectedSpell": "Gaia's Wrath",
+      "mana": 22,
+      "vfxCount": 0,
+      "projectiles": 2
+    },
+    "Forest Guardian": {
+      "selectedSpell": "Forest Guardian",
+      "mana": 30,
+      "vfxCount": 0,
+      "projectiles": 2
+    },
+    "Bramble Clutch": {
+      "selectedSpell": "Bramble Clutch",
+      "mana": 23,
+      "vfxCount": 0,
+      "projectiles": 0
+    },
+    "Wooden Construct": {
+      "selectedSpell": "Wooden Construct",
+      "mana": 8,
+      "vfxCount": 0,
+      "projectiles": 0
+    },
+    "World Tree": {
+      "selectedSpell": "World Tree",
+      "mana": 16,
+      "vfxCount": 0,
+      "projectiles": 0
+    }
+  },
+  "consoleErrors": []
+}

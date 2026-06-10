@@ -1,0 +1,25 @@
+{
+  "errs": [],
+  "checks": [
+    {
+      "step": "fireMage_visual_+_barrel_fire",
+      "fireMage": true,
+      "barrel": true,
+      "enemyProjFired": 0
+    },
+    {
+      "step": "forest_guardian_filters_props",
+      "vfxFound": false,
+      "entities": [
+        "barrel",
+        "dummy"
+      ]
+    },
+    {
+      "step": "mirror_pool_reflects",
+      "mirrored": 0,
+      "vfxActive": true,
+      "enemyProj": 0
+    }
+  ]
+}

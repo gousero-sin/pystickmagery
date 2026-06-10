@@ -1,8 +1,10 @@
 // purecinema.js — PureCinema School: Cinematic spell compositions
 import { state } from '../core/state.js?v=7';
 import { SoundFX } from '../core/sounds.js?v=7';
-import { spawnP, hurtEntity, explode } from '../core/utils.js?v=7';
-import { createManifestSpell, MANIFEST_FIRE_HANDLERS, MANIFEST_VFX_UPDATE, MANIFEST_VFX_DRAW } from './manifest.js?v=7';
+import { spawnP, hurtEntity, explode, isEnemyEntity } from '../core/utils.js?v=8';
+import { asPlayerProjectile, normalizeEnemyProjectile, normalizePlayerProjectile } from '../core/projectiles.js?v=1';
+import { createManifestSpell, MANIFEST_FIRE_HANDLERS, MANIFEST_VFX_UPDATE, MANIFEST_VFX_DRAW } from './manifest.js?v=8';
+import { createHoldSpell, HOLD_FIRE_HANDLERS, HOLD_VFX_UPDATE, HOLD_VFX_DRAW } from './hold.js?v=7';
 
 // ── Spell Definitions ──────────────────────────────────────────────────────
 export const SPELL_DEFS = [
@@ -109,6 +111,15 @@ export const SPELL_DEFS = [
         cutBurstR: 68,
         desc: 'Rapid montage slashes jump through the frame and carve multiple marks'
     },
+    createHoldSpell({
+        name: 'Freeze Frame', icon: '🖼️', key: 'A',
+        color: '#d4b37a', c2: '#fff0b8', core: '#ffffff',
+        mana: 20, cd: 980, dmg: 0,
+        holdStyle: 'cinema', holdProfile: 'cinema_freeze',
+        holdR: 92, holdDrain: 0.25,
+        releaseR: 96, releaseDmg: 0,
+        desc: 'Hold to lock the scene inside a drifting film frame, then smash-cut the tableau apart'
+    }),
     {
         name: 'Tesseract', icon: '⬜', key: ',',
         color: '#aa44ff', c2: '#44ddff', core: '#ffffff',
@@ -133,10 +144,35 @@ export const SPELL_DEFS = [
         mana: 25, cd: 950, manifestArc: 12, manifestThickness: 11, manifestSegmentHp: 30, manifestPulseDmg: 3,
         desc: 'Manifest a practical set extension that locks the scene in place for a take'
     }),
+    {
+        name: 'Bullet Time', icon: '🐌', key: 'K',
+        color: '#aaddff', c2: '#ddeeff', core: '#ffffff',
+        speed: 0, dmg: 0, mana: 38, cd: 5000, r: 0,
+        grav: 0, drag: 1, bounce: 0, exR: 0, exF: 0,
+        trail: 'none', isBulletTime: true, btDur: 150, btScale: 0.04,
+        desc: 'Time slows to a crawl — you move freely while enemies are nearly frozen'
+    },
+    {
+        name: 'Rack Focus', icon: '🔍', key: 'L',
+        color: '#ffd700', c2: '#ffee88', core: '#ffffff',
+        speed: 0, dmg: 55, mana: 30, cd: 2400, r: 0,
+        grav: 0, drag: 1, bounce: 0, exR: 0, exF: 0,
+        trail: 'none', isRackFocus: true, focusR: 120,
+        desc: 'Rack focus onto the frame — enemies in sharp focus are struck with precision damage'
+    },
+    {
+        name: "Director's Cut", icon: '🎬', key: 'R',
+        color: '#ffffff', c2: '#cccccc', core: '#ffffff',
+        speed: 0, dmg: 75, mana: 80, cd: 18000, r: 0,
+        grav: 0, drag: 1, bounce: 0, exR: 0, exF: 0,
+        trail: 'none', isDirectorsCut: true,
+        desc: "The director shouts CUT — a 5-act cinematic obliterates everything on screen (Ultimate)"
+    },
 ];
 
 // ── Fire Handlers ──────────────────────────────────────────────────────────
 export const FIRE_HANDLERS = {
+    ...HOLD_FIRE_HANDLERS,
     ...MANIFEST_FIRE_HANDLERS,
     isDustToDust(s, ox, oy, tx, ty) {
         state.vfxSequences.push({
@@ -268,6 +304,26 @@ export const FIRE_HANDLERS = {
         SoundFX.playTone(220, 'sine', 0.1, 0.3);
         state.shake(4);
         return true;
+    },
+    isBulletTime(s, ox, oy, tx, ty) {
+        state.vfxSequences.push({ type: 'bullet_time', state: 0, age: 0, spell: s });
+        SoundFX.playSweep(1400, 80, 'sine', 0.4, 1.2);
+        SoundFX.playTone(55, 'sine', 0.3, 1.5);
+        state.shake(3);
+        return true;
+    },
+    isRackFocus(s, ox, oy, tx, ty) {
+        state.vfxSequences.push({ type: 'rack_focus', state: 0, age: 0, cx: tx, cy: ty, ox, oy, spell: s });
+        SoundFX.playSweep(400, 1800, 'sine', 0.3, 0.3);
+        SoundFX.playTone(2200, 'triangle', 0.1, 0.15);
+        return true;
+    },
+    isDirectorsCut(s, ox, oy, tx, ty) {
+        state.vfxSequences.push({ type: 'directors_cut', state: 0, age: 0, spell: s });
+        state.player.inv = true;
+        SoundFX.playNoise(0.5, 0.18, 1200, 'highpass');
+        SoundFX.playTone(100, 'sine', 0.4, 0.5);
+        return true;
     }
 };
 
@@ -277,6 +333,7 @@ export const PROJ_HOOKS = {
         onLand(p, s, hitPlat, hitEntity) {
             // Sandplosion on impact
             triggerSandplosion(p.x, p.y, s);
+            return true;
         }
     }
 };
@@ -399,10 +456,11 @@ function drawPoly(X, points) {
     X.closePath();
 }
 
-function captureParadigmaProjectiles(v, s, cx, cy) {
+function captureParadigmaPool(v, s, cx, cy, pool, normalize) {
     let capturedNow = 0;
-    for (let i = state.projectiles.length - 1; i >= 0; i--) {
-        const p = state.projectiles[i];
+    for (let i = pool.length - 1; i >= 0; i--) {
+        const p = normalize(pool[i]);
+        pool[i] = p;
         if (!p?.spell || p.spell.isParadigma || p._paradigmCaptured) continue;
         const dx = p.x - cx;
         const dy = (p.y - cy) * 1.14;
@@ -417,10 +475,18 @@ function captureParadigmaProjectiles(v, s, cx, cy) {
         p._paradigmColor = p.spell.core || p.spell.color || s.core;
 
         v.captured.push(p);
-        state.projectiles.splice(i, 1);
+        pool.splice(i, 1);
         spawnP(p.x, p.y, p._paradigmColor, 3, 'sparkle');
         capturedNow++;
     }
+
+    return capturedNow;
+}
+
+function captureParadigmaProjectiles(v, s, cx, cy) {
+    let capturedNow = 0;
+    capturedNow += captureParadigmaPool(v, s, cx, cy, state.projectiles, normalizePlayerProjectile);
+    capturedNow += captureParadigmaPool(v, s, cx, cy, state.enemyProjectiles || [], normalizeEnemyProjectile);
 
     if (capturedNow > 0) {
         SoundFX.playTone(900 + Math.min(capturedNow, 6) * 50, 'sine', 0.03, 0.05);
@@ -436,18 +502,19 @@ function releaseParadigmaProjectiles(v, s, cx, cy) {
     for (let i = 0; i < released.length; i++) {
         const p = released[i];
         const speed = Math.max(s.prismMinSpeed, p._paradigmStoredSpeed || 0) * s.prismBoost;
-        p.x = tip.x - geom.dirx * i * 4;
-        p.y = tip.y - geom.diry * i * 4;
-        p.vx = geom.dirx * speed;
-        p.vy = geom.diry * speed;
-        p.age = 0;
-        p.life = Math.max(60, p._paradigmStoredLife || 120);
-        p.trail = [];
-        p.hitList = [];
-        p._paradigmCaptured = false;
-        p._rifted = null;
-        p._hasted = false;
-        state.projectiles.push(p);
+        state.projectiles.push(asPlayerProjectile(p, {
+            x: tip.x - geom.dirx * i * 4,
+            y: tip.y - geom.diry * i * 4,
+            vx: geom.dirx * speed,
+            vy: geom.diry * speed,
+            age: 0,
+            life: Math.max(60, p._paradigmStoredLife || 120),
+            trail: [],
+            hitList: [],
+            _paradigmCaptured: false,
+            _rifted: null,
+            _hasted: false,
+        }));
     }
 
     return { tip, count: released.length, geom };
@@ -455,7 +522,7 @@ function releaseParadigmaProjectiles(v, s, cx, cy) {
 
 function collectPracticalTargets(cx, cy, s) {
     return state.entities
-        .filter(e => e.active)
+        .filter(isEnemyEntity)
         .map(e => ({
             entity: e,
             dist: Math.hypot(e.x + e.w / 2 - cx, e.y + e.h / 2 - cy),
@@ -570,6 +637,7 @@ function drawFinalCutSlash(X, slash, spell) {
 
 // ── VFX Updaters ───────────────────────────────────────────────────────────
 export const VFX_UPDATE = {
+    ...HOLD_VFX_UPDATE,
     ...MANIFEST_VFX_UPDATE,
     dust_charge(v) {
         const s = v.spell;
@@ -1082,7 +1150,7 @@ export const VFX_UPDATE = {
             }
 
             for (const e of state.entities) {
-                if (!e.active) continue;
+                if (!isEnemyEntity(e)) continue;
                 const ex = e.x + e.w / 2;
                 const ey = e.y + e.h / 2;
                 const dx = ex - v.cx;
@@ -1572,10 +1640,117 @@ export const VFX_UPDATE = {
             }
         }
     },
+    bullet_time(v) {
+        const s = v.spell;
+        const btScale = s.btScale || 0.04;
+        for (const e of state.entities) {
+            if (!e.active) continue;
+            e.vx *= btScale + 0.02;
+            e.vy *= btScale + 0.02;
+        }
+        if (v.age % 5 === 0) {
+            const ex = 20 + Math.random() * (state.W - 40);
+            const ey = 20 + Math.random() * (state.H - 40);
+            state.particles.push({ x: ex, y: ey, vx: 0, vy: -0.1, life: 28, ml: 28, color: '#aaddff', size: 1.5, grav: 0, type: 'sparkle' });
+        }
+        state.dynamicLights.push({ x: state.player.x + state.player.w/2, y: state.player.y + state.player.h/2, r: 85, color: '#aaddff', int: 0.9, life: 3, ml: 3 });
+        if (v.age > s.btDur) {
+            SoundFX.playSweep(80, 1400, 'sine', 0.3, 0.5);
+            const idx = state.vfxSequences.indexOf(v);
+            if (idx !== -1) state.vfxSequences.splice(idx, 1);
+        }
+    },
+    rack_focus(v) {
+        const s = v.spell;
+        if (v.state === 0) {
+            if (v.age >= 20) {
+                v.state = 1;
+                v.age = 0;
+                for (const e of state.entities) {
+                    if (!e.active) continue;
+                    const d = Math.hypot(e.x+e.w/2-v.cx, e.y+e.h/2-v.cy);
+                    if (d < s.focusR) {
+                        const dmgMult = 1 - d/s.focusR * 0.4;
+                        hurtEntity(e, s.dmg * dmgMult, v.cx, v.cy);
+                        spawnP(e.x+e.w/2, e.y+e.h/2, s.color, 10, 'burst');
+                        state.dynamicLights.push({ x: e.x+e.w/2, y: e.y+e.h/2, r: 60, color: s.color, int: 3, life: 8, ml: 8 });
+                    }
+                }
+                state.shockwaves.push({ x: v.cx, y: v.cy, r: 0, maxR: s.focusR, life: 14, maxLife: 14, color: s.color });
+                state.dynamicLights.push({ x: v.cx, y: v.cy, r: s.focusR*1.5, color: '#ffffff', int: 5, life: 10, ml: 10 });
+                state.shake(10);
+                SoundFX.playSweep(600, 2800, 'sawtooth', 0.5, 0.3);
+                spawnP(v.cx, v.cy, '#ffffff', 16, 'burst');
+            }
+        } else if (v.state === 1) {
+            state.dynamicLights.push({ x: v.cx, y: v.cy, r: s.focusR*(1+v.age/28), color: s.color, int: 2*(1-v.age/30), life: 3, ml: 3 });
+            if (v.age > 30) {
+                const idx = state.vfxSequences.indexOf(v);
+                if (idx !== -1) state.vfxSequences.splice(idx, 1);
+            }
+        }
+    },
+    directors_cut(v) {
+        const s = v.spell;
+        if (!v.dcInit) {
+            v.dcInit = true;
+            v.targets = state.entities.filter(isEnemyEntity);
+            v.targetIdx = 0;
+            v.origPos = { x: state.player.x, y: state.player.y };
+        }
+        if (v.age < 25) {
+            state.player.vx = 0;
+            state.player.vy = 0;
+            for (const e of state.entities) { if (e.active) { e.vx *= 0.05; e.vy *= 0.05; } }
+            if (v.age === 1) {
+                SoundFX.playNoise(1.0, 0.15, 1800, 'highpass');
+                state.shake(15);
+            }
+        } else if (v.age < 120) {
+            const elapsed = v.age - 25;
+            if (v.targetIdx < v.targets.length && elapsed % 8 === 0) {
+                const t = v.targets[v.targetIdx];
+                if (t.active) {
+                    state.player.x = t.x + t.w/2 - state.player.w/2;
+                    state.player.y = t.y - 4;
+                    state.player.castAnim = 200;
+                    state.player.castType = 'slash';
+                    hurtEntity(t, s.dmg * 0.55, t.x+t.w/2, t.y+t.h/2);
+                    spawnP(t.x+t.w/2, t.y+t.h/2, '#ffffff', 12, 'burst');
+                    state.dynamicLights.push({ x: t.x+t.w/2, y: t.y+t.h/2, r: 80, color: '#ffffff', int: 5, life: 8, ml: 8 });
+                    state.shake(8);
+                    SoundFX.playSweep(900, 2600, 'sawtooth', 0.3, 0.12);
+                }
+                v.targetIdx++;
+            }
+            if (v.age % 3 === 0) spawnP(state.player.x+state.player.w/2, state.player.y+state.player.h/2, '#ffffff', 2, 'trail');
+        } else if (v.age === 120) {
+            for (const e of v.targets) {
+                if (!e.active) continue;
+                hurtEntity(e, s.dmg * 0.7, e.x+e.w/2, e.y+e.h/2);
+                spawnP(e.x+e.w/2, e.y+e.h/2, s.color, 20, 'explode');
+                state.dynamicLights.push({ x: e.x+e.w/2, y: e.y+e.h/2, r: 120, color: '#ffffff', int: 6, life: 12, ml: 12 });
+            }
+            state.shockwaves.push({ x: state.W/2, y: state.H/2, r: 0, maxR: state.W, life: 25, maxLife: 25, color: '#ffffff' });
+            state.dynamicLights.push({ x: state.W/2, y: state.H/2, r: 800, color: '#ffffff', int: 10, life: 20, ml: 20 });
+            state.shake(40);
+            SoundFX.playNoise(1.0, 1.5, 60, 'lowpass');
+            SoundFX.playSweep(60, 2400, 'sawtooth', 1.0, 1.5);
+            spawnP(state.W/2, state.H/2, '#ffffff', 40, 'explode');
+            state.player.x = v.origPos.x;
+            state.player.y = v.origPos.y;
+            state.player.inv = false;
+        }
+        if (v.age > 165) {
+            const idx = state.vfxSequences.indexOf(v);
+            if (idx !== -1) state.vfxSequences.splice(idx, 1);
+        }
+    },
 };
 
 // ── VFX Drawers ────────────────────────────────────────────────────────────
 export const VFX_DRAW = {
+    ...HOLD_VFX_DRAW,
     ...MANIFEST_VFX_DRAW,
     dust_charge(v, X) {
         const s = v.spell;
@@ -2418,5 +2593,145 @@ export const VFX_DRAW = {
             X.fillText('♦', Math.cos(a) * orbitR, Math.sin(a) * orbitR);
         }
         X.restore(); X.globalAlpha = 1;
+    },
+    bullet_time(v, X) {
+        const s = v.spell;
+        const progress = v.age / s.btDur;
+        const alpha = progress < 0.1 ? progress * 10 : (progress > 0.85 ? (1-progress)/0.15 : 1);
+        // Edge vignette
+        const vig = X.createRadialGradient(state.W/2, state.H/2, state.H*0.2, state.W/2, state.H/2, state.W*0.75);
+        vig.addColorStop(0, 'transparent');
+        vig.addColorStop(1, `rgba(0,12,35,${0.55*alpha})`);
+        X.fillStyle = vig;
+        X.globalAlpha = 1;
+        X.fillRect(0, 0, state.W, state.H);
+        // Horizontal scanlines
+        X.fillStyle = '#000000';
+        X.globalAlpha = 0.07 * alpha;
+        for (let y = 0; y < state.H; y += 4) X.fillRect(0, y, state.W, 2);
+        // Letterbox tint bars
+        X.globalAlpha = 0.18 * alpha;
+        X.fillStyle = '#88bbff';
+        X.fillRect(0, 0, state.W, 3);
+        X.fillRect(0, state.H-3, state.W, 3);
+        // Duration bar
+        X.globalAlpha = 0.75 * alpha;
+        X.fillStyle = '#aaddff';
+        X.fillRect(10, state.H-16, (state.W-20) * (1-progress), 3);
+        // Label
+        X.globalAlpha = 0.65 * alpha;
+        X.fillStyle = '#aaddff';
+        X.font = 'bold 10px monospace';
+        X.textAlign = 'center';
+        X.fillText('● BULLET TIME', state.W/2, 18);
+        X.textAlign = 'left';
+        X.globalAlpha = 1;
+    },
+    rack_focus(v, X) {
+        const s = v.spell;
+        if (v.state === 0) {
+            const prog = Math.min(1, v.age / 20);
+            // Depth of field vignette — blurs outside focus circle
+            const vig = X.createRadialGradient(v.cx, v.cy, s.focusR*0.35*prog, v.cx, v.cy, state.W*0.9);
+            vig.addColorStop(0, 'transparent');
+            vig.addColorStop(0.25, `rgba(0,0,12,${0.25*prog})`);
+            vig.addColorStop(1, `rgba(0,0,20,${0.75*prog})`);
+            X.fillStyle = vig;
+            X.globalAlpha = 1;
+            X.fillRect(0, 0, state.W, state.H);
+            // Focus ring
+            X.strokeStyle = s.color;
+            X.lineWidth = 2;
+            X.globalAlpha = 0.85 * prog;
+            X.beginPath();
+            X.arc(v.cx, v.cy, s.focusR*prog, 0, Math.PI*2);
+            X.stroke();
+            // Crosshair extenders
+            X.strokeStyle = '#ffffff';
+            X.lineWidth = 1;
+            X.globalAlpha = 0.6 * prog;
+            const cl = 22, fr = s.focusR*prog;
+            X.beginPath(); X.moveTo(v.cx-fr-cl, v.cy); X.lineTo(v.cx-fr, v.cy); X.stroke();
+            X.beginPath(); X.moveTo(v.cx+fr, v.cy); X.lineTo(v.cx+fr+cl, v.cy); X.stroke();
+            X.beginPath(); X.moveTo(v.cx, v.cy-fr-cl); X.lineTo(v.cx, v.cy-fr); X.stroke();
+            X.beginPath(); X.moveTo(v.cx, v.cy+fr); X.lineTo(v.cx, v.cy+fr+cl); X.stroke();
+            // Label
+            X.globalAlpha = 0.55 * prog;
+            X.fillStyle = s.color;
+            X.font = '10px monospace';
+            X.textAlign = 'center';
+            X.fillText('RACK FOCUS', v.cx, v.cy - fr - 8);
+            X.textAlign = 'left';
+            X.globalAlpha = 1;
+        } else if (v.state === 1) {
+            const a = Math.max(0, 1 - v.age/28);
+            X.globalAlpha = a * 0.55;
+            X.fillStyle = '#ffffff';
+            X.fillRect(0, 0, state.W, state.H);
+            X.globalAlpha = 1;
+        }
+    },
+    directors_cut(v, X) {
+        if (v.age < 25) {
+            // Clapper snap — black flash
+            const fa = v.age < 5 ? v.age/5 : Math.max(0, 1-(v.age-5)/20);
+            X.globalAlpha = fa * 0.95;
+            X.fillStyle = '#000000';
+            X.fillRect(0, 0, state.W, state.H);
+            // Clapper board graphic
+            if (v.age < 14) {
+                const stripeW = state.W * (v.age/14);
+                X.globalAlpha = 1;
+                for (let i = 0; i < 8; i++) {
+                    X.fillStyle = i%2===0 ? '#000000' : '#ffffff';
+                    X.fillRect(i*(stripeW/8), 0, stripeW/8, 28);
+                }
+                X.fillStyle = '#111111';
+                X.fillRect(0, 28, state.W, 20);
+                X.fillStyle = '#ffffff';
+                X.font = 'bold 13px monospace';
+                X.textAlign = 'center';
+                X.fillText("DIRECTOR'S CUT  •  TAKE 1", state.W/2, 44);
+                X.textAlign = 'left';
+            }
+            X.globalAlpha = 1;
+        } else if (v.age < 120) {
+            // Cinema mode — letterbox + speed lines
+            const bwAlpha = Math.min(1, (v.age-25)/22) * (v.age > 100 ? Math.max(0, (120-v.age)/20) : 1);
+            // Letterbox bars
+            X.fillStyle = '#000000';
+            X.globalAlpha = bwAlpha * 0.75;
+            X.fillRect(0, 0, state.W, 20);
+            X.fillRect(0, state.H-20, state.W, 20);
+            // Speed lines from player
+            const px = state.player.x + state.player.w/2;
+            const py = state.player.y + state.player.h/2;
+            X.globalAlpha = bwAlpha * 0.18;
+            X.strokeStyle = '#ffffff';
+            X.lineWidth = 1;
+            for (let i = 0; i < 20; i++) {
+                const a = (i/20)*Math.PI*2 + v.age*0.04;
+                X.beginPath();
+                X.moveTo(px+Math.cos(a)*18, py+Math.sin(a)*18);
+                X.lineTo(px+Math.cos(a)*100, py+Math.sin(a)*100);
+                X.stroke();
+            }
+            // HUD
+            X.globalAlpha = 0.75 * bwAlpha;
+            X.fillStyle = '#ffffff';
+            X.font = 'bold 10px monospace';
+            X.textAlign = 'right';
+            X.fillText(`${v.targetIdx||0} CUTS`, state.W-10, state.H-26);
+            X.textAlign = 'left';
+            X.globalAlpha = 1;
+        } else if (v.age < 148) {
+            // Finale flash
+            const t = (v.age-120)/28;
+            X.globalAlpha = Math.max(0, 1-t) * 0.85;
+            X.fillStyle = '#ffffff';
+            X.fillRect(0, 0, state.W, state.H);
+            X.globalAlpha = 1;
+        }
+        X.globalAlpha = 1;
     },
 };

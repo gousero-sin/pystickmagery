@@ -1,0 +1,140 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; min-height: 100vh; }
+body {
+  background-color: var(--vellum-night, #0e0a06);
+  background-image:
+    radial-gradient(circle at 18% 18%, rgba(91, 42, 134, 0.14) 0, transparent 40%),
+    radial-gradient(circle at 82% 82%, rgba(201, 161, 74, 0.08) 0, transparent 44%);
+  color: var(--fg-primary, #f4dca3);
+  font-family: var(--font-sans, system-ui, sans-serif);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.screen { min-height: 100vh; }
+
+/* ───── Shared Vellum surfaces ───── */
+.vellum-panel {
+  position: relative;
+  background-color: var(--vellum-base, #2b1d10);
+  border: 2px solid var(--gold-pale, #c9a14a);
+  box-shadow:
+    var(--shadow-card, 0 8px 24px rgba(0,0,0,0.5)),
+    inset 0 0 0 1px var(--ink-black, #0a0604),
+    inset 0 0 0 3px var(--vellum-light, #574028);
+}
+
+.panel-title {
+  font-family: var(--font-display, "Cinzel", serif);
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--gold-bright, #f0d488);
+  text-shadow: 0 2px 0 var(--ink-black, #0a0604);
+  margin: 0 0 8px 0;
+}
+
+/* ───── Shared Vellum button ───── */
+.vellum-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 22px;
+  font-family: var(--font-display, "Cinzel", serif);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 2px solid var(--gold-pale, #c9a14a);
+  background-color: var(--vellum-base, #2b1d10);
+  color: var(--gold-leaf, #e6c98b);
+  box-shadow:
+    0 4px 0 var(--ink-black, #0a0604),
+    inset 0 0 0 1px var(--ink-black, #0a0604),
+    inset 0 1px 0 2px var(--vellum-light, #574028);
+  transition:
+    transform var(--dur-snap, 90ms) var(--ease-step-2, steps(2)),
+    background-color var(--dur-snap, 90ms) var(--ease-step-2, steps(2));
+}
+.vellum-btn:hover { background-color: var(--vellum-aged, #3d2a18); }
+.vellum-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--ink-black, #0a0604), inset 0 0 0 1px var(--ink-black, #0a0604); }
+
+.vellum-btn--arcane {
+  border-color: var(--arcane-mist, #a06ee0);
+  color: var(--fg-on-arcane, #f3e9ff);
+  background-color: var(--arcane, #7c3aed);
+  box-shadow:
+    0 4px 0 var(--arcane-deep, #3a1a66),
+    0 0 26px var(--arcane-glow-hot, rgba(124,58,237,0.5)),
+    inset 0 0 0 1px var(--ink-black, #0a0604),
+    inset 0 1px 0 2px var(--arcane-mist, #a06ee0);
+}
+.vellum-btn--arcane:hover { background-color: var(--arcane-bright, #9457f0); }
+.vellum-btn__rune { font-family: var(--font-display, "Cinzel", serif); font-weight: 900; font-size: 20px; line-height: 1; }
+
+/* ───── Menu screen ───── */
+.menu-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 40px 20px;
+  position: relative;
+}
+.menu-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 200px 40px rgba(0,0,0,0.6);
+}
+.menu-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  max-width: 560px;
+}
+.menu-logo { image-rendering: pixelated; }
+.menu-title {
+  font-family: var(--font-display, "Cinzel", serif);
+  font-weight: 900;
+  font-size: clamp(40px, 7vw, 72px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-leaf, #e6c98b);
+  text-shadow: 0 3px 0 var(--ink-black, #0a0604), 0 0 28px var(--gold-glow, rgba(201,161,74,0.5));
+  line-height: 1;
+  margin: 0;
+}
+.menu-sub {
+  font-family: var(--font-display, "Cinzel", serif);
+  font-size: 16px;
+  letter-spacing: 0.5em;
+  color: var(--gold-pale, #c9a14a);
+  text-transform: uppercase;
+  margin: 0;
+}
+.menu-flavor {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--fg-secondary, #cbb489);
+  max-width: 460px;
+  line-height: 1.6;
+  margin: 4px 0 8px;
+}
+.menu-foot {
+  position: fixed;
+  bottom: 20px;
+  left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-pixel, "Press Start 2P", monospace);
+  font-size: 9px;
+  color: var(--fg-tertiary, #8a7355);
+  letter-spacing: 0.16em;
+}

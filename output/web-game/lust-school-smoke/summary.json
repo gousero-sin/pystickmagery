@@ -1,0 +1,83 @@
+{
+  "errors": [],
+  "common": {
+    "selectedSpell": "Scent Spiral",
+    "selectedSpellCategory": "Aura",
+    "vfx": [
+      {
+        "type": "lust_scent_spiral",
+        "state": 0,
+        "age": 38,
+        "profile": null,
+        "captured": 0,
+        "targets": 0,
+        "slashes": 0,
+        "marks": 0,
+        "lockCount": 0,
+        "mirrored": 0,
+        "heads": 0,
+        "x": 410,
+        "y": 213
+      },
+      {
+        "type": "lust_status",
+        "state": 0,
+        "age": 37,
+        "profile": null,
+        "captured": 0,
+        "targets": 0,
+        "slashes": 0,
+        "marks": 0,
+        "lockCount": 0,
+        "mirrored": 0,
+        "heads": 0,
+        "x": 0,
+        "y": 0
+      }
+    ]
+  },
+  "ultimate": {
+    "selectedSpell": "Euphoria Bloom",
+    "selectedSpellCategory": "Ultimate",
+    "vfx": [
+      {
+        "type": "lust_euphoria_bloom",
+        "state": 1,
+        "age": 23,
+        "profile": null,
+        "captured": 0,
+        "targets": 0,
+        "slashes": 0,
+        "marks": 0,
+        "lockCount": 0,
+        "mirrored": 0,
+        "heads": 0,
+        "x": 107,
+        "y": 370
+      },
+      {
+        "type": "lust_status",
+        "state": 0,
+        "age": 23,
+        "profile": null,
+        "captured": 0,
+        "targets": 0,
+        "slashes": 0,
+        "marks": 0,
+        "lockCount": 0,
+        "mirrored": 0,
+        "heads": 0,
+        "x": 0,
+        "y": 0
+      }
+    ]
+  },
+  "pixelSummary": {
+    "width": 800,
+    "height": 500,
+    "sampledUniqueColors": 163,
+    "brightSamples": 494,
+    "warmPinkSamples": 404,
+    "activePixels": 6253
+  }
+}

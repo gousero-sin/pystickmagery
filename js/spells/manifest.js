@@ -1,6 +1,6 @@
 import { state } from '../core/state.js?v=7';
 import { SoundFX } from '../core/sounds.js?v=7';
-import { spawnP, hurtEntity } from '../core/utils.js?v=7';
+import { spawnP, hurtEntity, isEnemyEntity } from '../core/utils.js?v=8';
 
 const DEFAULT_KEY = '/';
 
@@ -78,6 +78,7 @@ function getManifestPalette(spell) {
     chrono: { edge: '#8ad9ff', glow: '#fff6b8', shadow: '#3c2f14', spark: '#5cd2ff' },
     celestial: { edge: '#ffd680', glow: '#ffffff', shadow: '#1b2148', spark: '#ffeeb8' },
     cinema: { edge: '#ffd3a0', glow: '#fff7d1', shadow: '#23180f', spark: '#ffb06b' },
+    aetherforge: { edge: '#78efff', glow: '#fff0cf', shadow: '#26140b', spark: '#ff8a4f' },
   };
   return map[style] || map.nature;
 }
@@ -114,6 +115,10 @@ function manifestBuildNoise(spell) {
   else if (style === 'chrono') SoundFX.playTone(480, 'triangle', 0.08, 0.1);
   else if (style === 'celestial') SoundFX.playSweep(220, 880, 'sine', 0.12, 0.12);
   else if (style === 'cinema') SoundFX.playNoise(0.2, 0.14, 360, 'lowpass');
+  else if (style === 'aetherforge') {
+    SoundFX.playNoise(0.22, 0.16, 300, 'bandpass', 4);
+    SoundFX.playSweep(160, 920, 'sawtooth', 0.12, 0.1);
+  }
   else SoundFX.playNoise(0.2, 0.18, 220, 'lowpass');
 }
 
@@ -262,7 +267,7 @@ function applyManifestEffect(v) {
       let best = 90;
       for (const seg of liveSegments) {
         for (const e of state.entities) {
-          if (!e.active) continue;
+          if (!isEnemyEntity(e)) continue;
           const dx = e.x + e.w / 2 - seg.centerX;
           const dy = e.y + e.h / 2 - seg.centerY;
           const dist = Math.hypot(dx, dy);
@@ -349,6 +354,66 @@ function applyManifestEffect(v) {
         hurtEntity(e, s.manifestPulseDmg || 3, seg.centerX, seg.centerY);
         e.vx *= 0.65;
         e.vy *= 0.8;
+      }
+    }
+  } else if (s.manifestEffect === 'aetherforge_foundry') {
+    const palette = getManifestPalette(s);
+    const bodies = [player, ...state.entities.filter((e) => e.active)];
+
+    for (const body of bodies) {
+      const seg = liveSegments.find((segment) => segmentOverlapBody(segment, body, 14, 28));
+      if (!seg) continue;
+      const tangentX = Math.cos(seg.angle);
+      const tangentY = Math.sin(seg.angle);
+      const boost = body === player ? 0.12 : 0.9 / (body.mass || 1);
+
+      body.vx += tangentX * boost;
+      body.vy += tangentY * boost * 0.55 - (body === player ? 0.08 : 0.26);
+      body.vx *= body === player ? 0.999 : 0.985;
+
+      if (body !== player && v.age % 12 === 0) {
+        hurtEntity(body, s.manifestPulseDmg || 4, seg.centerX, seg.centerY);
+      } else if (body === player && v.age % 14 === 0) {
+        player.mana = Math.min(player.maxMana, player.mana + 0.55);
+      }
+    }
+
+    if (v.age % 2 === 0) {
+      for (const p of state.projectiles) {
+        const nearest = nearestSegmentCenter(liveSegments, p.x, p.y, 120);
+        if (!nearest) continue;
+        const seg = nearest.segment;
+        const align = Math.max(0, 1 - nearest.dist / 120);
+        const tang = 0.34 * align;
+        const pull = 0.03 * align;
+        const dx = seg.centerX - p.x;
+        const dy = seg.centerY - p.y;
+
+        p.vx += Math.cos(seg.angle) * tang + dx * pull * 0.05;
+        p.vy += Math.sin(seg.angle) * tang + dy * pull * 0.05 - 0.02;
+        p.vx *= 0.996;
+        p.vy *= 0.996;
+
+        if (v.age % 10 === 0) {
+          spawnP(p.x, p.y, Math.random() > 0.5 ? palette.edge : palette.spark, 1, 'sparkle');
+        }
+      }
+    }
+
+    if (v.age % 26 === 0 && liveSegments.length > 1) {
+      const origin = pickSegment(liveSegments, v.age);
+      const target = pickSegment(liveSegments, v.age + 5);
+      if (origin && target && origin !== target) {
+        buildLightningBolt(origin.centerX, origin.centerY, target.centerX, target.centerY, palette.glow, 2);
+        state.dynamicLights.push({
+          x: (origin.centerX + target.centerX) * 0.5,
+          y: (origin.centerY + target.centerY) * 0.5,
+          r: 56,
+          color: palette.glow,
+          int: 1.25,
+          life: 7,
+          ml: 7,
+        });
       }
     }
   }

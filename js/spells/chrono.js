@@ -3,8 +3,9 @@
 // ═══════════════════════════════════════════════════════════════════════════
 import { state } from '../core/state.js?v=7';
 import { SoundFX } from '../core/sounds.js?v=7';
-import { spawnP, hurtEntity, explode } from '../core/utils.js?v=7';
-import { createManifestSpell, MANIFEST_FIRE_HANDLERS, MANIFEST_VFX_UPDATE, MANIFEST_VFX_DRAW } from './manifest.js?v=7';
+import { spawnP, hurtEntity, explode, isEnemyEntity } from '../core/utils.js?v=8';
+import { createManifestSpell, MANIFEST_FIRE_HANDLERS, MANIFEST_VFX_UPDATE, MANIFEST_VFX_DRAW } from './manifest.js?v=8';
+import { createHoldSpell, HOLD_FIRE_HANDLERS, HOLD_VFX_UPDATE, HOLD_VFX_DRAW } from './hold.js?v=7';
 
 // ── Spell Definitions ──────────────────────────────────────────────────────
 export const SPELL_DEFS = [
@@ -26,13 +27,13 @@ export const SPELL_DEFS = [
     desc: 'Reverses enemy momentum on hit'
   },
 
-  // 3. Phase Shift — player blinks forward leaving a damaging ghost trail
+  // 3. Phase Shift — player blinks forward through a delayed time smear
   {
     name: 'Phase Shift', icon: '👤', key: 'B', color: '#aabbff', c2: '#ccddff',
-    core: '#eeeeff', speed: 0, dmg: 30, mana: 18, cd: 500, r: 0, grav: 0,
+    core: '#eeeeff', speed: 0, dmg: 0, mana: 18, cd: 620, r: 0, grav: 0,
     drag: 1, bounce: 0, trail: 'phase',
-    isPhaseShift: true, phaseRange: 200, phaseDmg: 12,
-    desc: 'Dash forward — ghost trail damages all'
+    category: 'Dash', isPhaseShift: true, phaseRange: 200, phaseDmg: 0,
+    desc: 'Dash through delayed time, leaving a slow-motion echo lane'
   },
 
   // 4. Paradox Mine — invisible mines that freeze enemies in time bubbles
@@ -49,7 +50,7 @@ export const SPELL_DEFS = [
     name: 'Haste Zone', icon: '⚡', key: 'H', color: '#ffcc44', c2: '#ffee88',
     core: '#ffffcc', speed: 0, dmg: 0, mana: 25, cd: 800, r: 0, grav: 0,
     drag: 1, bounce: 0, trail: 'haste',
-    isHasteZone: true, hasteR: 100, hasteDur: 360, hasteMult: 1.8,
+    isHasteZone: true, hasteR: 200, hasteDur: 780, hasteMult: 2.3,
     desc: 'Creates a speed boost zone'
   },
 
@@ -89,6 +90,16 @@ export const SPELL_DEFS = [
     desc: 'Marks enemy — replays all damage after delay'
   },
 
+  createHoldSpell({
+    name: 'Frame Hold', icon: '🎞️', key: 'A',
+    color: '#7dc5ff', c2: '#ffe29c', core: '#ffffff',
+    mana: 18, cd: 940, dmg: 0,
+    holdStyle: 'chrono', holdProfile: 'chrono_frame',
+    holdR: 76, holdDrain: 0.22,
+    releaseR: 88, releaseDmg: 0,
+    desc: 'Hold to trap motion inside a temporal frame, then release its delayed recoil'
+  }),
+
   createManifestSpell({
     name: 'Delay Track', icon: '🕰️',
     color: '#6fcfff', c2: '#fff0a8', core: '#ffffff',
@@ -98,7 +109,31 @@ export const SPELL_DEFS = [
     desc: 'Manifest a temporal track that slows motion without becoming a full bridge'
   }),
 
-  // 10. CHRONO BREAK (ULTIMATE) — stops time, places damage, resumes with explosion
+  // 9. Stasis Trap — places an invisible trap at cursor. When an enemy walks over it, they freeze in time for 3 seconds.
+  {
+    name: 'Stasis Trap', icon: '🪤', key: 'F', color: '#6688cc', c2: '#99bbee',
+    core: '#ccddff', speed: 0, dmg: 0, mana: 18, cd: 600, r: 0, grav: 0,
+    drag: 1, bounce: 0, trail: 'chrono', isStasisTrap: true, trapR: 35, trapDur: 180,
+    desc: 'Hidden trap freezes enemies in time'
+  },
+
+  // 9b. Afterimage — next attack from the player is echoed 30 frames later as a ghost copy dealing 50% damage.
+  {
+    name: 'Afterimage', icon: '👻', key: 'G', color: '#88aadd', c2: '#aaccee',
+    core: '#ddeeff', speed: 0, dmg: 0, mana: 15, cd: 500, r: 0, grav: 0,
+    drag: 1, bounce: 0, trail: 'chrono', isAfterimage: true, echoDmg: 0.5, echoDelay: 30,
+    desc: 'Echoes next attack as a time ghost'
+  },
+
+  // 10. Time Dilation — toggle spell that slows enemies
+  {
+    name: 'Time Dilation', icon: '⏰', key: 'F', category: 'Toggle', color: '#8866dd', c2: '#aa88ff', core: '#ddccff',
+    speed: 0, dmg: 0, mana: 5, cd: 200, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'chrono',
+    isTimeDilation: true, dilationR: 150, dilationDrain: 0.3,
+    desc: 'Toggle — slows all nearby enemies while active'
+  },
+
+  // 10b. CHRONO BREAK (ULTIMATE) — stops time, places damage, resumes with explosion
   {
     name: 'Chrono Break', icon: '⏳', key: 'M', color: '#4466ff', c2: '#6688ff',
     core: '#99bbff', speed: 0, dmg: 80, mana: 85, cd: 8000, r: 0, grav: 0,
@@ -110,6 +145,7 @@ export const SPELL_DEFS = [
 
 // ── Fire Handlers ──────────────────────────────────────────────────────────
 export const FIRE_HANDLERS = {
+  ...HOLD_FIRE_HANDLERS,
   ...MANIFEST_FIRE_HANDLERS,
   isPhaseShift(s, ox, oy, tx, ty) {
     const angle = Math.atan2(ty - oy, tx - ox);
@@ -146,6 +182,40 @@ export const FIRE_HANDLERS = {
       spell: s, strikes: [], savedEntities: []
     });
     state.player.inv = true;
+    return true;
+  },
+
+  isTimeDilation(s, ox, oy, tx, ty) {
+    const existing = state.vfxSequences.find(v => v.type === 'time_dilation');
+    if (existing) {
+        // Toggle OFF
+        spawnP(ox, oy, s.color, 10, 'sparkle');
+        SoundFX.playSweep(600, 200, 'sine', 0.2, 0.2);
+        const idx = state.vfxSequences.indexOf(existing);
+        if (idx !== -1) state.vfxSequences.splice(idx, 1);
+    } else {
+        // Toggle ON
+        state.vfxSequences.push({ type: 'time_dilation', state: 0, age: 0, spell: s });
+        SoundFX.playSweep(200, 600, 'sine', 0.3, 0.3);
+        spawnP(ox, oy, s.core, 12, 'burst');
+    }
+    return true;
+  },
+
+  isStasisTrap(s, ox, oy, tx, ty) {
+    state.vfxSequences.push({
+      type: 'stasis_trap', state: 0, age: 0, cx: tx, cy: ty, spell: s
+    });
+    SoundFX.playTone(400, 'sine', 0.2, 0.1);
+    return true;
+  },
+
+  isAfterimage(s, ox, oy, tx, ty) {
+    state.vfxSequences.push({
+      type: 'afterimage_buff', state: 0, age: 0, spell: s, trackedProj: null
+    });
+    spawnP(state.player.x + state.player.w / 2, state.player.y + state.player.h / 2, s.color, 4, 'sparkle');
+    SoundFX.playTone(500, 'sine', 0.3, 0.15);
     return true;
   },
 };
@@ -379,7 +449,153 @@ export const TRAIL_EMITTERS = {
 
 // ── VFX Update Handlers ────────────────────────────────────────────────────
 export const VFX_UPDATE = {
+  ...HOLD_VFX_UPDATE,
   ...MANIFEST_VFX_UPDATE,
+
+  // ─── TIME DILATION — toggle spell that slows enemies
+  'time_dilation': (v) => {
+    const s = v.spell;
+    const px = state.player.x + state.player.w / 2;
+    const py = state.player.y + state.player.h / 2;
+    v.cx = px;
+    v.cy = py;
+    // Drain mana
+    if (v.age % 3 === 0) {
+        state.player.mana -= s.dilationDrain;
+        if (state.player.mana <= 5) {
+            // Auto-off
+            spawnP(px, py, s.color, 8, 'sparkle');
+            SoundFX.playSweep(400, 100, 'sine', 0.15, 0.15);
+            const idx = state.vfxSequences.indexOf(v);
+            if (idx !== -1) state.vfxSequences.splice(idx, 1);
+            return;
+        }
+    }
+    // Slow enemies in radius
+    if (v.age % 4 === 0) {
+        for (const e of state.entities) {
+            if (!e.active) continue;
+            const d = Math.hypot(e.x + e.w/2 - px, e.y + e.h/2 - py);
+            if (d < s.dilationR) {
+                const slowFactor = 0.6 + 0.4 * (d / s.dilationR);
+                e.vx *= slowFactor;
+                e.vy *= slowFactor;
+            }
+        }
+    }
+    // Also slow enemy projectiles
+    if (v.age % 6 === 0) {
+        for (const p of state.projectiles) {
+            if (p.spell && p.spell.trail === 'chrono') continue;
+            const d = Math.hypot(p.x - px, p.y - py);
+            if (d < s.dilationR) {
+                p.vx *= 0.7;
+                p.vy *= 0.7;
+            }
+        }
+    }
+    // Clock tick particles
+    if (v.age % 5 === 0) {
+        const a = Math.random() * Math.PI * 2;
+        const r = Math.random() * s.dilationR;
+        state.particles.push({
+            x: px + Math.cos(a) * r, y: py + Math.sin(a) * r,
+            vx: 0, vy: 0, life: 20, ml: 20, color: s.c2, size: 1.5, grav: 0, type: 'sparkle'
+        });
+    }
+    state.dynamicLights.push({ x: px, y: py, r: s.dilationR, color: s.color, int: 0.3 + Math.sin(v.age * 0.08) * 0.15, life: 2, ml: 2 });
+  },
+
+  // ─── STASIS TRAP — invisible trap that freezes enemies
+  'stasis_trap'(v) {
+    const s = v.spell;
+    if (v.state === 0) {
+      // Waiting state - nearly invisible shimmer
+      if (v.age % 10 === 0) {
+        spawnP(v.cx + (Math.random() - 0.5) * 15, v.cy + (Math.random() - 0.5) * 15, s.color, 1, 'sparkle');
+      }
+
+      // Check if entities enter the trap
+      for (const e of state.entities) {
+        if (!e.active) continue;
+        const dist = Math.hypot(e.x + e.w / 2 - v.cx, e.y + e.h / 2 - v.cy);
+        if (dist < s.trapR) {
+          v.state = 1;
+          v.age = 0;
+          v.target = e;
+          break;
+        }
+      }
+
+      // Timeout if not triggered
+      if (v.age > 600) {
+        const idx = state.vfxSequences.indexOf(v);
+        if (idx !== -1) state.vfxSequences.splice(idx, 1);
+      }
+    } else if (v.state === 1) {
+      // Active freeze state
+      if (v.target && v.target.active) {
+        v.target.vx = 0;
+        v.target.vy = 0;
+        spawnP(v.target.x + v.target.w / 2, v.target.y + v.target.h / 2, s.color, 1, 'sparkle');
+      }
+
+      if (v.age > s.trapDur) {
+        spawnP(v.cx, v.cy, s.color, 6, 'burst');
+        const idx = state.vfxSequences.indexOf(v);
+        if (idx !== -1) state.vfxSequences.splice(idx, 1);
+      }
+    }
+  },
+
+  // ─── AFTERIMAGE BUFF — echoes next attack
+  'afterimage_buff'(v) {
+    const s = v.spell;
+    if (v.state === 0) {
+      // Monitor for new player projectiles
+      for (const p of state.projectiles) {
+        if (!v.trackedProj && p.spell === s && p.age === 0) {
+          v.trackedProj = p;
+          v.projStartAge = 0;
+          v.projX = p.x;
+          v.projY = p.y;
+          v.projVx = p.vx;
+          v.projVy = p.vy;
+          break;
+        }
+      }
+
+      // If we have a tracked projectile, wait for echo delay then spawn copy
+      if (v.trackedProj) {
+        if (v.age - v.projStartAge >= s.echoDelay && !v.echoed) {
+          // Spawn echo projectile
+          state.projectiles.push({
+            x: v.projX,
+            y: v.projY,
+            vx: v.projVx,
+            vy: v.projVy,
+            spell: { ...s, dmg: Math.floor(s.dmg * s.echoDmg) },
+            life: 200,
+            age: 0,
+            trail: [],
+            hitList: [],
+            bounces: 0,
+            chains: 0,
+            growR: 0,
+            growDmg: 0
+          });
+          spawnP(v.projX, v.projY, s.c2, 4, 'sparkle');
+          v.echoed = true;
+        }
+      }
+
+      // Timeout
+      if (v.age > 300) {
+        const idx = state.vfxSequences.indexOf(v);
+        if (idx !== -1) state.vfxSequences.splice(idx, 1);
+      }
+    }
+  },
 
   // ─── ECHO GHOST — delayed afterimage detonation ───
   'echo-ghost'(v) {
@@ -436,7 +652,7 @@ export const VFX_UPDATE = {
       }
       if (v.age > 5) { v.state = 1; v.age = 0; }
     } else if (v.state === 1) {
-      // Dash — move player along angle, damage along path
+      // Dash — move player along angle and leave a slow-motion wake
       if (v.age === 1) {
         SoundFX.playSweep(600, 1800, 'sine', 0.6, 0.2);
         SoundFX.playNoise(0.3, 0.15, 800, 'highpass');
@@ -463,14 +679,15 @@ export const VFX_UPDATE = {
       }
       state.dynamicLights.push({ x: px, y: py, r: 60, color: s.color, int: 1.5, life: 2, ml: 2 });
 
-      // Damage enemies along the dash path
+      // Time wake slows enemies along the dash path without causing damage.
       if (v.age % 2 === 0) {
         for (const e of state.entities) {
           if (!e.active) continue;
           if (Math.hypot(e.x + e.w / 2 - px, e.y + e.h / 2 - py) < 40) {
-            hurtEntity(e, s.phaseDmg, px, py);
-            e.vx += Math.cos(v.angle) * 4;
-            e.vy -= 3;
+            e.vx *= 0.58;
+            e.vy *= 0.58;
+            e.vx += Math.cos(v.angle) * 1.4;
+            state.frozenEntities.set(e, Math.max(state.frozenEntities.get(e) || 0, 16));
           }
         }
       }
@@ -482,7 +699,7 @@ export const VFX_UPDATE = {
         const px = state.player.x + state.player.w / 2;
         const py = state.player.y + state.player.h / 2;
         SoundFX.playSweep(1200, 400, 'sine', 0.4, 0.2);
-        explode(px, py, 50, 6, s.dmg, s.color, s.c2);
+        explode(px, py, 50, 6, 0, s.color, s.c2);
         spawnP(px, py, s.core, 20, 'burst');
         state.shockwaves.push({ x: px, y: py, r: 0, maxR: 60, life: 10, maxLife: 10, color: s.core });
         state.dynamicLights.push({ x: px, y: py, r: 100, color: s.core, int: 2.5, life: 8, ml: 8 });
@@ -673,7 +890,7 @@ export const VFX_UPDATE = {
         if (v.jumps > 0) {
           let closest = null, closestDist = s.cascadeR;
           for (const e of state.entities) {
-            if (!e.active || v.hitList.includes(e)) continue;
+            if (!isEnemyEntity(e) || v.hitList.includes(e)) continue;
             const d = Math.hypot(e.x + e.w / 2 - v.cx, e.y + e.h / 2 - v.cy);
             if (d < closestDist) { closestDist = d; closest = e; }
           }
@@ -895,7 +1112,7 @@ export const VFX_UPDATE = {
       if (!v.strikes) v.strikes = [];
       if (v.age % 6 === 0 && v.strikes.length < s.breakStrikes) {
         // Pick random position near an enemy
-        const targets = state.entities.filter(e => e.active);
+        const targets = state.entities.filter(isEnemyEntity);
         if (targets.length > 0) {
           const t = targets[Math.floor(Math.random() * targets.length)];
           const sx = t.x + t.w / 2 + (Math.random() - .5) * 40;
@@ -972,7 +1189,108 @@ export const VFX_UPDATE = {
 
 // ── VFX Draw Handlers ──────────────────────────────────────────────────────
 export const VFX_DRAW = {
+  ...HOLD_VFX_DRAW,
   ...MANIFEST_VFX_DRAW,
+
+  // Time Dilation — distorted time bubble with clock visualization
+  'time_dilation': (v, X) => {
+    const s = v.spell;
+    const px = state.player.x + state.player.w / 2;
+    const py = state.player.y + state.player.h / 2;
+    // Distorted time bubble
+    const grad = X.createRadialGradient(px, py, 0, px, py, s.dilationR);
+    grad.addColorStop(0, 'rgba(136,102,221,0.06)');
+    grad.addColorStop(0.7, 'rgba(170,136,255,0.04)');
+    grad.addColorStop(1, 'transparent');
+    X.fillStyle = grad;
+    X.globalAlpha = 1;
+    X.beginPath();
+    X.arc(px, py, s.dilationR, 0, Math.PI * 2);
+    X.fill();
+    // Clock hands rotating slowly
+    X.save();
+    X.translate(px, py);
+    X.strokeStyle = s.color;
+    X.lineWidth = 1.5;
+    X.globalAlpha = 0.25;
+    // Hour hand
+    const hourAngle = v.age * 0.01;
+    X.beginPath();
+    X.moveTo(0, 0);
+    X.lineTo(Math.cos(hourAngle) * 18, Math.sin(hourAngle) * 18);
+    X.stroke();
+    // Minute hand
+    const minAngle = v.age * 0.04;
+    X.beginPath();
+    X.moveTo(0, 0);
+    X.lineTo(Math.cos(minAngle) * 28, Math.sin(minAngle) * 28);
+    X.stroke();
+    // Outer ring with tick marks
+    X.globalAlpha = 0.15;
+    X.beginPath();
+    X.arc(0, 0, s.dilationR, 0, Math.PI * 2);
+    X.stroke();
+    for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        X.beginPath();
+        X.moveTo(Math.cos(a) * (s.dilationR - 5), Math.sin(a) * (s.dilationR - 5));
+        X.lineTo(Math.cos(a) * s.dilationR, Math.sin(a) * s.dilationR);
+        X.stroke();
+    }
+    X.restore();
+    X.globalAlpha = 1;
+  },
+
+  // Stasis trap — very faint circle or frozen entity with cage
+  'stasis_trap'(v, X) {
+    const s = v.spell;
+    if (v.state === 0) {
+      // Very faint outline while waiting
+      X.strokeStyle = s.color;
+      X.lineWidth = 1;
+      X.globalAlpha = 0.2;
+      X.beginPath();
+      X.arc(v.cx, v.cy, s.trapR, 0, Math.PI * 2);
+      X.stroke();
+      X.globalAlpha = 1;
+    } else if (v.state === 1 && v.target) {
+      // Frozen entity gets blue-white cage
+      const ex = v.target.x + v.target.w / 2;
+      const ey = v.target.y + v.target.h / 2;
+      X.strokeStyle = '#aaccff';
+      X.lineWidth = 1;
+      X.globalAlpha = 0.6 + Math.sin(v.age * 0.1) * 0.2;
+      X.beginPath();
+      X.arc(ex, ey, 20, 0, Math.PI * 2);
+      X.stroke();
+      // Clock-like lines
+      for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2;
+        X.beginPath();
+        X.moveTo(ex + Math.cos(angle) * 10, ey + Math.sin(angle) * 10);
+        X.lineTo(ex + Math.cos(angle) * 20, ey + Math.sin(angle) * 20);
+        X.stroke();
+      }
+      X.globalAlpha = 1;
+    }
+  },
+
+  // Afterimage buff — subtle blue glow around player
+  'afterimage_buff'(v, X) {
+    const s = v.spell;
+    const px = state.player.x + state.player.w / 2;
+    const py = state.player.y + state.player.h / 2;
+    const glow = 10 + Math.sin(v.age * 0.1) * 3;
+    const grad = X.createRadialGradient(px, py, 0, px, py, glow);
+    grad.addColorStop(0, s.color);
+    grad.addColorStop(1, 'transparent');
+    X.fillStyle = grad;
+    X.globalAlpha = 0.3;
+    X.beginPath();
+    X.arc(px, py, glow, 0, Math.PI * 2);
+    X.fill();
+    X.globalAlpha = 1;
+  },
 
   // Echo ghost — translucent duplicate that pulses
   'echo-ghost'(v, X) {

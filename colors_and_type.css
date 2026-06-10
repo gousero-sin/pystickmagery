@@ -1,0 +1,614 @@
+/*
+ * StickMageryBattle — Design System
+ * Linguagem: Arcane Vellum (pergaminho arcano selado com tinta dourada e runas pixeladas)
+ * Inspiração: grimórios iluminados + pixel art de RPGs clássicos
+ *
+ * Toda superfície é um pedaço de pergaminho envelhecido. Bordas são duras,
+ * em tinta dourada, com cantos pixelados em degrau. Sem blur, sem glass,
+ * sem cantos arredondados. A "magia" entra como roxo arcano + brilho dourado.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Press+Start+2P&display=swap');
+
+:root {
+  /* ============================================================
+     VELLUM — o pergaminho. Toda superfície sólida vem daqui.
+     ============================================================ */
+  --vellum-night:   #0e0a06;  /* fundo de página, mais profundo */
+  --vellum-deep:    #1a1208;  /* fundo padrão */
+  --vellum-base:    #2b1d10;  /* card padrão */
+  --vellum-aged:    #3d2a18;  /* card elevado */
+  --vellum-light:   #574028;  /* hover / highlight */
+  --vellum-edge:    #6b4f30;  /* borda interna iluminada */
+
+  /* Tinta — escuros sobre o pergaminho */
+  --ink-black:      #0a0604;
+  --ink-deep:       #14100a;
+  --ink-soft:       #2a1f14;
+
+  /* ============================================================
+     GOLD — tinta dourada das runas e bordas iluminadas
+     ============================================================ */
+  --gold-dim:       #8c6a2a;
+  --gold-pale:      #c9a14a;  /* borda padrão */
+  --gold-bright:    #e6c98b;  /* texto destacado, runas vivas */
+  --gold-leaf:      #f4dca3;  /* highlight, brilho de folha de ouro */
+  --gold-glow:      rgba(201, 161, 74, 0.45);
+  --gold-glow-hot:  rgba(230, 201, 139, 0.70);
+
+  /* ============================================================
+     ARCANE — roxo da magia. Cor primária do sistema.
+     ============================================================ */
+  --arcane-deep:    #2a1340;
+  --arcane:         #5b2a86;
+  --arcane-bright:  #7c3aed;
+  --arcane-mist:    #b794f4;
+  --arcane-foam:    #d8b4fe;
+  --arcane-glow:    rgba(124, 58, 237, 0.45);
+  --arcane-glow-hot:rgba(183, 148, 244, 0.70);
+
+  /* ============================================================
+     SEMANTIC ROLES — o que as superfícies usam
+     ============================================================ */
+  --bg-page:        var(--vellum-night);
+  --bg-surface:     var(--vellum-base);
+  --bg-surface-lo:  var(--vellum-deep);
+  --bg-surface-hi:  var(--vellum-aged);
+  --bg-inset:       var(--ink-deep);
+
+  --border-dim:     var(--gold-dim);
+  --border:         var(--gold-pale);
+  --border-hot:     var(--gold-bright);
+
+  /* Texto sobre vellum */
+  --fg-primary:     #f4e9d4;   /* tinta clara sobre pergaminho */
+  --fg-secondary:   #c9b894;
+  --fg-tertiary:    #8b7a5c;
+  --fg-disabled:    #5a4d39;
+  --fg-on-arcane:   #ffffff;
+
+  /* ============================================================
+     COMBATE — sinais vitais
+     ============================================================ */
+  --hp:             #c44141;      /* sangue */
+  --hp-deep:        #6b1f1f;
+  --hp-text:        #f08585;
+  --hp-glow:        rgba(196, 65, 65, 0.55);
+
+  --mana:           #7c3aed;      /* mana é arcano */
+  --mana-deep:      #2a1340;
+  --mana-text:      #c8a8ff;
+  --mana-glow:      rgba(124, 58, 237, 0.55);
+
+  --stamina:        #c98e3a;      /* opcional, para builds futuras */
+  --stamina-text:   #f4c474;
+
+  /* Estados */
+  --good:           #6fa84a;
+  --good-soft:      rgba(111, 168, 74, 0.20);
+  --good-text:      #a8d489;
+
+  --bad:            #c44141;
+  --bad-soft:       rgba(196, 65, 65, 0.20);
+  --bad-text:       #f08585;
+
+  --warn:           #d4a13a;
+  --warn-soft:      rgba(212, 161, 58, 0.20);
+  --warn-text:      #f4c474;
+
+  /* ============================================================
+     ESCOLAS — escolas + 4 famílias
+     Cada cor é a "tinta da escola"; use como border-hot / icon-fill.
+     Família domina a paleta secundária de quem joga aquela classe.
+     ============================================================ */
+
+  /* Família PRIMAL (elementos brutos) */
+  --school-fire:        #d97742;
+  --school-water:       #4a9ec4;
+  --school-wind:        #b8d4a0;
+  --school-lightning:   #e8c542;
+  --school-nature:      #6b9d4a;
+
+  /* Família ARCANE (ordem cósmica) */
+  --school-arcane:      #7c3aed;
+  --school-chrono:      #7a93b8;
+  --school-celestial:   #c98ed4;
+  --school-echolith:    #5b8ba8;
+  --school-tensorveil:  #8b6ec9;
+  --school-aetherforge: #b85d3a;
+  --school-prismatica:  #5ec8ff;
+
+  /* Família VEIL (sombra & ilusão) */
+  --school-void:        #4a2d6e;
+  --school-lust:        #b83a6e;
+  --school-purecinema:  #d4a574;
+  --school-constante:   #d6b56d;
+  --school-aracnidea:   #8f3dff;
+  --school-mycobiota:   #8fcf5a;
+
+  /* Família SPIRIT (sagrado & ancestral) */
+  --school-holy:        #e6c98b;
+  --school-elemental:   #8a6a3a;
+  --school-dream:       #9d8bf0;
+
+  /* ============================================================
+     SOMBRAS + ELEVAÇÃO
+     Soft glow dourado/arcano sobre fundo escuro. Sem azul.
+     ============================================================ */
+  --shadow-card:       0 4px 0 rgba(0, 0, 0, 0.55), 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-card-hover: 0 6px 0 rgba(0, 0, 0, 0.60), 0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-modal:      0 12px 0 rgba(0, 0, 0, 0.65), 0 24px 60px rgba(0, 0, 0, 0.70);
+  --shadow-inset:      inset 0 1px 0 var(--vellum-light), inset 0 -1px 0 var(--ink-black);
+  --shadow-rune:       0 0 18px var(--gold-glow);
+  --shadow-arcane:     0 0 22px var(--arcane-glow);
+  --shadow-arcane-hot: 0 0 30px var(--arcane-glow-hot);
+
+  /* ============================================================
+     RAIOS — pixel art não tem cantos arredondados.
+     Mantemos quase tudo em 0. Pills só para tags.
+     ============================================================ */
+  --radius-0:    0;
+  --radius-xs:   2px;
+  --radius-sm:   4px;
+  --radius-pill: 999px;
+
+  /* ============================================================
+     ESPAÇAMENTO — escala 4px (mesma base do goflow)
+     ============================================================ */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ============================================================
+     MOVIMENTO — pixel art não anima com easing suave.
+     Use steps() para o look "frame por frame".
+     ============================================================ */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-step-4:   steps(4, end);     /* hover / pulses */
+  --ease-step-8:   steps(8, end);     /* cast / load */
+  --ease-step-2:   steps(2, end);     /* flicker */
+
+  --dur-snap:    80ms;
+  --dur-fast:    160ms;
+  --dur-base:    240ms;
+  --dur-slow:    480ms;
+
+  /* ============================================================
+     TIPOGRAFIA
+       - Cinzel:        display, títulos, nomes de escolas (carved-in-vellum)
+       - Inter:         body, parágrafos, copy
+       - JetBrains Mono: stats, valores (dano, mana, cooldown)
+       - Press Start 2P: pixel-art accents (key bindings, micro labels)
+     ============================================================ */
+  --font-display: 'Cinzel', 'Times New Roman', serif;
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'JetBrains Mono', 'SF Mono', Monaco, Menlo, monospace;
+  --font-pixel:   'Press Start 2P', 'Courier New', monospace;
+
+  /* Escala (modular 1.25) — mesma do goflow para previsibilidade */
+  --text-2xs:  11px;
+  --text-xs:   12px;
+  --text-sm:   14px;
+  --text-base: 16px;
+  --text-lg:   20px;
+  --text-xl:   25px;
+  --text-2xl:  31px;
+  --text-3xl:  39px;
+  --text-4xl:  49px;
+  --text-5xl:  61px;
+
+  /* Line heights */
+  --leading-tight:  1.10;
+  --leading-snug:   1.30;
+  --leading-normal: 1.55;
+  --leading-loose:  1.80;
+
+  /* Letter spacing — Cinzel em caixa alta pede espaçamento generoso */
+  --tracking-tight:   -0.01em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.08em;
+  --tracking-eyebrow: 0.20em;
+  --tracking-display: 0.04em;
+}
+
+/* ==============================================================
+   TYPE STYLES — apliquem direto via classes
+   ============================================================== */
+
+.sm-display {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--gold-leaf);
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 var(--ink-black), 0 0 18px var(--gold-glow);
+}
+
+.sm-h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  color: var(--gold-bright);
+  text-shadow: 0 2px 0 var(--ink-black);
+}
+
+.sm-h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  color: var(--gold-bright);
+}
+
+.sm-h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  color: var(--fg-primary);
+}
+
+.sm-h4 {
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  color: var(--fg-primary);
+}
+
+.sm-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: var(--leading-normal);
+  color: var(--fg-secondary);
+}
+
+.sm-body-sm {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: var(--leading-normal);
+  color: var(--fg-secondary);
+}
+
+.sm-caption {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  line-height: var(--leading-snug);
+  color: var(--fg-tertiary);
+}
+
+.sm-eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--gold-pale);
+}
+
+.sm-pixel {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: var(--gold-pale);
+  text-transform: uppercase;
+}
+
+.sm-stat,
+.sm-money {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  color: var(--fg-primary);
+}
+
+.sm-stat-lg {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-primary);
+  text-shadow: 0 2px 0 var(--ink-black);
+}
+
+.sm-rune {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--gold-leaf);
+  text-shadow: 0 0 12px var(--gold-glow-hot);
+}
+
+/* ==============================================================
+   FUNDO DA PÁGINA — pergaminho escuro com grão
+   ============================================================== */
+
+.sm-bg {
+  position: relative;
+  min-height: 100vh;
+  color: var(--fg-primary);
+  font-family: var(--font-sans);
+  background-color: var(--vellum-night);
+  background-image:
+    /* Vinheta sutil ao redor */
+    radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.55) 100%),
+    /* Manchas de tinta envelhecida */
+    radial-gradient(circle at 18% 22%, rgba(91, 42, 134, 0.10) 0, transparent 38%),
+    radial-gradient(circle at 82% 78%, rgba(201, 161, 74, 0.06) 0, transparent 42%),
+    /* Trama de pergaminho — repete tile com grão */
+    var(--sm-paper-grain, none);
+}
+
+/* Grão de papel via SVG inline reutilizável */
+.sm-paper {
+  background-color: var(--bg-surface);
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10  0 0 0 0 0.07  0 0 0 0 0.03  0 0 0 0.45 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+
+/* ==============================================================
+   SUPERFÍCIE VELLUM — a primitiva
+   Pergaminho com borda dupla (gold externa + ink interna)
+   e cantos pixel-stepped.
+   ============================================================== */
+
+.sm-vellum {
+  position: relative;
+  background-color: var(--bg-surface);
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.18  0 0 0 0 0.12  0 0 0 0 0.06  0 0 0 0.45 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
+  border: 2px solid var(--border);
+  box-shadow:
+    var(--shadow-card),
+    inset 0 0 0 1px var(--ink-black),
+    inset 0 0 0 3px var(--vellum-light),
+    inset 0 1px 0 4px var(--vellum-edge);
+  color: var(--fg-primary);
+  transition:
+    border-color var(--dur-fast) var(--ease-step-4),
+    box-shadow   var(--dur-fast) var(--ease-step-4),
+    transform    var(--dur-fast) var(--ease-step-4);
+  /* Cantos pixel-stepped — recorta o card em escadinhas de 4px */
+  clip-path: polygon(
+    8px 0, calc(100% - 8px) 0,
+    calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px),
+    0 8px,
+    4px 8px, 4px 4px, 8px 4px
+  );
+}
+
+.sm-vellum--hoverable {
+  cursor: pointer;
+}
+
+.sm-vellum--hoverable:hover {
+  border-color: var(--border-hot);
+  transform: translateY(-2px);
+  box-shadow:
+    var(--shadow-card-hover),
+    var(--shadow-rune),
+    inset 0 0 0 1px var(--ink-black),
+    inset 0 0 0 3px var(--vellum-light),
+    inset 0 1px 0 4px var(--vellum-edge);
+}
+
+.sm-vellum--soft  { background-color: var(--bg-surface-lo); }
+.sm-vellum--raised{ background-color: var(--bg-surface-hi); }
+
+/* ==============================================================
+   BOTÕES — runa selada
+   ============================================================== */
+
+.sm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  color: var(--gold-leaf);
+  background-color: var(--vellum-base);
+  border: 2px solid var(--border);
+  cursor: pointer;
+  box-shadow:
+    0 3px 0 var(--ink-black),
+    inset 0 0 0 1px var(--ink-black),
+    inset 0 1px 0 2px var(--vellum-light);
+  transition: transform var(--dur-snap) var(--ease-step-2),
+              box-shadow var(--dur-snap) var(--ease-step-2),
+              color var(--dur-snap) var(--ease-step-2);
+}
+
+.sm-btn:hover {
+  color: #fff8e0;
+  background-color: var(--vellum-aged);
+  box-shadow:
+    0 3px 0 var(--ink-black),
+    var(--shadow-rune),
+    inset 0 0 0 1px var(--ink-black),
+    inset 0 1px 0 2px var(--vellum-edge);
+}
+
+.sm-btn:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 var(--ink-black),
+    inset 0 0 0 1px var(--ink-black);
+}
+
+.sm-btn--arcane {
+  color: #fff;
+  background-color: var(--arcane);
+  border-color: var(--arcane-mist);
+  box-shadow:
+    0 3px 0 var(--arcane-deep),
+    var(--shadow-arcane),
+    inset 0 0 0 1px var(--ink-black),
+    inset 0 1px 0 2px var(--arcane-mist);
+}
+
+.sm-btn--arcane:hover {
+  background-color: var(--arcane-bright);
+  box-shadow:
+    0 3px 0 var(--arcane-deep),
+    var(--shadow-arcane-hot),
+    inset 0 0 0 1px var(--ink-black),
+    inset 0 1px 0 2px var(--arcane-foam);
+}
+
+.sm-btn--ghost {
+  background-color: transparent;
+  color: var(--gold-pale);
+  box-shadow: inset 0 0 0 1px var(--ink-black);
+}
+
+/* ==============================================================
+   BARRAS DE VIDA / MANA — chão de barra estilo pixel-art
+   ============================================================== */
+
+.sm-bar {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  background-color: var(--ink-deep);
+  border: 2px solid var(--border);
+  box-shadow:
+    inset 0 0 0 1px var(--ink-black),
+    inset 0 2px 0 rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+
+.sm-bar__fill {
+  height: 100%;
+  background-color: var(--hp);
+  background-image: linear-gradient(
+    to right,
+    var(--hp) 0%, var(--hp) 50%,
+    var(--hp-deep) 50%, var(--hp-deep) 51%,
+    var(--hp) 51%, var(--hp) 100%
+  );
+  background-size: 8px 100%;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.15),
+    inset 0 -2px 0 rgba(0,0,0,0.30);
+  transition: width var(--dur-base) var(--ease-step-8);
+}
+
+.sm-bar--mana .sm-bar__fill {
+  background-color: var(--mana);
+  background-image: linear-gradient(
+    to right,
+    var(--mana) 0%, var(--mana) 50%,
+    var(--mana-deep) 50%, var(--mana-deep) 51%,
+    var(--mana) 51%, var(--mana) 100%
+  );
+  background-size: 8px 100%;
+}
+
+/* ==============================================================
+   TAGS / PILLS — categoria de spell, escola, status
+   ============================================================== */
+
+.sm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  font-family: var(--font-display);
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--gold-bright);
+  background-color: var(--ink-deep);
+  border: 1px solid var(--border-dim);
+}
+
+.sm-tag--arcane { color: var(--arcane-mist); border-color: var(--arcane); }
+.sm-tag--hp     { color: var(--hp-text);     border-color: var(--hp);     }
+.sm-tag--mana   { color: var(--mana-text);   border-color: var(--mana);   }
+.sm-tag--good   { color: var(--good-text);   border-color: var(--good);   }
+.sm-tag--bad    { color: var(--bad-text);    border-color: var(--bad);    }
+.sm-tag--warn   { color: var(--warn-text);   border-color: var(--warn);   }
+
+/* ==============================================================
+   INPUTS — placa de invocação
+   ============================================================== */
+
+.sm-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--fg-primary);
+  background-color: var(--bg-inset);
+  border: 2px solid var(--border-dim);
+  box-shadow:
+    inset 0 0 0 1px var(--ink-black),
+    inset 0 2px 4px rgba(0, 0, 0, 0.45);
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease-step-4);
+}
+
+.sm-input:focus {
+  border-color: var(--arcane-bright);
+  box-shadow:
+    inset 0 0 0 1px var(--ink-black),
+    var(--shadow-arcane);
+}
+
+.sm-input::placeholder { color: var(--fg-tertiary); }
+
+/* ==============================================================
+   UTILS
+   ============================================================== */
+
+.sm-divider {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background:
+    linear-gradient(to right, transparent, var(--gold-dim) 20%, var(--gold-pale) 50%, var(--gold-dim) 80%, transparent);
+}
+
+.sm-pixel-icon {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  shape-rendering: crispEdges;
+}
+
+/* Skeleton: stub para classes utilitárias rápidas no preview */
+.sm-cluster { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.sm-stack   { display: flex; flex-direction: column; gap: var(--space-3); }
+.sm-row     { display: flex; gap: var(--space-3); align-items: center; }
