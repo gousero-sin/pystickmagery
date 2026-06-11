@@ -9,14 +9,8 @@ import { createHoldSpell, HOLD_FIRE_HANDLERS, HOLD_VFX_UPDATE, HOLD_VFX_DRAW } f
 // ── Spell Definitions ──────────────────────────────────────────────────────
 export const SPELL_DEFS = [
     { name: 'Fireball', icon: '🔥', key: '1', color: '#ff5511', c2: '#ff9b35', core: '#fff2a6', speed: 7.4, dmg: 22, mana: 12, cd: 300, r: 6, grav: .13, drag: .997, bounce: 0, exR: 48, exF: 8, trail: 'fire', desc: 'Weighted ember orb with a layered blast bloom' },
-    { name: 'Flame Wall', icon: '🧱', key: 'E', color: '#ff4400', c2: '#ff9d2e', core: '#fff0a8', speed: 0, dmg: 6, mana: 22, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'fire', isWall: true, wallW: 140, wallH: 56, wallDur: 240, desc: 'Raises a cinematic cinder barricade — five towering pillars of flame' },
-    { name: 'Cluster Bomb', icon: '🎆', key: 'I', color: '#ff6644', c2: '#ffb066', core: '#ffe2a0', speed: 6, dmg: 8, mana: 22, cd: 500, r: 5, grav: .18, drag: .998, bounce: 0, exR: 22, exF: 4, trail: 'fire', isCluster: true, subCount: 7, subSpd: 5.2, subDmg: 11, subR: 20, desc: 'Shell bursts into emberlets with staggered pop timing' },
-    { name: 'Time Bomb', icon: '⏱️', key: 'U', color: '#ffaa00', c2: '#ffdd66', core: '#fff7d4', speed: 5, dmg: 0, mana: 20, cd: 600, r: 5, grav: .2, drag: .998, bounce: 0, exR: 0, exF: 0, trail: 'fire', isTimeBomb: true, bombDelay: 120, bombDmg: 50, bombR: 68, bombF: 12, desc: 'Sticks, ticks with a hot fuse, then blooms outward' },
     { name: 'Meteor', icon: '☄️', key: '6', color: '#ff6600', c2: '#ffb13a', core: '#fff0a8', speed: 0, dmg: 45, mana: 40, cd: 1500, r: 12, grav: .5, drag: .999, bounce: 0, exR: 74, exF: 14, trail: 'meteor', isMeteor: true, desc: 'Telegraphed skyfall with a bright ground omen' },
-    { name: 'Ignite Chain', icon: '🔗', key: 'G', color: '#ff6622', c2: '#ffaa55', core: '#ffe6a3', speed: 10, dmg: 18, mana: 20, cd: 500, r: 4, grav: 0, drag: .999, bounce: 0, exR: 20, exF: 3, trail: 'fire', isIgniteChain: true, chainCount: 4, chainR: 160, desc: 'Sends cinder links through nearby enemies' },
-    { name: 'Backdraft', icon: '🌡️', key: 'H', color: '#ff3300', c2: '#ff8a1e', core: '#ffd15a', speed: 0, dmg: 45, mana: 30, cd: 1000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'fire', isBackdraft: true, bdR: 88, bdDelay: 66, desc: 'Sealed heat pocket with a clear inhale before release' },
     { name: 'Phoenix Step', icon: '🪶', key: 'T', category: 'Dash', color: '#ff4a1d', c2: '#ffb84f', core: '#fff3c2', speed: 0, dmg: 0, mana: 18, cd: 780, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'fire', isPhoenixStep: true, dashDur: 12, dashSpeed: 25, slowFallDur: 44, desc: 'Cinder recoil dash that sheds smoke and grants brief slow-fall' },
-    { name: 'Pyroblast', icon: '💣', key: 'J', category: 'Charge', color: '#ff4400', c2: '#ff8800', core: '#ffee44', speed: 0, dmg: 20, mana: 30, cd: 1500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'fire', isPyroblast: true, maxCharge: 120, desc: 'Charge to amplify — recast to unleash' },
     createHoldSpell({
         name: 'Kiln Arc', icon: '🏺', key: 'A',
         color: '#ff641f', c2: '#ffb05a', core: '#fff0b6',
@@ -26,15 +20,7 @@ export const SPELL_DEFS = [
         releaseR: 84, releaseDmg: 22,
         desc: 'Hold to keep a smoldering ribbon hot until it collapses in cinder bursts'
     }),
-    createManifestSpell({
-        name: 'Cinder Rampart', icon: '♨️',
-        color: '#ff5c1c', c2: '#ff9b40', core: '#fff0a8',
-        manifestStyle: 'fire', manifestEffect: 'fire_burn', manifestProfile: 'rampart', manifestGlyph: '+',
-        manifestDuration: 720,
-        mana: 26, cd: 950, manifestArc: 10, manifestThickness: 12, manifestSegmentHp: 30, manifestPulseDmg: 4,
-        desc: 'Manifest a cinder barricade that scorches and then collapses'
-    }),
-    { name: 'Cataclysm', icon: '🌋', key: 'V', color: '#ff2200', c2: '#ff8800', core: '#ffcc00', speed: 0, dmg: 150, mana: 80, cd: 8000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'fire', isCataclysm: true, exR: 150, exF: 25, desc: 'Massive eruption (Ultimate)' }
+    { name: 'Cataclysm', icon: '🌋', key: 'V', color: '#ff2200', c2: '#ff8800', core: '#ffcc00', speed: 0, dmg: 120, mana: 80, cd: 8000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'fire', isCataclysm: true, exR: 150, exF: 25, desc: 'Massive eruption (Ultimate)' }
 ];
 
 function removeFireVfx(v) {
@@ -732,3 +718,13 @@ export const VFX_DRAW = {
         }
     }
 };
+
+// ── Revamp: spells novos (fire-new.js) ──────────────────────────────────
+import * as FireNew from './fire-new.js?v=1';
+SPELL_DEFS.push(...FireNew.DEFS);
+Object.assign(FIRE_HANDLERS, FireNew.FIRE_HANDLERS);
+Object.assign(PROJ_HOOKS, FireNew.PROJ_HOOKS);
+export const TRAIL_EMITTERS = { ...FireNew.TRAIL_EMITTERS };
+Object.assign(VFX_UPDATE, FireNew.VFX_UPDATE);
+Object.assign(VFX_DRAW, FireNew.VFX_DRAW);
+export const PROJ_DRAW = { ...FireNew.PROJ_DRAW };

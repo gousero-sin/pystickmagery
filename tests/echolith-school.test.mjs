@@ -70,7 +70,7 @@ const echolith = await import('../js/spells/echolith.js');
 const registry = await import('../js/spell-registry.js');
 
 test('Echolith school is rebuilt around Good, Evil, and the threshold between them', () => {
-  assert.equal(echolith.SPELL_DEFS.length, 9);
+  assert.equal(echolith.SPELL_DEFS.length, 10);
 
   const validSides = new Set(['good', 'evil', 'threshold']);
   const sideCounts = { good: 0, evil: 0, threshold: 0 };
@@ -153,18 +153,20 @@ test('Echolith spell text carries artistic divine and infernal ritual language',
 test('Echolith school keeps runtime registrations intact', () => {
   const meta = registry.SCHOOL_INFO.find((school) => school.name === 'Echolith');
   assert.ok(meta);
-  assert.equal(meta.count, 9);
+  assert.equal(meta.count, 10);
   assert.equal(meta.color, '#f4d36a');
 
   for (const flag of [
     'isEcholithHold',
     'isEcholithSummon',
-    'isEcholithCast',
     'isEcholithCharge',
     'isEcholithDash',
-    'isEcholithManifest',
     'isEcholithUltimate1',
-    'isEcholithUltimate2',
+    'isMercyGuillotine',
+    'isSinEaterLantern',
+    'isHaloDebt',
+    'isAbyssChoirbook',
+    'isPenanceChain',
   ]) {
     assert.equal(typeof registry.FIRE_HANDLERS[flag], 'function', `${flag} should be registered`);
   }
@@ -183,10 +185,12 @@ test('Echolith school keeps runtime registrations intact', () => {
     'echolith_charge_recoil',
     'echolith_charge_impact',
     'echolith_dash_slash',
-    'echolith_manifest_anchor',
-    'echolith_manifest_lane',
     'echolith_ultimate_cathedral',
-    'echolith_ultimate_world_mute',
+    'echolith_mercy_guillotine',
+    'echolith_sin_eater_lantern',
+    'echolith_halo_debt',
+    'echolith_abyss_choirbook',
+    'echolith_penance_chain',
   ]) {
     assert.equal(typeof registry.VFX_UPDATE[type], 'function', `${type} update should be registered`);
     assert.equal(typeof registry.VFX_DRAW[type], 'function', `${type} draw should be registered`);

@@ -6,8 +6,16 @@ import { spawnP, explode, hurtEntity, isEnemyEntity } from '../core/utils.js?v=8
 import { SoundFX } from '../core/sounds.js?v=7';
 import { createManifestSpell, MANIFEST_FIRE_HANDLERS, MANIFEST_VFX_UPDATE, MANIFEST_VFX_DRAW } from './manifest.js?v=8';
 import { createHoldSpell, HOLD_FIRE_HANDLERS, HOLD_VFX_UPDATE, HOLD_VFX_DRAW } from './hold.js?v=7';
+import {
+    SPELL_DEFS as NEW_SPELL_DEFS,
+    FIRE_HANDLERS as NEW_FIRE_HANDLERS,
+    PROJ_HOOKS as NEW_PROJ_HOOKS,
+    TRAIL_EMITTERS as NEW_TRAIL_EMITTERS,
+    VFX_UPDATE as NEW_VFX_UPDATE,
+    VFX_DRAW as NEW_VFX_DRAW,
+} from './holy-new.js?v=1';
 
-export const SPELL_DEFS = [
+const LEGACY_SPELL_DEFS = [
     createHoldSpell({
         name: 'Choir Column', icon: '🎶', key: 'A',
         color: '#f2df7a', c2: '#fff3bf', core: '#ffffff',
@@ -25,14 +33,27 @@ export const SPELL_DEFS = [
         mana: 26, cd: 950, manifestArc: 18, manifestThickness: 10, manifestSegmentHp: 36, manifestHeal: 1.2,
         desc: 'Manifest radiant steps that heal allies, repel foes, and fade gently away'
     }),
-    { name: 'Judgment', icon: '✨', key: 'M', color: '#ffee66', c2: '#ffffaa', core: '#ffffff', speed: 0, dmg: 130, mana: 85, cd: 7000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'holy', isJudgment: true, desc: 'Divine orbital strike (Ultimate)' },
+    { name: 'Judgment', icon: '✨', key: 'M', color: '#ffee66', c2: '#ffffaa', core: '#ffffff', speed: 0, dmg: 130, mana: 85, cd: 7000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'holy', isJudgment: true, desc: 'A divine orbital verdict opens above the caster, suspending danger before the final arena-wide sentence (Ultimate).' },
     { name: 'Smite', icon: '⚔️', key: 'F', color: '#ffdd44', c2: '#ffee88', core: '#ffffff', speed: 0, dmg: 40, mana: 22, cd: 500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'holy', isSmite: true, smiteR: 40, desc: 'Divine beam strike from above' },
     { name: 'Guardian Spirit', icon: '👼', key: 'G', color: '#ffee77', c2: '#ffffbb', core: '#ffffff', speed: 0, dmg: 25, mana: 30, cd: 1500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'holy', isGuardianSpirit: true, spiritDur: 400, spiritR: 35, desc: 'Orbiting spirit blocks and counterattacks' },
-    { name: 'Divine Presence', icon: '🌟', key: 'H', category: 'Aura', color: '#ffdd66', c2: '#ffeeaa', core: '#ffffff', speed: 0, dmg: 6, mana: 35, cd: 2000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'holy', isDivinePresence: true, auraDur: 280, auraR: 70, desc: 'Radiant aura heals you, repels foes' },
+    { name: 'Divine Presence', icon: '🌟', key: 'H', category: 'Aura', color: '#ffdd66', c2: '#ffeeaa', core: '#ffffff', speed: 0, dmg: 6, mana: 35, cd: 2000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'holy', isDivinePresence: true, auraDur: 280, auraR: 70, desc: 'A radiant aura follows the caster, restoring small wounds while steadily repelling foes from sacred ground.' },
     { name: 'Seraphic Wings', icon: '🪽', key: 'X', category: 'Dash', color: '#ffe37a', c2: '#fff5c8', core: '#ffffff', speed: 0, dmg: 0, mana: 20, cd: 650, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'holy', isSeraphicDash: true, wingDur: 1800, wingDashDur: 14, wingDashSpeed: 22, desc: 'First cast unfurls wings for boosted jumps; recast flies forward and opens in place' },
     { name: 'Radiant Cross', icon: '✝️', key: 'K', color: '#ffee55', c2: '#ffffcc', core: '#ffffff', speed: 0, dmg: 45, mana: 25, cd: 700, r: 0, grav: 0, drag: 1, bounce: 0, exR: 0, exF: 0, trail: 'holy', isRadiantCross: true, beamLen: 180, desc: 'Holy light erupts in 4 directions, burning all in its path' },
     { name: 'Consecrate', icon: '🔆', key: 'L', color: '#ffdd44', c2: '#fff7aa', core: '#ffffff', speed: 0, dmg: 12, mana: 30, cd: 1400, r: 0, grav: 0, drag: 1, bounce: 0, exR: 0, exF: 0, trail: 'holy', isConsecrate: true, consecR: 90, consecDur: 300, desc: 'Hallow the ground — enemies within are scorched by divine fire' },
     { name: 'Sacred Seal', icon: '🔯', key: 'R', color: '#fff176', c2: '#ffffff', core: '#ffffff', speed: 0, dmg: 80, mana: 35, cd: 1600, r: 0, grav: 0, drag: 1, bounce: 0, exR: 0, exF: 0, trail: 'holy', isSacredSeal: true, sealR: 60, desc: 'Place a divine trap — enemies who cross it are blasted by sacred fire' }
+];
+
+const REMOVED_SPELLS = new Set([
+    'Sanctuary Steps',
+    'Smite',
+    'Radiant Cross',
+    'Consecrate',
+    'Sacred Seal',
+]);
+
+export const SPELL_DEFS = [
+    ...LEGACY_SPELL_DEFS.filter((spell) => !REMOVED_SPELLS.has(spell.name)),
+    ...NEW_SPELL_DEFS,
 ];
 
 function removeHolyVfx(v) {
@@ -47,6 +68,7 @@ function clamp(v, min, max) {
 export const FIRE_HANDLERS = {
     ...HOLD_FIRE_HANDLERS,
     ...MANIFEST_FIRE_HANDLERS,
+    ...NEW_FIRE_HANDLERS,
     isJudgment: (s, ox, oy, tx, ty) => {
         SoundFX.playTone(800, 'sine', 0.4, 0.2); SoundFX.playTone(1600, 'sine', 0.4, 0.2);
         state.vfxSequences.push({ type: 'judgment', state: 0, age: 0, cx: state.player.x + state.player.w / 2, cy: state.player.y + state.player.h / 2, spell: s });
@@ -120,13 +142,14 @@ export const FIRE_HANDLERS = {
     }
 };
 
-export const PROJ_HOOKS = {};
+export const PROJ_HOOKS = { ...NEW_PROJ_HOOKS };
 
-export const TRAIL_EMITTERS = {};
+export const TRAIL_EMITTERS = { ...NEW_TRAIL_EMITTERS };
 
 export const VFX_UPDATE = {
     ...HOLD_VFX_UPDATE,
     ...MANIFEST_VFX_UPDATE,
+    ...NEW_VFX_UPDATE,
     'seraph_wings': (v) => {
         const s = v.spell;
         const player = state.player;
@@ -512,6 +535,7 @@ export const VFX_UPDATE = {
 export const VFX_DRAW = {
     ...HOLD_VFX_DRAW,
     ...MANIFEST_VFX_DRAW,
+    ...NEW_VFX_DRAW,
     'seraph_wings': (v, X) => {
         const s = v.spell;
         const player = state.player;

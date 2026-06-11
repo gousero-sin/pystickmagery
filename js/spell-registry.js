@@ -9,8 +9,10 @@
 
 import * as Nature from './spells/nature.js?v=8';
 import * as Wind from './spells/wind.js?v=8';
-import * as Fire from './spells/fire.js?v=9';
+import * as Earth from './spells/earth.js?v=1';
 import * as Water from './spells/water.js?v=9';
+import * as Ice from './spells/ice.js?v=1';
+import * as Fire from './spells/fire.js?v=9';
 import * as Lightning from './spells/lightning.js?v=9';
 import * as Arcane from './spells/arcane.js?v=9';
 import * as Void from './spells/void.js?v=8';
@@ -28,6 +30,7 @@ import * as Constante from './spells/constante.js?v=1';
 import * as Aracnidea from './spells/aracnidea.js?v=1';
 import * as Mycobiota from './spells/mycobiota.js?v=1';
 import * as Prismatica from './spells/prismatica.js?v=1';
+import * as Shenzhou from './spells/shenzhou.js?v=1';
 
 // ── Registered schools ─────────────────────────────────────────────────────
 // Each school module must export:
@@ -41,8 +44,10 @@ import * as Prismatica from './spells/prismatica.js?v=1';
 const SCHOOLS = [
   Nature,
   Wind,
-  Fire,
+  Earth,
   Water,
+  Ice,
+  Fire,
   Lightning,
   Arcane,
   Void,
@@ -60,13 +65,16 @@ const SCHOOLS = [
   Aracnidea,
   Mycobiota,
   Prismatica,
+  Shenzhou,
 ];
 
 const SCHOOL_META = [
   { name: 'Nature', icon: '🌿', color: '#44cc22' },
   { name: 'Wind', icon: '🌪️', color: '#aaddff' },
-  { name: 'Fire', icon: '🔥', color: '#ff4400' },
+  { name: 'Earth', icon: '⛰️', color: '#b08a4c' },
   { name: 'Water', icon: '💧', color: '#4488ff' },
+  { name: 'Ice', icon: '❄️', color: '#7ad4ff' },
+  { name: 'Fire', icon: '🔥', color: '#ff4400' },
   { name: 'Lightning', icon: '⚡', color: '#ffcc00' },
   { name: 'Arcane', icon: '🔮', color: '#aa55ff' },
   { name: 'Void', icon: '🌑', color: '#7722cc' },
@@ -84,6 +92,7 @@ const SCHOOL_META = [
   { name: 'Aracnidea', icon: '🕷️', color: '#8f3dff' },
   { name: 'Mycobiota', icon: '🍄', color: '#8fcf5a' },
   { name: 'Prismatica', icon: '🔆', color: '#5ec8ff' },
+  { name: 'Shenzhou', icon: '🐉', color: '#dd4422' },
 ];
 
 /** School info with spell count, for UI grouping */

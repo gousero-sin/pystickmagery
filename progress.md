@@ -296,3 +296,80 @@ Expansão do contrato de inimigos:
 - Spawns iniciais podem sortear únicos junto de inimigos por escola, sem botões novos na UI.
 - Cast hostil suporta `enemyProjectileCount`/`enemySpread`, permitindo padrões próprios como tiros em leque e pares de projéteis.
 - `render_game_to_text()` expõe `uniqueName`, `archetype` e `signatureSpells` para validação determinística.
+
+---
+
+## 2026-06-10 — Continuação do revamp geral de sprites e animações
+
+Checkpoint inicial enviado para o GitHub antes de continuar: `9b4902f chore: checkpoint sprite revamp baseline`.
+
+Fechamentos nesta etapa:
+- `game.html`: modo `Treino Livre` iniciado pelo grimório, com combate desligado por padrão, sem vitória/derrota automática, regen de HP/mana e HUD indicando `COMBATE ON/OFF`.
+- Pausa do treino ganhou ferramentas de iteração visual: toggle de combate e spawns de dummy, inimigo vivo e barril perto do cursor.
+- Player manteve o trabalho iniciado pelo Fable (jump cut, squash/stretch, flip duplo, dust e ghosts) e agora desenha afterimages visíveis no canvas.
+- Rig visual compartilhado: helper `solveTwoBoneIK`, membros IK no player, olhos expressivos por mira/hit/cast e novo renderer `drawRiggedEnemy` para magos/inimigos com robe, staff, aura, IK e olhos.
+- `render_game_to_text()` agora expõe `training`, `combatEnabled`, `hitstop` e telemetria de animação (`ghosts`, `squash`, `stretch`, `lean`, `flip`, `land`, `hit`) para validação automatizada.
+- Novo contrato `tests/sprite-revamp-contract.test.mjs` e script visual `scripts/verify-sprite-revamp.mjs`.
+
+Validação:
+- `npm test`: 68/68.
+- `npm run build`: OK.
+- `python3 .../with_server.py --server "npm run dev -- --host 127.0.0.1 --port 5173" --port 5173 -- node scripts/verify-sprite-revamp.mjs`: 7/7 OK.
+- Screenshot gerado: `output/web-game/sprite-revamp/training-rig.png`.
+
+Observação:
+- A tentativa de abrir o Browser do Codex falhou porque a extensão Playwright não está instalada no perfil Chrome local; a validação visual foi feita por Playwright headless + inspeção do screenshot gerado.
+
+### 2026-06-10 (cont.) — Pulo sensível, membros do player e áudio de animação
+
+Foco exclusivo nos pontos pedidos:
+- Pulo refeito com `jumpBufferMs`, `coyoteMs`, `jumpHoldMs` e `releasedJump`: toque curto corta a subida, segurar sustenta o arco, e o double jump só dispara com uma nova pressão da tecla.
+- `keysPressed`/`keysReleased` por frame substituíram a mutação direta de `keys` dentro do pulo, removendo o comportamento estranho de hold/key-repeat.
+- Pés e mãos do player agora têm desenho próprio (`drawPlayerFoot`, `drawPlayerHand`), com pé plantado no ciclo de corrida (`footPlant`) e `armLag` para braços menos rígidos.
+- Áudio de animação centralizado em `playMovementSound`: passos rate-limited, jump, double jump e landing curtos, com equivalentes visuais (dust/squash/ghosts).
+- `SoundFX` agora tem volume padrão sutil (`DEFAULT_VOLUME = 0.28`), clamp de ganho, toggle/volume independente, persistência local e respeito a `prefers-reduced-motion: reduce`.
+- Pausa ganhou `Som`, `Volume -` e `Volume +`.
+
+Validação:
+- `npm test`: 71/71.
+- `npm run build`: OK.
+- `scripts/verify-sprite-revamp.mjs`: 9/9 OK.
+- Medição Playwright: pulo curto `55px`, pulo segurado `111px`, double jump com `jumpCount=2` e `flip=175`.
+
+### 2026-06-10 (cont.) — Molas físicas e referência de physics brawler atual
+
+Lente competitiva aplicada a jogos atuais/próximos do alvo:
+- Stick Fight: combate “physics-based” com silhueta simples, impacto legível e níveis interativos.
+- SpiderHeck: leitura de parkour estiloso, corpo carregando momentum e ações que deixam rastro visual.
+- Bopl Battle/Oblin Party/ROUNDS: braços elásticos/noodle, poses exageradas e resposta imediata ao salto/tiro/impacto.
+
+Implementação:
+- Player ganhou `physicsAnim`: molas de `bodyX/bodyY`, rotação de tronco, atraso de cabeça, recoil de braço, tuck de pernas e foot lock.
+- Eventos de animação agora disparam impulsos físicos dedicados: `jump`, `doubleJump`, `land`, `cast` e `hit`.
+- Render do player lê `physicsAnim` e aplica deslocamento/rotação no corpo, atraso vertical da cabeça, recoil do staff/braços e pernas mais recolhidas no ar.
+- `render_game_to_text()` expõe `animation.player.physics` para validar visualmente `torsoRot`, `bodyY`, `armRecoil`, `legTuck` e `headLagY`.
+- Verificador Playwright passou a falhar se o double jump não produzir uma pose física observável.
+
+Validação:
+- `node --test tests/sprite-revamp-contract.test.mjs`: 8/8.
+- `npm test`: 73/73.
+- `npm run build`: OK.
+- `scripts/verify-sprite-revamp.mjs`: 10/10 OK.
+- Medição Playwright: pulo curto `56px`, pulo segurado `111px`, double jump com `jumpCount=2`, `flip=166` e física ativa (`bodyY=-0.78`, `legTuck=0.83`).
+
+### 2026-06-10 (cont.) — Física procedural por membros
+
+Segunda passada para aproximar mais da referência de physics brawler:
+- `physicsAnim` agora separa molas de mão principal, mão secundária, pé principal, pé secundário e coluna (`spineWhip`).
+- Novo `updatePlayerLimbSprings()` injeta atraso por aceleração, velocidade, ar, cast e foot plant, depois recupera cada membro com o mesmo integrador de mola.
+- Jump/double jump/landing/cast/hit também chutam mãos, pés e coluna, não só corpo/cabeça.
+- Renderer usa offsets de mãos no IK/staff, offsets de pés no IK/plantio e curva o tronco via Bezier usando `spineWhip`.
+- Telemetria expõe `leadHand`, `offHand`, `leadFoot`, `offFoot` e `spineWhip` para provar que a animação procedural está viva.
+- Verificador Playwright agora mede resposta de membros durante movimento e resposta de mão/staff/coluna durante cast.
+
+Validação:
+- `node --test tests/sprite-revamp-contract.test.mjs`: 10/10.
+- `npm test`: 75/75.
+- `npm run build`: OK.
+- `scripts/verify-sprite-revamp.mjs`: 12/12 OK.
+- Medição Playwright: movimento com `leadFoot=-2.4`, `offFoot=1.99`, `spineWhip=1.39`; cast com `leadHand=4.57`, `offHand=-1.72`, `spineWhip=-2.03`.

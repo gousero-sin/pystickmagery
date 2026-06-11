@@ -6,9 +6,17 @@ import { SoundFX } from '../core/sounds.js?v=7';
 import { spawnP, hurtEntity, explode, isEnemyEntity } from '../core/utils.js?v=8';
 import { createManifestSpell, MANIFEST_FIRE_HANDLERS, MANIFEST_VFX_UPDATE, MANIFEST_VFX_DRAW } from './manifest.js?v=8';
 import { createHoldSpell, HOLD_FIRE_HANDLERS, HOLD_VFX_UPDATE, HOLD_VFX_DRAW } from './hold.js?v=7';
+import {
+    SPELL_DEFS as NEW_SPELL_DEFS,
+    FIRE_HANDLERS as NEW_FIRE_HANDLERS,
+    PROJ_HOOKS as NEW_PROJ_HOOKS,
+    TRAIL_EMITTERS as NEW_TRAIL_EMITTERS,
+    VFX_UPDATE as NEW_VFX_UPDATE,
+    VFX_DRAW as NEW_VFX_DRAW,
+} from './lightning-new.js?v=1';
 
 // ── 4. LIGHTNING ──
-export const SPELL_DEFS = [
+const LEGACY_SPELL_DEFS = [
     { name: 'Lightning', icon: '⚡', key: '3', color: '#ffee33', c2: '#ffffaa', core: '#fff', speed: 0, dmg: 38, mana: 22, cd: 550, r: 2, grav: 0, drag: 1, bounce: 0, exR: 60, exF: 10, trail: 'electric', instant: true, desc: 'Instant strike at cursor — 38 dmg, AoE 60' },
     { name: 'Ball Lightning', icon: '🔵', key: 'P', color: '#aaddff', c2: '#ddeeff', core: '#ffffff', speed: 0, dmg: 14, mana: 28, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'electric', isBallLightning: true, ballDur: 220, ballR: 100, ballZapRate: 10, desc: 'Floating orb zaps nearby enemies (14 dmg/zap)' },
     { name: 'Tesla Coil', icon: '🗼', key: 'Q', color: '#ffdd44', c2: '#ffee88', core: '#ffffff', speed: 0, dmg: 18, mana: 35, cd: 1200, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'electric', isTeslaCoil: true, teslaDur: 280, teslaR: 140, teslaRate: 12, desc: 'Static coil arcs to nearby enemies (18 dmg/arc, x3 chain)' },
@@ -40,9 +48,26 @@ export const SPELL_DEFS = [
     { name: 'Stormcaller', icon: '⛈️', key: 'T', color: '#aaddff', c2: '#ddeeff', core: '#ffffff', speed: 0, dmg: 52, mana: 90, cd: 9000, r: 0, grav: 0, drag: 1, bounce: 0, exR: 0, exF: 0, trail: 'electric', isStormcaller: true, strikeCount: 22, desc: 'Ascend and summon a catastrophic lightning storm (Ultimate)' },
 ];
 
+const REMOVED_SPELLS = new Set([
+    'Lightning',
+    'Ball Lightning',
+    'Tesla Coil',
+    'Thunder Mark',
+    'Volt Conduit',
+    'Thunderbolt Cascade',
+    'Chain Lightning',
+    'Voltaic Aegis',
+]);
+
+export const SPELL_DEFS = [
+    ...LEGACY_SPELL_DEFS.filter((spell) => !REMOVED_SPELLS.has(spell.name)),
+    ...NEW_SPELL_DEFS,
+];
+
 export const FIRE_HANDLERS = {
     ...HOLD_FIRE_HANDLERS,
     ...MANIFEST_FIRE_HANDLERS,
+    ...NEW_FIRE_HANDLERS,
     instant: (s, ox, oy, tx, ty) => {
         if (s.trail === 'electric') {
             createLightning(ox, oy, tx, ty, s);
@@ -141,11 +166,12 @@ export const FIRE_HANDLERS = {
     },
 };
 
-export const PROJ_HOOKS = {};
-export const TRAIL_EMITTERS = {};
+export const PROJ_HOOKS = { ...NEW_PROJ_HOOKS };
+export const TRAIL_EMITTERS = { ...NEW_TRAIL_EMITTERS };
 export const VFX_UPDATE = {
     ...HOLD_VFX_UPDATE,
     ...MANIFEST_VFX_UPDATE,
+    ...NEW_VFX_UPDATE,
     thunder_mark(v) {
         const s = v.spell;
         if (v.state === 0) {
@@ -745,6 +771,7 @@ export const VFX_UPDATE = {
 export const VFX_DRAW = {
     ...HOLD_VFX_DRAW,
     ...MANIFEST_VFX_DRAW,
+    ...NEW_VFX_DRAW,
     thunder_mark(v, X) {
         const s = v.spell;
         if (v.state === 0) {

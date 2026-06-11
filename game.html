@@ -619,6 +619,7 @@
         <div id="detailSpells"></div>
         <div class="detail-actions">
           <button type="button" class="game-btn" id="btnSelectBack">◄ Voltar</button>
+          <button type="button" class="game-btn" id="btnStartTraining">◇ Treino Livre</button>
           <button type="button" class="game-btn game-btn--arcane" id="btnStartBattle">✦ Iniciar Duelo</button>
         </div>
       </div>
@@ -633,6 +634,13 @@
       <div class="panel-actions">
         <button type="button" class="game-btn game-btn--arcane" id="btnResume">Continuar</button>
         <button type="button" class="game-btn" id="btnRestart">Reiniciar Onda</button>
+        <button type="button" class="game-btn" id="btnToggleCombat">Combate: Desligado</button>
+        <button type="button" class="game-btn" id="btnSpawnDummy">Spawn Dummy</button>
+        <button type="button" class="game-btn" id="btnSpawnEnemy">Spawn Inimigo</button>
+        <button type="button" class="game-btn" id="btnSpawnBarrel">Spawn Barril</button>
+        <button type="button" class="game-btn" id="btnSoundToggle">Som: Ligado</button>
+        <button type="button" class="game-btn" id="btnSoundDown">Volume -</button>
+        <button type="button" class="game-btn" id="btnSoundUp">Volume +</button>
         <button type="button" class="game-btn" id="btnChangeSchool">Trocar Escola</button>
         <button type="button" class="game-btn game-btn--ghost" id="btnFullscreenPause">⛶ Tela Cheia</button>
         <button type="button" class="game-btn game-btn--ghost" id="btnQuitMenu">Menu Principal</button>
@@ -768,7 +776,7 @@
     let { entities, projectiles, particles, gravityWells, lightningBolts, damageNumbers, shockwaves, dynamicLights, vfxSequences, poisonClouds, fireWalls, spikes, timeBombs, enemyProjectiles, frozenEntities } = state;
     let screenShake = 0;
 
-    const player = { x: 100, y: 300, vx: 0, vy: 0, w: 14, h: 30, hp: 100, maxHp: 100, mana: 100, maxMana: 100, onGround: false, facing: 1, animT: 0, frame: 0, castAnim: 0, castType: 'thrust', jumpCount: 0, maxJumps: 2, hatWave: 0, capeWave: 0, staffGlow: 0, lean: 0, sq: 1, st: 1, inv: false, gait: 0, landT: 0, blinkT: 600, flipT: 0, hitF: 0, ghosts: [], constanteWard: 0, constanteWardR: 0, constanteSlowFactor: 1, constanteSigils: new Set() };
+    const player = { x: 100, y: 300, vx: 0, vy: 0, w: 14, h: 30, hp: 100, maxHp: 100, mana: 100, maxMana: 100, onGround: false, facing: 1, animT: 0, frame: 0, castAnim: 0, castType: 'thrust', jumpCount: 0, maxJumps: 2, jumpBufferMs: 0, coyoteMs: 0, jumpHoldMs: 0, releasedJump: false, hatWave: 0, capeWave: 0, staffGlow: 0, lean: 0, sq: 1, st: 1, inv: false, gait: 0, footPlant: 0, armLag: 0, movementAudioCooldown: 0, physicsAnim: createPlayerPhysicsAnim(), landT: 0, blinkT: 600, flipT: 0, hitF: 0, ghosts: [], constanteWard: 0, constanteWardR: 0, constanteSlowFactor: 1, constanteSigils: new Set() };
     state.player = player;
     state.spells = SPELLS;
     state.manifestConstructs = state.manifestConstructs || [];
@@ -1058,6 +1066,7 @@
       const d = Math.hypot(dx, dy) || 1;
       player.vx += dx / d * 2.5;
       player.vy += dy / d * 1.5 - 1;
+      kickPlayerPhysicsAnim('hit', Math.min(1.6, dmg / 14), dx || player.facing);
       screenShake = Math.max(screenShake, 4);
     }
 
@@ -1144,6 +1153,7 @@
       player.castAnim = 280; player.staffGlow = 250; screenShake = Math.max(screenShake, 3);
       player.castType = s.isSpike || s.isQuake || s.isGeyser || s.isWhirlpool ? 'slam' : s.isMeteor || s.instant || s.isWall || s.isRain ? 'up' : s.isLaser || s.isWind || s.isTornado || s.isDrain || s.isWell || s.isHoldSpell ? 'channel' : s.isNova || s.isFrostNova || s.isAbsoluteZero ? 'burst' : s.isTsunami ? 'slash' : 'thrust';
       player.sq = player.castType === 'slam' ? 0.7 : 1.2; player.st = 1 / player.sq;
+      kickPlayerPhysicsAnim('cast', Math.min(1.4, 0.75 + s.mana / 140), player.facing);
       dynamicLights.push({ x: ox, y: oy, r: 60, color: s.color, int: 1.2, life: 15, ml: 15 });
 
       // ── Audio ──
@@ -2619,14 +2629,213 @@
     function updateDmgNums() { for (let i = damageNumbers.length - 1; i >= 0; i--) { const d = damageNumbers[i]; d.y += d.vy; d.vy *= .95; d.life--; if (d.life <= 0) damageNumbers.splice(i, 1); } }
 
     // ═══ PLAYER ═══
+    function createPlayerPhysicsAnim() {
+      return {
+        bodyX: 0, bodyY: 0, bodyVX: 0, bodyVY: 0,
+        torsoRot: 0, torsoRotV: 0,
+        headLagX: 0, headLagY: 0, headLagVX: 0, headLagVY: 0,
+        armRecoil: 0, armRecoilV: 0,
+        legTuck: 0, legTuckV: 0,
+        footLock: 0, footLockV: 0,
+        spineWhip: 0, spineWhipV: 0,
+        leadHandX: 0, leadHandY: 0, leadHandXV: 0, leadHandYV: 0,
+        offHandX: 0, offHandY: 0, offHandXV: 0, offHandYV: 0,
+        leadFootX: 0, leadFootY: 0, leadFootXV: 0, leadFootYV: 0,
+        offFootX: 0, offFootY: 0, offFootXV: 0, offFootYV: 0,
+        lastVx: 0, lastVy: 0,
+      };
+    }
+
+    function springPlayerAnim(pa, key, velKey, target, stiffness, damping, step) {
+      const force = (target - pa[key]) * stiffness;
+      pa[velKey] = (pa[velKey] + force * step) * Math.pow(damping, step);
+      pa[key] += pa[velKey] * step;
+    }
+
+    function kickPlayerPhysicsAnim(kind, intensity = 1, dir = player.facing) {
+      const pa = player.physicsAnim || (player.physicsAnim = createPlayerPhysicsAnim());
+      const i = Math.max(0.25, Math.min(2, intensity));
+      const d = Math.sign(dir) || player.facing || 1;
+
+      if (kind === 'jump') {
+        pa.bodyVY -= 1.55 * i;
+        pa.torsoRotV -= 0.055 * d * i;
+        pa.headLagVY += 1.8 * i;
+        pa.legTuckV += 0.42 * i;
+        pa.spineWhipV -= 0.75 * i;
+        pa.leadFootYV -= 1.15 * i;
+        pa.offFootYV -= 0.95 * i;
+        pa.leadHandYV += 0.55 * i;
+      } else if (kind === 'doubleJump') {
+        pa.bodyVY -= 2.1 * i;
+        pa.bodyVX -= 0.55 * d * i;
+        pa.torsoRotV += 0.16 * d * i;
+        pa.headLagVY += 2.4 * i;
+        pa.armRecoilV += 0.34 * i;
+        pa.legTuckV += 0.82 * i;
+        pa.spineWhipV += 1.35 * i;
+        pa.leadHandXV += 0.9 * i;
+        pa.offHandXV -= 0.75 * i;
+        pa.leadFootXV -= 0.95 * i;
+        pa.offFootXV += 0.8 * i;
+        pa.leadFootYV -= 1.15 * i;
+        pa.offFootYV -= 1.25 * i;
+      } else if (kind === 'land') {
+        pa.bodyVY += 2.4 * i;
+        pa.torsoRotV += 0.07 * d * i;
+        pa.headLagVY -= 2.2 * i;
+        pa.legTuckV -= 0.9 * i;
+        pa.footLockV += 0.85 * i;
+        pa.spineWhipV -= 1.1 * i;
+        pa.leadFootYV += 1.45 * i;
+        pa.offFootYV += 1.15 * i;
+        pa.leadHandYV -= 0.45 * i;
+        pa.offHandYV -= 0.35 * i;
+      } else if (kind === 'cast') {
+        pa.bodyVX -= 0.65 * d * i;
+        pa.torsoRotV -= 0.085 * d * i;
+        pa.headLagVX += 0.9 * d * i;
+        pa.armRecoilV += 1.05 * i;
+        pa.spineWhipV -= 0.85 * i;
+        pa.leadHandXV += 1.8 * i;
+        pa.leadHandYV -= 0.7 * i;
+        pa.offHandXV -= 0.55 * i;
+        pa.offHandYV += 0.2 * i;
+      } else if (kind === 'hit') {
+        pa.bodyVX += 1.45 * d * i;
+        pa.bodyVY -= 0.7 * i;
+        pa.torsoRotV += 0.22 * d * i;
+        pa.headLagVX -= 1.5 * d * i;
+        pa.headLagVY -= 1.1 * i;
+        pa.armRecoilV += 0.35 * i;
+        pa.spineWhipV += 1.55 * d * i;
+        pa.leadHandXV -= 1.1 * d * i;
+        pa.offHandXV -= 0.85 * d * i;
+        pa.leadFootXV += 0.8 * d * i;
+        pa.offFootXV += 0.55 * d * i;
+      }
+    }
+
+    function updatePlayerLimbSprings(p, pa, accelX, accelY, step) {
+      const speed = Math.max(-1, Math.min(1, p.vx / 5.6));
+      const air = p.onGround ? 0 : 1;
+      const cast = p.castAnim > 0 ? Math.min(1, p.castAnim / 280) : 0;
+      const tuck = pa.legTuck || 0;
+      const stride = p.onGround ? speed * (p.footPlant || 1) : 0;
+
+      pa.leadHandXV += Math.max(-0.85, Math.min(0.85, (-accelX * 0.36 + speed * 0.09 + cast * 0.52) * step));
+      pa.leadHandYV += Math.max(-0.7, Math.min(0.7, (-accelY * 0.17 - cast * 0.32 + air * (p.vy < 0 ? 0.16 : -0.08)) * step));
+      pa.offHandXV += Math.max(-0.7, Math.min(0.7, (-accelX * 0.22 - speed * 0.06 - cast * 0.2) * step));
+      pa.offHandYV += Math.max(-0.6, Math.min(0.6, (-accelY * 0.12 + cast * 0.14 + air * 0.06) * step));
+      pa.leadFootXV += Math.max(-0.65, Math.min(0.65, (-accelX * 0.18 - speed * 0.08 - stride * 0.22) * step));
+      pa.offFootXV += Math.max(-0.65, Math.min(0.65, (-accelX * 0.15 + speed * 0.08 + stride * 0.18) * step));
+      pa.leadFootYV += Math.max(-0.55, Math.min(0.55, (-accelY * 0.1 - air * tuck * 0.18) * step));
+      pa.offFootYV += Math.max(-0.55, Math.min(0.55, (-accelY * 0.08 - air * tuck * 0.16) * step));
+      pa.spineWhipV += Math.max(-0.45, Math.min(0.45, (-accelX * 0.045 + speed * 0.05 - cast * 0.08) * step));
+
+      springPlayerAnim(pa, 'leadHandX', 'leadHandXV', cast * 2.2 + speed * 0.45, 0.17, 0.66, step);
+      springPlayerAnim(pa, 'leadHandY', 'leadHandYV', -cast * 1.1 - air * 0.65, 0.18, 0.65, step);
+      springPlayerAnim(pa, 'offHandX', 'offHandXV', -cast * 0.75 - speed * 0.35, 0.16, 0.68, step);
+      springPlayerAnim(pa, 'offHandY', 'offHandYV', cast * 0.45 + air * 0.25, 0.17, 0.67, step);
+      springPlayerAnim(pa, 'leadFootX', 'leadFootXV', -stride * 1.6 - air * speed * 2.1, 0.18, 0.63, step);
+      springPlayerAnim(pa, 'leadFootY', 'leadFootYV', -air * (1.2 + tuck * 2.5), 0.18, 0.62, step);
+      springPlayerAnim(pa, 'offFootX', 'offFootXV', stride * 1.35 + air * speed * 1.65, 0.18, 0.64, step);
+      springPlayerAnim(pa, 'offFootY', 'offFootYV', -air * (0.95 + tuck * 2.2), 0.18, 0.62, step);
+      springPlayerAnim(pa, 'spineWhip', 'spineWhipV', speed * 0.9 - cast * 0.8, 0.14, 0.67, step);
+    }
+
+    function updatePlayerPhysicsAnim(p, dt) {
+      const pa = p.physicsAnim || (p.physicsAnim = createPlayerPhysicsAnim());
+      const step = Math.max(0.35, Math.min(2, dt / 16.67));
+      const accelX = p.vx - pa.lastVx;
+      const accelY = p.vy - pa.lastVy;
+      pa.lastVx = p.vx;
+      pa.lastVy = p.vy;
+
+      pa.torsoRotV += Math.max(-0.08, Math.min(0.08, (-accelX * 0.018 + p.vx * 0.004) * step));
+      pa.headLagVX += Math.max(-0.9, Math.min(0.9, -accelX * 0.42));
+      pa.headLagVY += Math.max(-0.8, Math.min(0.8, -accelY * 0.2));
+
+      const airTuck = p.onGround ? 0 : Math.min(1.2, 0.18 + Math.abs(p.vy) * 0.075 + (p.flipT > 0 ? 0.35 : 0));
+      const footLock = p.onGround && Math.abs(p.vx) > 1 ? 0.42 : 0;
+      springPlayerAnim(pa, 'bodyX', 'bodyVX', 0, 0.12, 0.72, step);
+      springPlayerAnim(pa, 'bodyY', 'bodyVY', 0, 0.13, 0.7, step);
+      springPlayerAnim(pa, 'torsoRot', 'torsoRotV', 0, 0.1, 0.72, step);
+      springPlayerAnim(pa, 'headLagX', 'headLagVX', 0, 0.16, 0.68, step);
+      springPlayerAnim(pa, 'headLagY', 'headLagVY', 0, 0.16, 0.68, step);
+      springPlayerAnim(pa, 'armRecoil', 'armRecoilV', 0, 0.2, 0.63, step);
+      springPlayerAnim(pa, 'legTuck', 'legTuckV', airTuck, 0.16, 0.68, step);
+      springPlayerAnim(pa, 'footLock', 'footLockV', footLock, 0.2, 0.58, step);
+      updatePlayerLimbSprings(p, pa, accelX, accelY, step);
+
+      pa.bodyX = Math.max(-5, Math.min(5, pa.bodyX));
+      pa.bodyY = Math.max(-7, Math.min(7, pa.bodyY));
+      pa.torsoRot = Math.max(-0.35, Math.min(0.35, pa.torsoRot));
+      pa.headLagX = Math.max(-6, Math.min(6, pa.headLagX));
+      pa.headLagY = Math.max(-7, Math.min(7, pa.headLagY));
+      pa.armRecoil = Math.max(-0.2, Math.min(1.8, pa.armRecoil));
+      pa.legTuck = Math.max(0, Math.min(1.5, pa.legTuck));
+      pa.footLock = Math.max(0, Math.min(1.2, pa.footLock));
+      pa.spineWhip = Math.max(-6, Math.min(6, pa.spineWhip));
+      pa.leadHandX = Math.max(-7, Math.min(9, pa.leadHandX));
+      pa.leadHandY = Math.max(-7, Math.min(7, pa.leadHandY));
+      pa.offHandX = Math.max(-8, Math.min(7, pa.offHandX));
+      pa.offHandY = Math.max(-7, Math.min(7, pa.offHandY));
+      pa.leadFootX = Math.max(-8, Math.min(8, pa.leadFootX));
+      pa.leadFootY = Math.max(-8, Math.min(6, pa.leadFootY));
+      pa.offFootX = Math.max(-8, Math.min(8, pa.offFootX));
+      pa.offFootY = Math.max(-8, Math.min(6, pa.offFootY));
+    }
+
+    function playMovementSound(kind, weight = 1) {
+      const w = Math.max(0.25, Math.min(1, weight));
+      if (kind === 'step') {
+        if (player.movementAudioCooldown > 0) return;
+        player.movementAudioCooldown = 105 - w * 30;
+        SoundFX.playNoise(0.055 + w * 0.035, 0.032, 210 + w * 140, 'lowpass', 0.8);
+      } else if (kind === 'jump') {
+        SoundFX.playSweep(170, 390, 'triangle', 0.11, 0.075);
+        SoundFX.playNoise(0.045, 0.035, 520, 'bandpass', 2);
+      } else if (kind === 'doubleJump') {
+        SoundFX.playSweep(360, 880, 'triangle', 0.12, 0.095);
+        SoundFX.playNoise(0.055, 0.045, 880, 'bandpass', 3);
+      } else if (kind === 'land') {
+        SoundFX.playNoise(0.075 + w * 0.08, 0.045 + w * 0.025, 170 + w * 90, 'lowpass', 0.7);
+      }
+    }
+
+    function performPlayerJump(p, jumpIndex, wingBoost = false) {
+      const firstJump = jumpIndex === 0;
+      p.vy = wingBoost ? (firstJump ? -10.4 : -9.4) : (firstJump ? -8.75 : -7.7);
+      p.jumpCount = jumpIndex + 1;
+      p.jumpBufferMs = 0;
+      p.coyoteMs = 0;
+      p.jumpHoldMs = firstJump ? 165 : 92;
+      p.releasedJump = false;
+      p.onGround = false;
+      p.sq = firstJump ? .54 : .62;
+      p.st = firstJump ? 1.55 : 1.42;
+      const fx = p.x + p.w / 2, fy = p.y + p.h;
+      spawnP(fx, fy, wingBoost ? '#fff4c0' : '#776655', firstJump ? 8 : 5, firstJump ? 'dust' : 'burst');
+      playMovementSound(firstJump ? 'jump' : 'doubleJump', wingBoost ? 1 : 0.8);
+      if (firstJump) kickPlayerPhysicsAnim('jump', wingBoost ? 1.15 : 1, p.facing);
+      else kickPlayerPhysicsAnim('doubleJump', wingBoost ? 1.2 : 1, p.facing);
+      if (!firstJump) {
+        p.flipT = 300;
+        p.ghosts.push({ x: fx, y: fy, life: 13 });
+        spawnP(fx, fy, wingBoost ? '#ffffff' : '#aaddff', 8, 'burst');
+      }
+    }
+
     function updatePlayer(keys, dt) {
       const p = player; p.mana = Math.min(p.maxMana, p.mana + (shell.training ? .5 : .08)); p.hatWave += .07; p.capeWave += .09;
       if (p.castAnim > 0) p.castAnim -= dt; if (p.staffGlow > 0) p.staffGlow -= dt;
       if (p.landT > 0) p.landT -= dt;
       if (p.flipT > 0) p.flipT -= dt;
       if (p.hitF > 0) p.hitF -= dt;
+      if (p.movementAudioCooldown > 0) p.movementAudioCooldown -= dt;
       p.blinkT -= dt; if (p.blinkT < -150) p.blinkT = 2400 + Math.random() * 2600;
-      p.lean += (p.vx * .05 - p.lean) * .22; p.sq += (1 - p.sq) * .16; p.st += (1 - p.st) * .16;
+      p.lean += (p.vx * .05 - p.lean) * .22; p.armLag += (p.vx * .055 + (p.castAnim > 0 ? p.facing * .18 : 0) - p.armLag) * .18; p.sq += (1 - p.sq) * .16; p.st += (1 - p.st) * .16;
       // estiramento no ar proporcional à velocidade de queda/subida
       if (!p.onGround && p.flipT <= 0) {
         const stretch = 1 + Math.min(.22, Math.abs(p.vy) * .017);
@@ -2638,23 +2847,36 @@
         if (p.ghosts.length > 6) p.ghosts.shift();
       }
       for (let gi = p.ghosts.length - 1; gi >= 0; gi--) { if (--p.ghosts[gi].life <= 0) p.ghosts.splice(gi, 1); }
-      if (p.inv) return; // frozen by spell
+      if (p.inv) { updatePlayerPhysicsAnim(p, dt); return; } // frozen by spell
       let mv = false;
       // aceleração com boost de inversão (vira rápido, sensação ágil)
       if (keys['a'] || keys['A']) { p.vx -= .58 * (p.vx > 0.5 ? 1.8 : 1); if (p.castAnim <= 0) p.facing = -1; mv = true; }
       if (keys['d'] || keys['D']) { p.vx += .58 * (p.vx < -0.5 ? 1.8 : 1); if (p.castAnim <= 0) p.facing = 1; mv = true; }
       const wingBoost = (p.seraphWingBoostFrames || 0) > 0;
       p.maxJumps = wingBoost ? 3 : 2;
-      const wantJump = keys['w'] || keys['W'] || keys[' '];
-      if (wantJump && p.jumpCount < p.maxJumps) {
-        p.vy = wingBoost ? -10.2 : -8.2;
-        p.jumpCount++; keys['w'] = keys['W'] = keys[' '] = false;
-        p.sq = .55; p.st = 1.5;
-        spawnP(p.x + p.w / 2, p.y + p.h, wingBoost ? '#fff4c0' : '#776655', 6, wingBoost ? 'sparkle' : 'dust');
-        if (p.jumpCount >= 2) { p.flipT = 300; spawnP(p.x + p.w / 2, p.y + p.h, wingBoost ? '#ffffff' : '#aaddff', 5, 'burst'); SoundFX.playSweep(420, 980, 'triangle', 0.07, 0.08); }
+      const pressedJump = !!(keysPressed['w'] || keysPressed[' '] || keysPressed['arrowup']);
+      const heldJump = !!(keys['w'] || keys[' '] || keys['arrowup']);
+      const releasedJump = !!(keysReleased['w'] || keysReleased[' '] || keysReleased['arrowup']);
+      p.releasedJump = releasedJump;
+      if (pressedJump) p.jumpBufferMs = 118;
+      else p.jumpBufferMs = Math.max(0, p.jumpBufferMs - dt);
+      if (p.onGround) p.coyoteMs = 96;
+      else p.coyoteMs = Math.max(0, p.coyoteMs - dt);
+
+      if (p.jumpBufferMs > 0) {
+        if (p.coyoteMs > 0 && p.jumpCount === 0) performPlayerJump(p, 0, wingBoost);
+        else if (p.jumpCount > 0 && p.jumpCount < p.maxJumps) performPlayerJump(p, p.jumpCount, wingBoost);
       }
-      // corte de pulo: soltar o botão encurta o salto (controle de altura)
-      if (!wantJump && p.vy < -3.4 && p.flipT <= 0) p.vy *= .86;
+      if (heldJump && p.jumpHoldMs > 0 && p.vy < 0) {
+        p.vy -= wingBoost ? .145 : .105;
+        p.jumpHoldMs = Math.max(0, p.jumpHoldMs - dt);
+      } else if (p.jumpHoldMs > 0) {
+        p.jumpHoldMs = Math.max(0, p.jumpHoldMs - dt);
+      }
+      if (releasedJump && p.vy < -2.2) {
+        p.vy *= .55;
+        p.jumpHoldMs = 0;
+      }
       if (p.seraphWingBoostFrames > 0) p.seraphWingBoostFrames--;
       for (const gw of gravityWells) { const dx = gw.x - (p.x + p.w / 2), dy = gw.y - (p.y + p.h / 2), dist = Math.hypot(dx, dy); if (dist < gw.r && dist > 5) { const f = gw.str * .4 * (1 - dist / gw.r); p.vx += (dx / dist) * f; p.vy += (dy / dist) * f; } }
       for (const fw of fireWalls) { if (p.x + p.w > fw.x && p.x < fw.x + fw.w && p.y + p.h > fw.y && p.y < fw.y + fw.h && fw.dur % 20 === 0) { p.hp -= 2; p.vy -= 1; } }
@@ -2673,9 +2895,11 @@
               p.landT = 120 + imp * 9;
               p.flipT = 0;
               spawnP(p.x + p.w / 2, p.y + p.h, '#776655', 2 + Math.min(10, imp | 0), 'dust');
-              if (imp > 8.5) { state.shake(Math.min(6, imp * .45)); SoundFX.playNoise(0.16, 0.09, 220, 'lowpass'); }
+              playMovementSound('land', Math.min(1, imp / 12));
+              kickPlayerPhysicsAnim('land', Math.min(1.4, imp / 10), Math.sign(p.vx) || p.facing);
+              if (imp > 8.5) { state.shake(Math.min(6, imp * .45)); }
             }
-            p.onGround = true; p.jumpCount = 0;
+            p.onGround = true; p.jumpCount = 0; p.jumpHoldMs = 0; p.coyoteMs = 96;
           }
         }
       }
@@ -2685,12 +2909,219 @@
         spawnP(p.x + p.w / 2 - Math.sign(p.vx) * 5, p.y + p.h, '#6b5a44', 1, 'dust');
       }
       p.gait += Math.abs(p.vx) * dt * .0145 + (!p.onGround && Math.abs(p.vx) > 1 ? dt * .006 : 0);
+      const footPlant = mv && p.onGround && Math.abs(p.vx) > 1.15 ? (Math.sin(p.gait) >= 0 ? 1 : -1) : 0;
+      if (footPlant && footPlant !== p.footPlant) {
+        spawnP(p.x + p.w / 2 - footPlant * p.facing * 4, p.y + p.h, '#6b5a44', 1, 'dust');
+        playMovementSound('step', Math.min(1, Math.abs(p.vx) / 5.6));
+      }
+      p.footPlant = footPlant;
       p.animT += Math.abs(p.vx) * dt * .9 + dt * .2; if (mv && p.onGround) { if (p.animT > 100) { p.frame = (p.frame + 1) % 6; p.animT = 0; } } else if (!p.onGround) p.frame = p.vy < 0 ? 7 : 8; else p.frame = 0;
       if (p.castAnim > 0) p.facing = mouse.x > p.x + p.w / 2 ? 1 : -1; else if (mv) p.facing = Math.sign(p.vx) || 1; else p.facing = mouse.x > p.x + p.w / 2 ? 1 : -1;
+      updatePlayerPhysicsAnim(p, dt);
     }
     function normA(a) { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; }
     function hexRgb(hex) { try { if (!hex || hex[0] !== '#') return [128, 128, 128]; hex = hex.replace(/^#([a-f\d])([a-f\d])([a-f\d])$/i, (_, r, g, b) => '#' + r + r + g + g + b + b); return [parseInt(hex.slice(1, 3), 16) || 0, parseInt(hex.slice(3, 5), 16) || 0, parseInt(hex.slice(5, 7), 16) || 0]; } catch (e) { return [128, 128, 128]; } }
     function darken(hex, amt) { try { const [r, g, b] = hexRgb(hex); return `rgb(${Math.floor(r * (1 - amt))},${Math.floor(g * (1 - amt))},${Math.floor(b * (1 - amt))})`; } catch (e) { return hex; } }
+
+    function solveTwoBoneIK(sx, sy, tx, ty, upper, lower, bend = 1) {
+      const dx = tx - sx, dy = ty - sy;
+      const dist = Math.max(0.001, Math.hypot(dx, dy));
+      const reach = Math.min(dist, upper + lower - 0.001);
+      const base = Math.atan2(dy, dx);
+      const cosA = Math.max(-1, Math.min(1, (upper * upper + reach * reach - lower * lower) / (2 * upper * reach)));
+      const shoulder = base - Math.acos(cosA) * bend;
+      const joint = {
+        x: sx + Math.cos(shoulder) * upper,
+        y: sy + Math.sin(shoulder) * upper,
+      };
+      return { joint, end: { x: tx, y: ty }, angle: base };
+    }
+
+    function drawIkLimb(ctx, sx, sy, tx, ty, upper, lower, bend, color, width = 2.5) {
+      const ik = solveTwoBoneIK(sx, sy, tx, ty, upper, lower, bend);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(ik.joint.x, ik.joint.y);
+      ctx.lineTo(ik.end.x, ik.end.y);
+      ctx.stroke();
+      return ik;
+    }
+
+    function drawExpressiveEyes(ctx, x, y, facing, aimDx, aimDy, color, mood = 'idle') {
+      const lookX = Math.max(-1.6, Math.min(1.6, aimDx * 0.035));
+      const lookY = Math.max(-1, Math.min(1, aimDy * 0.025));
+      const blink = mood === 'blink';
+      const hit = mood === 'hit';
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(facing || 1, 1);
+      ctx.fillStyle = hit ? '#ffffff' : '#111';
+      if (hit) {
+        ctx.strokeStyle = color || '#ff5555';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(-3.8, -1.2); ctx.lineTo(-1.4, 1.2); ctx.moveTo(-1.4, -1.2); ctx.lineTo(-3.8, 1.2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(1.4, -1.2); ctx.lineTo(3.8, 1.2); ctx.moveTo(3.8, -1.2); ctx.lineTo(1.4, 1.2); ctx.stroke();
+      } else if (blink) {
+        ctx.fillRect(-4, 0, 3, 1);
+        ctx.fillRect(1, 0, 3, 1);
+      } else {
+        ctx.fillRect(-4 + lookX, -1 + lookY, 2.2, 2.2);
+        ctx.fillRect(1.4 + lookX, -1 + lookY, 2.2, 2.2);
+        if (mood === 'cast') {
+          ctx.fillStyle = color || '#ffffff';
+          ctx.globalAlpha = 0.72;
+          ctx.fillRect(-4 + lookX, -1 + lookY, 2.2, 2.2);
+          ctx.fillRect(1.4 + lookX, -1 + lookY, 2.2, 2.2);
+        }
+      }
+      ctx.restore();
+    }
+
+    function drawPlayerFoot(ctx, x, y, dir, color = '#3a2a18', lift = 0, planted = false) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(dir * (planted ? -0.08 : -0.18 - lift * 0.12));
+      const sole = planted ? 6.6 : 5.2;
+      ctx.fillStyle = '#1d140d';
+      ctx.fillRect(-sole * 0.45, 1.3, sole, 1.6);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(-sole * 0.48, -2);
+      ctx.lineTo(sole * 0.38, -2);
+      ctx.lineTo(sole * 0.62, 0.8);
+      ctx.lineTo(sole * 0.1, 2.6);
+      ctx.lineTo(-sole * 0.55, 1.8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#6b5435';
+      ctx.globalAlpha = 0.55;
+      ctx.fillRect(sole * 0.18, -1.2, 2.2, 1.1);
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    }
+
+    function drawPlayerHand(ctx, x, y, color = '#f0dab0', grip = false) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, grip ? 2.8 : 2.4, grip ? 2.2 : 2.6, grip ? -0.3 : 0.15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fff2d2';
+      ctx.globalAlpha = 0.55;
+      ctx.fillRect(-0.8, -1.2, 1.4, 1);
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    }
+
+    function drawPlayerGhosts() {
+      for (const g of player.ghosts) {
+        const a = Math.max(0, g.life / 11);
+        X.save();
+        X.globalAlpha = a * 0.22;
+        X.globalCompositeOperation = 'lighter';
+        X.translate(g.x, g.y);
+        X.scale(player.facing, 1);
+        X.fillStyle = REGISTRY.SCHOOL_INFO[currentSchool]?.color || '#77aaff';
+        X.beginPath();
+        X.ellipse(0, -17, 7 * (1 + (1 - a) * 0.25), 15 * (0.9 + a * 0.12), player.lean * 0.2, 0, Math.PI * 2);
+        X.fill();
+        X.fillStyle = '#ffffff';
+        X.globalAlpha = a * 0.12;
+        X.fillRect(-3, -29, 6, 6);
+        X.restore();
+      }
+      X.globalAlpha = 1;
+    }
+
+    function drawRiggedEnemy(e, kind, fl, palette) {
+      const cx2 = e.w / 2;
+      const f = e.ai?.facing || (player.x > e.x ? 1 : -1);
+      const castA = Math.min(1, (e.castFlash || 0) / 18);
+      const speed = Math.min(1, Math.abs(e.vx || 0) / 3.2);
+      const run = (e.age || 0) * 0.045 * (speed + 0.35);
+      const bob = Math.sin(run * 2) * -1.4 * speed + (e.vy < -1 ? -1.4 : 0);
+      const robe = fl ? '#fff' : palette.robe;
+      const robeHi = fl ? '#fff' : palette.robeHi;
+      const robeDark = fl ? '#fff' : palette.robeDark;
+      const glow = palette.glow;
+      const skin = fl ? '#fff' : '#ddc088';
+      const hipY = e.h - 5 + bob;
+      const torsoY = 13 + bob;
+      const headY = 4 + bob;
+      const stepA = Math.sin(run) * speed;
+      const footLead = 4 + stepA * 5;
+      const footBack = -4 - stepA * 5;
+      const aimDx = (player.x + player.w / 2) - (e.x + cx2);
+      const aimDy = (player.y + player.h / 2) - (e.y + headY);
+
+      X.save();
+      X.translate(cx2, e.h);
+      X.scale(f, 1);
+      X.translate(0, -e.h);
+
+      X.globalAlpha = fl ? 0.5 : 0.22;
+      X.fillStyle = glow;
+      X.beginPath(); X.ellipse(0, 17, 17 + castA * 12, 23 + castA * 16, 0, 0, Math.PI * 2); X.fill();
+      X.globalAlpha = 1;
+
+      drawIkLimb(X, -1, hipY, footBack, e.h - 1, 8, 8, -1, robeDark, 2.5);
+      drawIkLimb(X, 1, hipY, footLead, e.h - 1, 8, 8, 1, robeDark, 2.5);
+      X.fillStyle = robeDark; X.fillRect(footBack - 3, e.h - 4, 6, 4); X.fillRect(footLead - 3, e.h - 4, 6, 4);
+
+      const lean = Math.max(-0.22, Math.min(0.22, (e.vx || 0) * 0.06 * f));
+      X.save();
+      X.translate(0, torsoY);
+      X.rotate(lean);
+      const rg = X.createLinearGradient(0, 0, 0, e.h);
+      rg.addColorStop(0, robeHi);
+      rg.addColorStop(0.38, robe);
+      rg.addColorStop(1, robeDark);
+      X.fillStyle = rg;
+      X.beginPath();
+      X.moveTo(0, -5);
+      X.lineTo(-8, e.h - torsoY - 1);
+      X.lineTo(8, e.h - torsoY - 1);
+      X.closePath();
+      X.fill();
+      X.fillStyle = robeHi; X.globalAlpha = fl ? 1 : 0.72; X.fillRect(-1, 2, 2, e.h - torsoY - 8); X.globalAlpha = 1;
+
+      const staffX = 10 + castA * 2;
+      const handX = 7 + castA * 4;
+      const handY = 6 - castA * 5;
+      drawIkLimb(X, -3, 3, -8, 12 + Math.sin(run) * 1.5, 6, 6, -1, '#e0d0b8', 2);
+      drawIkLimb(X, 3, 3, handX, handY, 6.5, 6.5, 1, '#e0d0b8', 2);
+      X.strokeStyle = '#5B4210'; X.lineWidth = 2; X.beginPath(); X.moveTo(staffX, -7); X.lineTo(staffX + 1, e.h - torsoY - 2); X.stroke();
+      X.fillStyle = glow; X.globalAlpha = 0.55 + castA * 0.45; X.beginPath(); X.arc(staffX, -7, 5 + castA * 7, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
+      X.fillStyle = '#fff0a8'; X.beginPath(); X.arc(staffX, -7, 2 + castA * 2, 0, Math.PI * 2); X.fill();
+      X.restore();
+
+      X.fillStyle = robe;
+      if (kind === 'mycobiota' || e.schoolName === 'Mycobiota') {
+        X.fillStyle = fl ? '#fff' : '#6f2d45';
+        X.beginPath(); X.ellipse(0, headY, 10, 6, 0, Math.PI, 0); X.lineTo(9, headY + 3); X.quadraticCurveTo(0, headY + 8, -9, headY + 3); X.closePath(); X.fill();
+        X.fillStyle = fl ? '#fff' : '#fff6d7'; X.globalAlpha = 0.9; X.fillRect(-7, headY + 2, 14, 2); X.globalAlpha = 1;
+      } else if (kind === 'ice') {
+        X.fillStyle = '#ffffff'; X.beginPath(); X.moveTo(0, headY - 8); X.lineTo(-7, headY + 3); X.lineTo(0, headY + 9); X.lineTo(7, headY + 3); X.closePath(); X.fill();
+      } else {
+        X.beginPath(); X.moveTo(-7, headY + 5); X.lineTo(0, headY - 8); X.lineTo(7, headY + 5); X.closePath(); X.fill();
+      }
+      const ehg = X.createRadialGradient(-1.6, headY + 2.6, 1, 0, headY + 4.5, 6.6);
+      ehg.addColorStop(0, fl ? '#fff' : '#efd6a4'); ehg.addColorStop(.65, skin); ehg.addColorStop(1, fl ? '#fff' : '#bf9c66');
+      X.fillStyle = ehg;
+      X.beginPath(); X.arc(0, headY + 4.5, 5.6, 0, Math.PI * 2); X.fill();
+      X.strokeStyle = 'rgba(50,34,16,.5)'; X.lineWidth = .9; X.stroke();
+      drawExpressiveEyes(X, 0, headY + 4, 1, aimDx * f, aimDy, glow, fl ? 'hit' : castA > 0.15 ? 'cast' : 'idle');
+      if (castA > 0.15) { X.fillStyle = '#3a2a18'; X.beginPath(); X.ellipse(1.2, headY + 7.4, 1.1, 1.4, 0, 0, Math.PI * 2); X.fill(); }
+      X.fillStyle = robeHi; X.fillRect(-7, headY + 9, 14, 2);
+
+      X.restore();
+    }
+
     function drawWoodenConstructSegment(p) {
       const hit = p.hitFlash || 0;
       const hpRatio = Math.max(0, p.maxHp ? p.hp / p.maxHp : 1);
@@ -3171,13 +3602,18 @@
         accent = '#46e5ff';
         sCol = '#9d6bff';
       }
-      const { x, y, w, h, facing: f, frame, castAnim, castType, hatWave, capeWave, staffGlow: sG, lean, sq, st } = p;
+      const { x, y, w, h, facing: f, frame, castAnim, castType, hatWave, capeWave, staffGlow: sG, lean, sq, st, armLag, footPlant } = p;
+      const physics = p.physicsAnim || createPlayerPhysicsAnim();
       const cx = x + w / 2, cy = y + h, cA = castAnim > 0 ? castAnim / 280 : 0;
       if (p.inv) return;
       X.save();
       X.globalAlpha = .18; X.fillStyle = '#000'; X.beginPath(); X.ellipse(cx, cy + 3, 9 * sq, 3.5 / st, 0, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
 
-      X.translate(cx, cy); X.scale(f, 1); X.rotate(lean * f); X.scale(sq, st);
+      X.translate(cx + physics.bodyX * f, cy + physics.bodyY); X.scale(f, 1); X.rotate((lean + physics.torsoRot) * f); X.scale(sq, st);
+      if (p.flipT > 0) {
+        const prog = 1 - p.flipT / 300;
+        X.translate(0, -14); X.rotate(prog * Math.PI * 2); X.translate(0, 14);
+      }
       if (isAracnidea) {
         // Aura de teia + pernas aracnídeas espectrais saindo das costas (atrás do corpo).
         const at = performance.now() * 0.005;
@@ -3266,6 +3702,9 @@
       const tRun = frame > 0 && frame < 7 ? frame / 6 : 0;
       const bob = frame === 0 ? Math.sin(p.animT * .05) * -1.5 : frame < 7 ? Math.sin(tRun * Math.PI * 2) * -3 : frame === 7 ? -1 : frame === 8 ? -3 : 0;
       let pY = -14 + bob, nY = -23 + bob;
+      const airTuck = physics.legTuck || 0;
+      pY += (physics.bodyY || 0) * .22 - airTuck * 1.4;
+      nY += physics.headLagY || 0;
       let l1x = -3, l1y = 0, l2x = 3, l2y = 0, k1x, k1y, k2x, k2y;
       if (frame === 0) { l1x = 4; l2x = -4; k1x = 2; k1y = -7; k2x = -2; k2y = -7; }
       else if (frame < 7) {
@@ -3275,16 +3714,32 @@
         k1x = l1x + 2; k1y = -7 + l1y * .5; k2x = l2x + 2; k2y = -7 + l2y * .5; pY += Math.sin(a1 * 2) * -1;
       } else if (frame === 7) { l1x = 2; l1y = -6; k1x = 4; k1y = -10; l2x = -4; l2y = -2; k2x = -2; k2y = -8; }
       else if (frame === 8) { l1x = 3; l1y = -2; k1x = 4; k1y = -8; l2x = -3; l2y = -8; k2x = -5; k2y = -12; }
+      if (airTuck > .05) {
+        const tuckLift = airTuck * 4.8;
+        l1x += 1.8 * airTuck; l2x -= 1.8 * airTuck;
+        l1y -= tuckLift; l2y -= tuckLift * .92;
+        k1x += 2.5 * airTuck; k2x -= 2.5 * airTuck;
+        k1y -= tuckLift * .65; k2y -= tuckLift * .72;
+      }
+      const limbLeadFootX = physics.leadFootX || 0;
+      const limbLeadFootY = physics.leadFootY || 0;
+      const limbOffFootX = physics.offFootX || 0;
+      const limbOffFootY = physics.offFootY || 0;
+      l1x += limbLeadFootX; l1y += limbLeadFootY;
+      l2x += limbOffFootX; l2y += limbOffFootY;
+      k1x += limbLeadFootX * .45; k1y += limbLeadFootY * .35;
+      k2x += limbOffFootX * .45; k2y += limbOffFootY * .35;
 
-      X.strokeStyle = '#443322'; X.lineWidth = 2.5; X.lineCap = 'round'; X.lineJoin = 'round';
-      X.beginPath(); X.moveTo(0, pY); X.lineTo(k2x, k2y); X.lineTo(l2x, l2y); X.stroke(); X.fillStyle = '#3a2a18'; X.fillRect(l2x - 3, l2y - 3, 5, 4);
-      X.beginPath(); X.moveTo(0, pY); X.lineTo(k1x, k1y); X.lineTo(l1x, l1y); X.stroke(); X.fillRect(l1x - 3, l1y - 3, 5, 4);
+      drawIkLimb(X, 0, pY, l2x, l2y, 8, 8, -1, '#443322', 2.5);
+      drawPlayerFoot(X, l2x, l2y, -1, '#3a2a18', Math.max(0, -l2y * .08 + airTuck * .28), footPlant === -1 && physics.footLock > .1);
+      drawIkLimb(X, 0, pY, l1x, l1y, 8, 8, 1, '#443322', 2.5);
+      drawPlayerFoot(X, l1x, l1y, 1, '#3a2a18', Math.max(0, -l1y * .08 + airTuck * .28), footPlant === 1 && physics.footLock > .1);
 
       X.globalAlpha = .65; X.fillStyle = color; const cw1 = Math.sin(capeWave) * 4, cw2 = Math.sin(capeWave * .7 + 1) * 3;
       X.beginPath(); X.moveTo(0, nY + 2); X.bezierCurveTo(-6, nY + 4 + cw1, -12, nY + 10 + cw1, -15 + cw2, nY + 16 + p.vy); X.lineTo(-12 + Math.sin(capeWave * 1.3) * 3, nY + 18 + p.vy); X.bezierCurveTo(-8, nY + 13 + cw1 * .5, -4, nY + 6, 2, nY + 4); X.fill(); X.globalAlpha = 1;
 
-      X.strokeStyle = color; X.lineWidth = 3.5; X.beginPath(); X.moveTo(0, pY); X.lineTo(0, nY); X.stroke();
-      X.fillStyle = color; X.globalAlpha = .5; X.beginPath(); X.moveTo(-6, nY); X.lineTo(6, nY); X.lineTo(8, pY); X.lineTo(-8, pY); X.fill(); X.globalAlpha = 1;
+      X.strokeStyle = color; X.lineWidth = 3.5; X.beginPath(); X.moveTo(0, pY); X.bezierCurveTo(physics.spineWhip, pY - 5, -physics.spineWhip * .35, nY + 6, 0, nY); X.stroke();
+      X.fillStyle = color; X.globalAlpha = .5; X.beginPath(); X.moveTo(-6 + physics.spineWhip * .12, nY); X.lineTo(6 + physics.spineWhip * .12, nY); X.lineTo(8 - physics.spineWhip * .18, pY); X.lineTo(-8 - physics.spineWhip * .18, pY); X.fill(); X.globalAlpha = 1;
       X.fillStyle = accent; X.fillRect(-4, nY + 4, 8, 2); X.fillStyle = darken(color, .1); X.fillRect(-5, nY - 2, 3, 3); X.fillRect(3, nY - 2, 3, 3);
       if (isConstante) {
         X.fillStyle = '#15110f'; X.fillRect(-1, nY + 3, 2, 13);
@@ -3308,8 +3763,32 @@
         if (frame > 0 && frame < 7) { const a1 = tRun * Math.PI * 2, a2 = a1 + Math.PI; a1x = Math.sin(a2) * 6; a1y = nY + 6 - Math.cos(a2) * 4; e1x = a1x * .5; e1y = nY + 2; a2x = Math.sin(a1) * 8; a2y = nY + 6 - Math.cos(a1) * 4; e2x = a2x * .5; e2y = nY + 2; sAx = a1x; sAy = a1y; sAngle = a1x * 0.05 - 0.2; }
         else if (frame > 6) { a1x = 8; a1y = nY - 6; e1x = 6; e1y = nY - 2; a2x = -8; a2y = nY - 6; e2x = -6; e2y = nY - 2; sAx = a1x; sAy = a1y; sAngle = -0.5; }
       }
+      if (cA <= 0) {
+        a1x += armLag * 7; a2x += armLag * 4.5; sAx = a1x; sAngle += armLag * .28;
+      } else {
+        a1x += armLag * 2; a2x += armLag * 1.5; sAx += armLag * 2; sAngle += armLag * .12;
+      }
+      const armRecoil = physics.armRecoil || 0;
+      a1x += armRecoil * (cA > 0 ? 6.2 : 3.8);
+      a1y -= armRecoil * 1.4;
+      e1x += armRecoil * 1.8;
+      a2x -= armRecoil * 2.8;
+      a2y += armRecoil * 1.2;
+      sAx += armRecoil * 6.2;
+      sAngle += armRecoil * .2;
+      const limbLeadHandX = physics.leadHandX || 0;
+      const limbLeadHandY = physics.leadHandY || 0;
+      const limbOffHandX = physics.offHandX || 0;
+      const limbOffHandY = physics.offHandY || 0;
+      a1x += limbLeadHandX; a1y += limbLeadHandY;
+      e1x += limbLeadHandX * .42; e1y += limbLeadHandY * .32;
+      a2x += limbOffHandX; a2y += limbOffHandY;
+      e2x += limbOffHandX * .4; e2y += limbOffHandY * .34;
+      sAx += limbLeadHandX; sAy += limbLeadHandY;
+      sAngle += limbLeadHandX * .018 - limbLeadHandY * .014;
 
-      X.strokeStyle = '#e0d0b8'; X.lineWidth = 2.5; X.beginPath(); X.moveTo(0, nY + 2); X.lineTo(e2x, e2y); X.lineTo(a2x, a2y); X.stroke();
+      drawIkLimb(X, 0, nY + 2, a2x, a2y, 7, 7, -1, '#e0d0b8', 2.5);
+      drawPlayerHand(X, a2x, a2y, '#f0dab0', false);
       X.save(); X.translate(sAx, sAy); X.rotate(sAngle * f);
       X.strokeStyle = '#5B4210'; X.lineWidth = 2.5; X.beginPath(); X.moveTo(0, -18); X.lineTo(0, 14); X.stroke();
       X.fillStyle = '#888'; X.fillRect(-2, -2, 4, 2); X.fillStyle = '#6B4A10'; X.beginPath(); X.moveTo(-4, -18); X.lineTo(0, -22); X.lineTo(4, -18); X.fill();
@@ -3317,14 +3796,25 @@
       const glI = sG > 0 ? sG / 200 : .15 + Math.sin(performance.now() * .008) * .08;
       X.globalAlpha = glI * .5; X.beginPath(); X.arc(0, -18, 10 + glI * 5, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
       if (cA > 0.5 && cA < 0.9) { const ci = (cA - 0.5) * 2.5; X.globalAlpha = ci * .7; X.beginPath(); X.arc(0, -18, 16 * ci, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1; } X.restore();
-      X.beginPath(); X.moveTo(0, nY + 2); X.lineTo(e1x, e1y); X.lineTo(a1x, a1y); X.stroke();
+      drawIkLimb(X, 0, nY + 2, a1x, a1y, 7.5, 7.5, 1, '#e0d0b8', 2.5);
+      drawPlayerHand(X, a1x, a1y, '#f0dab0', true);
 
-      X.fillStyle = '#f0dab0'; X.fillRect(-5, nY - 8, 10, 10);
-      X.fillStyle = '#111'; X.fillRect(1, nY - 5, 2, 2); X.fillRect(-3, nY - 5, 2, 2);
-      if (cA > 0) { X.fillStyle = sCol; X.globalAlpha = .7 * cA; X.fillRect(1, nY - 5, 2, 2); X.fillRect(-3, nY - 5, 2, 2); X.globalAlpha = 1; }
+      const hcx = (physics.headLagX || 0) * .35, hcy = nY - 3.4;
+      const hg2 = X.createRadialGradient(hcx - 2, hcy - 2.4, 1, hcx, hcy, 7.4);
+      hg2.addColorStop(0, '#fdeccb'); hg2.addColorStop(.62, '#f0dab0'); hg2.addColorStop(1, '#d9bb8a');
+      X.fillStyle = hg2;
+      X.beginPath(); X.arc(hcx, hcy, 6.4, 0, Math.PI * 2); X.fill();
+      X.strokeStyle = 'rgba(58,42,24,.55)'; X.lineWidth = 1; X.stroke();
+      drawExpressiveEyes(X, hcx, hcy - .6, 1, (mouse.x - cx) * f, mouse.y - (cy + nY), sCol, p.hitF > 0 ? 'hit' : cA > 0 ? 'cast' : p.blinkT < 0 ? 'blink' : 'idle');
+      // Boca expressiva: 'O' ao conjurar/cair rápido, sorriso leve em idle.
+      X.fillStyle = '#3a2a18';
+      if (cA > 0 || p.vy > 6.5) { X.beginPath(); X.ellipse(hcx + 1.2, hcy + 3, 1.3, 1.7, 0, 0, Math.PI * 2); X.fill(); }
+      else if (p.hitF > 0) { X.fillRect(hcx - 1, hcy + 2.6, 3.4, 1); }
+      else { X.beginPath(); X.arc(hcx + 1, hcy + 2.2, 1.9, .25, Math.PI - .55); X.lineWidth = .9; X.strokeStyle = '#3a2a18'; X.stroke(); }
       if (isAracnidea) {
         // Pele levemente corrompida + 6 olhos pequenos de veneno brilhantes.
-        X.fillStyle = '#c8b4d8'; X.fillRect(-5, nY - 8, 10, 10);
+        X.fillStyle = '#c8b4d8'; X.beginPath(); X.arc(hcx, hcy, 6.4, 0, Math.PI * 2); X.fill();
+        X.strokeStyle = 'rgba(42,22,64,.6)'; X.lineWidth = 1; X.stroke();
         const eg = 0.6 + Math.sin(performance.now() * 0.012) * 0.4;
         X.fillStyle = '#9cff57'; X.globalAlpha = 0.55 + eg * 0.45;
         X.fillRect(-4, nY - 6, 1.5, 1.5); X.fillRect(-1.5, nY - 6, 1.5, 1.5); X.fillRect(1, nY - 6, 1.5, 1.5);
@@ -3333,10 +3823,11 @@
       }
       if (isPrismatica) {
         // Rosto de cristal: pele translúcida, facetas de luz e olhos espectrais.
-        X.fillStyle = '#bfe9ff'; X.fillRect(-5, nY - 8, 10, 10);
+        X.fillStyle = '#bfe9ff'; X.beginPath(); X.arc(hcx, hcy, 6.4, 0, Math.PI * 2); X.fill();
+        X.strokeStyle = 'rgba(70,229,255,.7)'; X.lineWidth = 1; X.stroke();
         X.strokeStyle = '#ffffff'; X.globalAlpha = 0.5; X.lineWidth = 0.6;
-        X.beginPath(); X.moveTo(-5, nY - 3); X.lineTo(0, nY - 8); X.lineTo(5, nY - 3); X.stroke();
-        X.beginPath(); X.moveTo(0, nY - 8); X.lineTo(0, nY + 2); X.stroke();
+        X.beginPath(); X.moveTo(hcx - 5.5, hcy + .5); X.lineTo(hcx, hcy - 6); X.lineTo(hcx + 5.5, hcy + .5); X.stroke();
+        X.beginPath(); X.moveTo(hcx, hcy - 6.4); X.lineTo(hcx, hcy + 6.4); X.stroke();
         X.globalAlpha = 1;
         const peg = 0.55 + Math.sin(performance.now() * 0.011) * 0.4;
         X.fillStyle = '#46e5ff'; X.globalAlpha = 0.6 + peg * 0.4;
@@ -3465,42 +3956,7 @@
             X.fillStyle = skin; X.fillRect(cx2 - 4, 0, 8, 8); X.fillStyle = '#333'; X.fillRect(cx2 - 2, 3, 2, 2); X.fillRect(cx2 + 1, 3, 2, 2);
             X.strokeStyle = '#cc3333'; X.lineWidth = 1.5; X.beginPath(); X.arc(cx2, 14, 6, 0, Math.PI * 2); X.stroke(); X.beginPath(); X.arc(cx2, 14, 3, 0, Math.PI * 2); X.stroke(); X.fillStyle = '#cc3333'; X.beginPath(); X.arc(cx2, 14, 1.5, 0, Math.PI * 2); X.fill();
           } else {
-            const f = e.ai?.facing || (player.x > e.x ? 1 : -1);
-            X.fillStyle = fl ? '#fff' : robeDark;
-            X.beginPath(); X.moveTo(cx2, 10); X.lineTo(cx2 - 8, e.h); X.lineTo(cx2 + 8, e.h); X.closePath(); X.fill();
-            X.fillStyle = fl ? '#fff' : robe;
-            X.beginPath(); X.moveTo(cx2, 8); X.lineTo(cx2 - 6, e.h - 2); X.lineTo(cx2 + 6, e.h - 2); X.closePath(); X.fill();
-            X.fillStyle = robeHi; X.globalAlpha = fl ? 1 : .7; X.fillRect(cx2 - 1, 13, 2, e.h - 17); X.globalAlpha = 1;
-            X.strokeStyle = robeDark; X.lineWidth = 2; X.beginPath(); X.moveTo(cx2 - 4, 15); X.lineTo(cx2 - 9, 22); X.stroke(); X.beginPath(); X.moveTo(cx2 + 4, 15); X.lineTo(cx2 + 9, 22); X.stroke();
-            X.strokeStyle = '#5B4210'; X.lineWidth = 2; X.beginPath(); X.moveTo(cx2 + 8 * f, 4); X.lineTo(cx2 + 10 * f, e.h - 3); X.stroke();
-            X.fillStyle = glow; X.globalAlpha = .55 + castA * .45; X.beginPath(); X.arc(cx2 + 8 * f, 4, 5 + castA * 6, 0, Math.PI * 2); X.fill(); X.globalAlpha = 1;
-            if (kind === 'ice') {
-              X.fillStyle = '#ffffff'; X.beginPath(); X.moveTo(cx2 + 8 * f, -2); X.lineTo(cx2 + 4 * f, 4); X.lineTo(cx2 + 8 * f, 9); X.lineTo(cx2 + 12 * f, 4); X.closePath(); X.fill();
-            } else {
-              X.fillStyle = '#fff0a8'; X.beginPath(); X.arc(cx2 + 8 * f, 4, 2 + castA * 2, 0, Math.PI * 2); X.fill();
-            }
-            if (isMycobiotaEnemy) {
-              X.fillStyle = fl ? '#fff' : '#6f2d45';
-              X.beginPath();
-              X.ellipse(cx2, 4, 10, 6, 0, Math.PI, 0);
-              X.lineTo(cx2 + 9, 7);
-              X.quadraticCurveTo(cx2, 12, cx2 - 9, 7);
-              X.closePath();
-              X.fill();
-              X.fillStyle = fl ? '#fff' : '#fff6d7';
-              X.globalAlpha = fl ? 1 : 0.85;
-              X.fillRect(cx2 - 7, 6, 14, 2);
-              X.fillRect(cx2 - 5, 1, 2, 2);
-              X.fillRect(cx2 + 1, -1, 2, 2);
-              X.fillRect(cx2 + 5, 3, 2, 2);
-              X.globalAlpha = 1;
-            } else {
-              X.fillStyle = fl ? '#fff' : robe;
-              X.beginPath(); X.moveTo(cx2 - 6, 8); X.lineTo(cx2, -3); X.lineTo(cx2 + 6, 8); X.closePath(); X.fill();
-            }
-            X.fillStyle = skin; X.fillRect(cx2 - 4, 4, 8, 7);
-            X.fillStyle = glow; X.fillRect(cx2 - 3, 7, 2, 2); X.fillRect(cx2 + 1, 7, 2, 2);
-            X.fillStyle = robeHi; X.fillRect(cx2 - 7, 9, 14, 2);
+            drawRiggedEnemy(e, kind, fl, { robe, robeHi, robeDark, glow });
           }
           X.fillStyle = 'rgba(0,0,0,.5)'; X.fillRect(-1, -8, e.w + 2, 4); X.fillStyle = '#222'; X.fillRect(0, -7, e.w, 2); X.fillStyle = fl ? '#ff8888' : '#cc2222'; X.fillRect(0, -7, e.w * (e.hp / e.maxHp), 2);
         } else if (e.type === 'crate') {
@@ -4333,9 +4789,13 @@
     function updateAmbient(dt) { ambientT += dt; if (ambientT > 200) { ambientT = 0; for (let i = 0; i < 2; i++)particles.push({ x: Math.random() * W, y: H - 30 + Math.random() * 10, vx: (Math.random() - .5) * .3, vy: -.2 - Math.random() * .4, life: 80 + Math.random() * 50, ml: 130, color: ['#3a2860', '#2a3870', '#4a2050'][(Math.random() * 3) | 0], size: .8 + Math.random(), grav: -.008, type: 'ambient' }); } }
 
     // ═══ MAIN LOOP ═══
-    const keysDown = {}; let lastT = 0;
+    const keysDown = {}, keysPressed = {}, keysReleased = {}; let lastT = 0;
+    function clearFrameInput() {
+      for (const k of Object.keys(keysPressed)) delete keysPressed[k];
+      for (const k of Object.keys(keysReleased)) delete keysReleased[k];
+    }
     function stepGame(dt) {
-      if (hitstop > 0) { hitstop--; return; } // congela 1-3 frames no impacto (juice)
+      if (hitstop > 0) { hitstop--; clearFrameInput(); return; } // congela 1-3 frames no impacto (juice)
       state.mouse = mouse;
       updatePlayer(keysDown, dt);
       entities.forEach(e => { if (e.active) { if (!isAllyEntity(e)) physBody(e); e.age += dt; } });
@@ -4363,11 +4823,12 @@
           }
         }
       }
+      clearFrameInput();
     }
 
     function renderGame() {
       X.save(); if (screenShake > 0) X.translate((Math.random() - .5) * screenShake * 3, (Math.random() - .5) * screenShake * 3);
-      drawBG(); drawPlatforms(); drawDecorations(); drawGravityWells(); drawZones(); drawVFX(); drawParticles(); drawEntities(); drawProjectiles(); drawLightning(); drawShockwaves();
+      drawBG(); drawPlatforms(); drawDecorations(); drawGravityWells(); drawZones(); drawVFX(); drawParticles(); drawEntities(); drawProjectiles(); drawLightning(); drawShockwaves(); drawPlayerGhosts();
       if (!playerDead) drawStickman(player, '#4488ff', '#ffcc00', SPELLS[selSpell].color);
       drawAimLine(); drawLighting(); drawDmgNumbers(); drawVignette();
       X.restore();
@@ -4391,10 +4852,12 @@
 
     // ═══ INPUT ═══
     document.addEventListener('keydown', e => {
-      keysDown[e.key.toLowerCase()] = true;
+      const key = e.key.toLowerCase();
+      if (!keysDown[key] && !e.repeat) keysPressed[key] = true;
+      keysDown[key] = true;
       shellHandleKey(e);
     });
-    document.addEventListener('keyup', e => { keysDown[e.key.toLowerCase()] = false; });
+    document.addEventListener('keyup', e => { const key = e.key.toLowerCase(); keysDown[key] = false; keysReleased[key] = true; });
     C.addEventListener('mousemove', e => { const rect = C.getBoundingClientRect(); mouse.x = (e.clientX - rect.left) * (W / rect.width); mouse.y = (e.clientY - rect.top) * (H / rect.height); });
     C.addEventListener('mousedown', e => {
       e.preventDefault();
@@ -4437,7 +4900,9 @@
       playerDead = false;
       player.inv = false; player.castAnim = 0; player.staffGlow = 0;
       player.constanteWard = 0; player.constanteWardR = 0; player.constanteSlowFactor = 1; player.constanteSigils = new Set();
-      player.sq = 1; player.st = 1;
+      player.sq = 1; player.st = 1; player.jumpCount = 0; player.jumpBufferMs = 0; player.coyoteMs = 0; player.jumpHoldMs = 0; player.releasedJump = false;
+      player.footPlant = 0; player.armLag = 0; player.movementAudioCooldown = 0; player.ghosts.length = 0;
+      player.physicsAnim = createPlayerPhysicsAnim();
       screenShake = 0; state.screenShake = 0;
       lastCastPerSpell = SPELLS.map(s => -s.cd);
       spawnInitial();
@@ -4489,6 +4954,8 @@
       Wind:        { rune: 'ᛟ', family: 'Primal', flavor: '"O vento é o feitiço que ninguém precisa escrever."' },
       Lightning:   { rune: 'ᛏ', family: 'Primal', flavor: '"Entre o trovão e o raio, há tempo para um pedido — mas só um."' },
       Nature:      { rune: 'ᛗ', family: 'Primal', flavor: '"Raízes lembram. Galhos esquecem. Folhas perdoam."' },
+      Earth:       { rune: 'ᚢ', family: 'Primal', flavor: '"A montanha não responde a insultos. Responde a eras."' },
+      Ice:         { rune: 'ᛁ', family: 'Primal', flavor: '"O frio não destrói. Ele apenas guarda — para sempre."' },
       Elemental:   { rune: 'ᛒ', family: 'Primal', flavor: '"O panteão dos guias atende a quem oferece tambor e fé."' },
       Arcane:      { rune: 'ᚹ', family: 'Arcane', flavor: '"A ordem cósmica dobra-se ao gesto do invocador. Cada sigilo é um teorema; cada feitiço, sua prova."' },
       Chrono:      { rune: 'ᚦ', family: 'Arcane', flavor: '"O tempo é o único feitiço que o mundo não sabe contra-conjurar."' },
@@ -4557,23 +5024,64 @@
       else selectSpell(selSpell);
     }
 
-    window.render_game_to_text = () => JSON.stringify({
-      coordSystem: 'origin top-left; +x right; +y down',
-      selectedSpell: SPELLS[selSpell]?.name,
-      selectedSpellCategory: getSpellCategory(SPELLS[selSpell] || {}),
-      enemiesAggressive,
-      player: {
-        x: Math.round(player.x),
-        y: Math.round(player.y),
-        vx: Math.round(player.vx * 100) / 100,
-        vy: Math.round(player.vy * 100) / 100,
-        hp: Math.round(player.hp),
-        mana: Math.round(player.mana),
-      },
-      entities: entities.filter(e => e.active).map(e => ({
-        type: e.type,
-        targetable: e.targetable || null,
-        enemyKind: e.enemyKind || null,
+    window.render_game_to_text = () => {
+      const pa = player.physicsAnim;
+      return JSON.stringify({
+        coordSystem: 'origin top-left; +x right; +y down',
+        selectedSpell: SPELLS[selSpell]?.name,
+        selectedSpellCategory: getSpellCategory(SPELLS[selSpell] || {}),
+        training: shell.training,
+        combatEnabled: enemiesAggressive,
+        enemiesAggressive,
+        hitstop,
+        player: {
+          x: Math.round(player.x),
+          y: Math.round(player.y),
+          vx: Math.round(player.vx * 100) / 100,
+          vy: Math.round(player.vy * 100) / 100,
+          onGround: player.onGround,
+          jumpCount: player.jumpCount,
+          hp: Math.round(player.hp),
+          mana: Math.round(player.mana),
+        },
+        animation: {
+          player: {
+            ghosts: player.ghosts.length,
+            squash: Math.round(player.sq * 100) / 100,
+            stretch: Math.round(player.st * 100) / 100,
+            lean: Math.round(player.lean * 100) / 100,
+            armLag: Math.round(player.armLag * 100) / 100,
+            footPlant: player.footPlant,
+            physics: {
+              torsoRot: Math.round(pa.torsoRot * 100) / 100,
+              bodyY: Math.round(pa.bodyY * 100) / 100,
+              armRecoil: Math.round(pa.armRecoil * 100) / 100,
+              legTuck: Math.round(pa.legTuck * 100) / 100,
+              headLagY: Math.round(pa.headLagY * 100) / 100,
+              leadHand: Math.round(pa.leadHandX * 100) / 100,
+              offHand: Math.round(pa.offHandX * 100) / 100,
+              leadFoot: Math.round(pa.leadFootX * 100) / 100,
+              offFoot: Math.round(pa.offFootX * 100) / 100,
+              spineWhip: Math.round(pa.spineWhip * 100) / 100,
+            },
+            jumpBuffer: Math.max(0, Math.round(player.jumpBufferMs)),
+            coyote: Math.max(0, Math.round(player.coyoteMs)),
+            jumpHold: Math.max(0, Math.round(player.jumpHoldMs)),
+            flip: Math.max(0, Math.round(player.flipT)),
+            land: Math.max(0, Math.round(player.landT)),
+            hit: Math.max(0, Math.round(player.hitF)),
+          },
+          enemies: entities.filter(e => isEnemyEntity(e)).map(e => ({
+            type: e.type,
+            eyes: e.hitF > 0 ? 'hit' : e.ai?.state || 'idle',
+            facing: e.ai?.facing || 1,
+            hit: Math.max(0, Math.round(e.hitF || 0)),
+          })),
+        },
+        entities: entities.filter(e => e.active).map(e => ({
+          type: e.type,
+          targetable: e.targetable || null,
+          enemyKind: e.enemyKind || null,
         school: e.schoolName || null,
         uniqueName: e.uniqueName || null,
         archetype: e.archetype || null,
@@ -4661,6 +5169,7 @@
         y2: Math.round(c.p2.y),
       })),
     });
+    };
 
     // ═══ ESCALA DESKTOP ═══
     // Mantém o mundo lógico 800×500 e escala o canvas para preencher a janela
@@ -4685,6 +5194,7 @@
     const shell = {
       state: 'title',          // title | select | battle | end
       paused: false,
+      training: false,
       waveSpawned: false,
       frame: 0,
       selectedSchool: 0,
@@ -4701,6 +5211,7 @@
 
     function clearInput() {
       for (const k of Object.keys(keysDown)) delete keysDown[k];
+      clearFrameInput();
       mouse.down = false;
     }
 
@@ -4709,7 +5220,8 @@
     }
 
     function goTitle() {
-      shell.state = 'title'; shell.paused = false;
+      shell.state = 'title'; shell.paused = false; shell.training = false;
+      enemiesAggressive = false;
       hudEl.classList.add('hidden');
       showOnly('title');
       clearInput();
@@ -4725,24 +5237,34 @@
       SoundFX.playSweep(300, 700, 'sine', 0.12, 0.14);
     }
 
-    function startBattle(si) {
+    function setupBattleShell(si, { training = false } = {}) {
       shell.selectedSchool = si;
-      battleWaveMode = true;
-      enemiesAggressive = true;
+      shell.training = training;
+      battleWaveMode = !training;
+      enemiesAggressive = !training;
       setSchool(si);
-      currentScene = Math.random() < 0.5 ? 0 : 1;
-      resetWorld(); // recarrega a cena e invoca a onda (5–10 inimigos, 1 de cada arquétipo)
+      currentScene = training ? 0 : (Math.random() < 0.5 ? 0 : 1);
+      resetWorld();
       shell.state = 'battle';
       shell.paused = false;
-      shell.waveSpawned = true;
+      shell.waveSpawned = !training;
       shell.frame = 0;
       shell.battleStart = performance.now();
       shell.waveSize = entities.filter(e => isEnemyEntity(e)).length;
       hudEl.classList.remove('hidden');
       showOnly(null);
       clearInput();
+      updateTrainingButtons();
       if (!gameStarted) { gameStarted = true; requestAnimationFrame(loop); }
-      SoundFX.playSweep(200, 800, 'sine', 0.2, 0.2);
+      SoundFX.playSweep(training ? 140 : 200, training ? 520 : 800, 'sine', 0.2, 0.2);
+    }
+
+    function startBattle(si) {
+      setupBattleShell(si, { training: false });
+    }
+
+    function startTraining(si) {
+      setupBattleShell(si, { training: true });
     }
 
     function restartWave() {
@@ -4752,10 +5274,12 @@
       shell.waveSize = entities.filter(e => isEnemyEntity(e)).length;
       shell.state = 'battle';
       shell.paused = false;
+      shell.waveSpawned = !shell.training;
       screens.pause.classList.add('hidden');
       screens.end.classList.add('hidden');
       hudEl.classList.remove('hidden');
       clearInput();
+      updateTrainingButtons();
     }
 
     function setPaused(p) {
@@ -4763,7 +5287,79 @@
       shell.paused = p;
       screens.pause.classList.toggle('hidden', !p);
       clearInput();
+      updateTrainingButtons();
+      updateSoundButtons();
       SoundFX.playTone(p ? 300 : 520, 'square', 0.07, 0.1);
+    }
+
+    function setTrainingCombat(enabled) {
+      enemiesAggressive = !!enabled;
+      updateTrainingButtons();
+      const tagColor = enabled ? '#f08585' : '#c9a14a';
+      damageNumbers.push({ x: player.x + player.w / 2, y: player.y - 18, val: enabled ? 'COMBAT ON' : 'COMBAT OFF', life: 70, vy: -1.2, color: tagColor, sc: 0.72 });
+      SoundFX.playTone(enabled ? 700 : 240, 'square', 0.06, 0.08);
+    }
+
+    function toggleTrainingCombat() {
+      if (!shell.training) return;
+      setTrainingCombat(!enemiesAggressive);
+    }
+
+    function spawnTestTarget(type) {
+      if (!shell.training) return;
+      const sx = Math.max(18, Math.min(W - 36, Number.isFinite(mouse.x) ? mouse.x : player.x + 80));
+      const sy = Math.max(30, Math.min(H - 80, Number.isFinite(mouse.y) ? mouse.y : player.y));
+      const spawnType = type === 'enemy'
+        ? chooseRandomEnemyType(REGISTRY, Math.random, { includeUniques: true, uniqueChance: 0.28 })?.type || 'fireMage'
+        : type;
+      const body = createBody(spawnType, sx, sy);
+      if (!body) return;
+      body.vx = type === 'barrel' ? 0 : (sx < player.x ? -1.2 : 1.2);
+      body.vy = -2.5;
+      entities.push(body);
+      spawnP(sx + body.w / 2, sy + body.h / 2, type === 'barrel' ? '#ff9933' : body.color || '#c9a14a', 12, type === 'barrel' ? 'ember' : 'dust');
+      state.entities = entities;
+      shell.waveSize = Math.max(shell.waveSize, entities.filter(e => isEnemyEntity(e)).length);
+      updateTrainingButtons();
+    }
+
+    function updateTrainingButtons() {
+      const combat = $id('btnToggleCombat');
+      const spawnIds = ['btnSpawnDummy', 'btnSpawnEnemy', 'btnSpawnBarrel'];
+      if (!combat) return;
+      combat.textContent = `Combate: ${enemiesAggressive ? 'Ligado' : 'Desligado'}`;
+      combat.disabled = !shell.training;
+      for (const id of spawnIds) {
+        const btn = $id(id);
+        if (btn) btn.disabled = !shell.training;
+      }
+    }
+
+    function updateSoundButtons() {
+      const settings = SoundFX.getSettings();
+      const toggle = $id('btnSoundToggle');
+      const down = $id('btnSoundDown');
+      const up = $id('btnSoundUp');
+      if (!toggle || !down || !up) return;
+      toggle.textContent = settings.reducedMotion ? 'Som: Reduzido pelo sistema' : `Som: ${settings.enabled ? 'Ligado' : 'Desligado'}`;
+      down.textContent = `Volume - (${Math.round(settings.volume * 100)}%)`;
+      up.textContent = `Volume + (${Math.round(settings.volume * 100)}%)`;
+      down.disabled = settings.volume <= 0.05;
+      up.disabled = settings.volume >= 0.95;
+    }
+
+    function toggleSoundEnabled() {
+      const settings = SoundFX.getSettings();
+      SoundFX.setEnabled(!settings.enabled);
+      updateSoundButtons();
+      SoundFX.playTone(520, 'triangle', 0.08, 0.07);
+    }
+
+    function nudgeSoundVolume(delta) {
+      const settings = SoundFX.getSettings();
+      SoundFX.setVolume(settings.volume + delta);
+      updateSoundButtons();
+      SoundFX.playTone(420 + SoundFX.getSettings().volume * 420, 'sine', 0.07, 0.06);
     }
 
     function endBattle(result) {
@@ -4804,6 +5400,12 @@
       $id('hpNum').textContent = Math.max(0, Math.round(player.hp));
       $id('mpNum').textContent = Math.max(0, Math.round(player.mana));
       $id('hudEnemies').textContent = entities.filter(e => isEnemyEntity(e)).length;
+      $id('hudObjective').innerHTML = shell.training
+        ? `TREINO LIVRE · COMBATE&nbsp;<span style="color:${enemiesAggressive ? '#f08585' : '#c9a14a'}">${enemiesAggressive ? 'ON' : 'OFF'}</span>&nbsp;· ALVOS&nbsp;<span id="hudEnemies">${entities.filter(e => isEnemyEntity(e)).length}</span>&nbsp;· <span id="hudTimer">${$id('hudTimer')?.textContent || '0:00'}</span>`
+        : `PURGUE O PERGAMINHO · INIMIGOS&nbsp;<span id="hudEnemies">${entities.filter(e => isEnemyEntity(e)).length}</span>&nbsp;· <span id="hudTimer">${$id('hudTimer')?.textContent || '0:00'}</span>`;
+      $id('hudHint').textContent = shell.training
+        ? 'TREINO · ESC PAUSA · SPAWNS NO MENU · RODA/1-0 TROCA'
+        : 'WASD MOVE · CLIQUE CONJURA · RODA/1-0 TROCA · ESC PAUSA';
       if (shell.state === 'battle' && !shell.paused) {
         $id('hudTimer').textContent = fmtTime(Math.max(0, Math.floor((performance.now() - shell.battleStart) / 1000)));
       }
@@ -4891,6 +5493,7 @@
         wrap.appendChild(row);
       }
       $id('btnStartBattle').innerHTML = `✦ Iniciar Duelo · ${school.name}`;
+      $id('btnStartTraining').innerHTML = `◇ Treino Livre · ${school.name}`;
     }
 
     // ───── Teclado global do shell ─────
@@ -4937,8 +5540,16 @@
     $id('btnPlay').addEventListener('click', goSelect);
     $id('btnSelectBack').addEventListener('click', goTitle);
     $id('btnStartBattle').addEventListener('click', () => startBattle(shell.selectedSchool));
+    $id('btnStartTraining').addEventListener('click', () => startTraining(shell.selectedSchool));
     $id('btnResume').addEventListener('click', () => setPaused(false));
     $id('btnRestart').addEventListener('click', () => { setPaused(false); restartWave(); });
+    $id('btnToggleCombat').addEventListener('click', toggleTrainingCombat);
+    $id('btnSpawnDummy').addEventListener('click', () => spawnTestTarget('dummy'));
+    $id('btnSpawnEnemy').addEventListener('click', () => spawnTestTarget('enemy'));
+    $id('btnSpawnBarrel').addEventListener('click', () => spawnTestTarget('barrel'));
+    $id('btnSoundToggle').addEventListener('click', toggleSoundEnabled);
+    $id('btnSoundDown').addEventListener('click', () => nudgeSoundVolume(-0.08));
+    $id('btnSoundUp').addEventListener('click', () => nudgeSoundVolume(0.08));
     $id('btnChangeSchool').addEventListener('click', () => { screens.pause.classList.add('hidden'); goSelect(); });
     $id('btnQuitMenu').addEventListener('click', goTitle);
     $id('btnEndRetry').addEventListener('click', () => { restartWave(); });
@@ -4955,6 +5566,9 @@
     window.__smb = {
       shell,
       startBattle,
+      startTraining,
+      toggleTrainingCombat,
+      spawnTestTarget,
       goSelect,
       goTitle,
       setPaused,

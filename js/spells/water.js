@@ -106,22 +106,9 @@ function drawWaterWave(X, cx, cy, w, h, phase, c1, c2, alpha = 1) {
 }
 
 export const SPELL_DEFS = [
-    { name: 'Ice Lance', icon: '❄️', key: '2', color: '#44ccff', c2: '#88eeff', core: '#eeffff', speed: 14, dmg: 15, mana: 8, cd: 150, r: 3, grav: .01, drag: 1, bounce: 2, exR: 0, exF: 0, trail: 'ice', piercing: true, desc: 'Fast piercing, bounces walls' },
-    { name: 'Frost Nova', icon: '❆', key: ']', color: '#66ddff', c2: '#99eeff', core: '#fff', speed: 0, dmg: 12, mana: 20, cd: 500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'ice', isFrostNova: true, frostR: 80, frostSlow: 120, desc: 'Freezes all nearby enemies' },
-    { name: 'Chain Frost', icon: '💎', key: '7', color: '#88eeff', c2: '#aaf4ff', core: '#fff', speed: 6, dmg: 18, mana: 18, cd: 500, r: 4, grav: .05, drag: .999, bounce: 5, exR: 22, exF: 4, trail: 'frost', chain: 3, chainR: 130, desc: 'Chains between targets' },
-    { name: 'Water Geyser', icon: '⛲', key: 'R', color: '#4488ff', c2: '#88bbff', core: '#ddeeff', speed: 0, dmg: 25, mana: 20, cd: 600, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isGeyser: true, geyserW: 30, geyserH: 140, desc: 'Erupting water launches foes' },
-    { name: 'Tsunami', icon: '🌊', key: 'F', color: '#1166dd', c2: '#44aadd', core: '#cceeff', speed: 0, dmg: 55, mana: 48, cd: 1400, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isTsunami: true, waveCount: 3, waveSpread: 320, desc: 'Three-wave sweeping cataclysm with foam crest' },
-    { name: 'Tidal Prison', icon: '🫧', key: 'G', color: '#5fc7ff', c2: '#aaeeff', core: '#ffffff', speed: 0, dmg: 14, mana: 30, cd: 1000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isTidalPrison: true, prisonDur: 240, prisonR: 56, orbitDmg: 4, crushAt: 180, desc: 'Orbits and crushes — pressure increases over time' },
-    { name: 'Healing Rain', icon: '🌧️', key: 'H', color: '#6688aa', c2: '#aabbdd', core: '#ddeeff', speed: 0, dmg: 0, mana: 30, cd: 1500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isRain: true, rainR: 80, rainDur: 300, healAmt: 0.5, manaAmt: 0.5, desc: 'Regens HP/Mana, slows enemies' },
-    { name: 'Whirlpool', icon: '🌀', key: 'J', color: '#114488', c2: '#2266aa', core: '#88bbdd', speed: 0, dmg: 5, mana: 35, cd: 1000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isWhirlpool: true, whorlDur: 240, whorlR: 100, whorlStr: 0.8, desc: 'Ground vortex slows and pulls' },
-    { name: 'Riptide', icon: '🌊', key: 'K', color: '#2255aa', c2: '#4488cc', core: '#aaddff', speed: 0, dmg: 12, mana: 20, cd: 700, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isRiptide: true, ripDur: 120, ripW: 200, ripF: 4, desc: 'Undertow ribbon drags bodies and shots back toward you' },
-    { name: 'Depth Charge', icon: '💣', key: 'L', color: '#0a2244', c2: '#1155aa', core: '#88ccff', speed: 4, dmg: 50, mana: 30, cd: 1200, r: 6, grav: .08, drag: .998, bounce: 0, exR: 90, exF: 15, trail: 'water', isDepthCharge: true, sinkDur: 60, desc: 'Sinking bomb detonates with crushing pressure' },
+    { name: 'Tsunami', icon: '🌊', key: 'F', color: '#1166dd', c2: '#44aadd', core: '#cceeff', speed: 0, dmg: 46, mana: 48, cd: 1400, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isTsunami: true, waveCount: 3, waveSpread: 320, desc: 'Three-wave sweeping cataclysm with foam crest' },
     { name: 'Hydra Heads', icon: '🐉', key: 'P', color: '#1188aa', c2: '#44bbdd', core: '#ffffff', speed: 0, dmg: 15, mana: 35, cd: 1500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isHydra: true, hydraDur: 180, hydraHeads: 3, hydraRange: 140, desc: 'Water serpent heads emerge and auto-bite nearby foes' },
-    { name: 'Mirror Pool', icon: '🪞', key: 'Q', color: '#79dcff', c2: '#b7f6ff', core: '#ffffff', speed: 0, dmg: 14, mana: 26, cd: 1100, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isMirrorPool: true, mirrorDur: 220, mirrorR: 68, mirrorMana: 0.35, desc: 'Reflective pool duplicates projectiles that skim its surface' },
     { name: 'Maelstrom', icon: '🌀', key: 'O', color: '#0a3a7a', c2: '#3a8edd', core: '#aaeeff', speed: 0, dmg: 18, mana: 55, cd: 2200, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isMaelstrom: true, maelR: 180, pullDur: 60, gatherDur: 90, columnDur: 70, desc: 'Three-stage devastation — pulls shots, then enemies, then erupts in tidal column' },
-    { name: 'Steam Vent', icon: '♨️', key: 'N', color: '#99bbcc', c2: '#ccdde8', core: '#ffffff', speed: 9, dmg: 15, mana: 18, cd: 500, r: 4, grav: .12, drag: .998, bounce: 0, exR: 30, exF: 6, trail: 'water', isSteamVent: true, steamDur: 120, steamR: 50, desc: 'Steam eruption launches and obscures' },
-    { name: 'Permafrost', icon: '🧊', key: 'M', color: '#aaddff', c2: '#ddeeff', core: '#ffffff', speed: 0, dmg: 5, mana: 22, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'ice', isPermafrost: true, frostW: 160, frostDur: 300, desc: 'Icy ground slows enemies' },
-    { name: 'Tidal Link', icon: '🔗', key: 'V', category: 'Tether', color: '#2277bb', c2: '#55aadd', core: '#aaddff', speed: 0, dmg: 10, mana: 26, cd: 900, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isTidalLink: true, tetherDur: 220, desc: 'Two-click tether — damages enemies crossing it' },
     { name: 'Tidal Surf', icon: '🏄', key: 'X', category: 'Dash', color: '#3aaaff', c2: '#9be7ff', core: '#ffffff', speed: 0, dmg: 0, mana: 24, cd: 760, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'water', isAquaticSurge: true, surgeRange: 270, surgeDur: 30, surfHold: 16, desc: 'Hold-style surf dash that lifts the caster onto a curling wave' },
     createHoldSpell({
         name: 'Tide Harness', icon: '🫧', key: 'A',
@@ -132,6 +119,15 @@ export const SPELL_DEFS = [
         releaseR: 86, releaseDmg: 0,
         desc: 'Hold to suspend targets inside a rotating undertow and slam them down on release'
     }),
+];
+
+// Defs herdados pela escola Ice (handlers/VFX continuam neste módulo;
+// o registry funde FIRE_HANDLERS/PROJ_HOOKS/VFX_* globalmente).
+export const ICE_SPELL_DEFS = [
+    { name: 'Ice Lance', icon: '❄️', key: '1', color: '#44ccff', c2: '#88eeff', core: '#eeffff', speed: 14, dmg: 15, mana: 8, cd: 170, r: 3, grav: .01, drag: 1, bounce: 2, exR: 0, exF: 0, trail: 'ice', piercing: true, desc: 'Fast piercing, bounces walls' },
+    { name: 'Frost Nova', icon: '❆', key: '2', color: '#66ddff', c2: '#99eeff', core: '#fff', speed: 0, dmg: 12, mana: 20, cd: 500, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'ice', isFrostNova: true, frostR: 80, frostSlow: 120, desc: 'Freezes all nearby enemies' },
+    { name: 'Chain Frost', icon: '💎', key: '3', color: '#88eeff', c2: '#aaf4ff', core: '#fff', speed: 6, dmg: 18, mana: 18, cd: 500, r: 4, grav: .05, drag: .999, bounce: 5, exR: 22, exF: 4, trail: 'frost', chain: 3, chainR: 130, desc: 'Chains between targets' },
+    { name: 'Permafrost', icon: '🧊', key: '4', color: '#aaddff', c2: '#ddeeff', core: '#ffffff', speed: 0, dmg: 5, mana: 22, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'ice', isPermafrost: true, frostW: 160, frostDur: 300, desc: 'Icy ground slows enemies' },
     createManifestSpell({
         name: 'Glacier Path', icon: '🧊',
         color: '#52cfff', c2: '#a2f0ff', core: '#ffffff',
@@ -140,7 +136,7 @@ export const SPELL_DEFS = [
         mana: 24, cd: 900, manifestArc: 14, manifestThickness: 12, manifestSegmentHp: 34,
         desc: 'Manifest an ice span that chills foes, feeds mana, and slowly melts away'
     }),
-    { name: 'Absolute Zero', icon: '❄️', key: 'B', color: '#88eeff', c2: '#ccffff', core: '#ffffff', speed: 0, dmg: 40, mana: 70, cd: 6000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'ice', isAbsoluteZero: true, desc: 'Freezes entire screen (Ultimate)' },
+    { name: 'Absolute Zero', icon: '❄️', key: '0', color: '#88eeff', c2: '#ccffff', core: '#ffffff', speed: 0, dmg: 40, mana: 70, cd: 6000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'ice', isAbsoluteZero: true, desc: 'Freezes entire screen (Ultimate)' },
 ];
 
 export const FIRE_HANDLERS = {
@@ -1863,3 +1859,13 @@ export const VFX_DRAW = {
         X.globalAlpha = 1;
     },
 };
+
+// ── Revamp: spells novos (water-new.js) ──────────────────────────────────
+import * as WaterNew from './water-new.js?v=1';
+SPELL_DEFS.push(...WaterNew.DEFS);
+Object.assign(FIRE_HANDLERS, WaterNew.FIRE_HANDLERS);
+Object.assign(PROJ_HOOKS, WaterNew.PROJ_HOOKS);
+Object.assign(TRAIL_EMITTERS, WaterNew.TRAIL_EMITTERS);
+Object.assign(VFX_UPDATE, WaterNew.VFX_UPDATE);
+Object.assign(VFX_DRAW, WaterNew.VFX_DRAW);
+export const PROJ_DRAW = { ...WaterNew.PROJ_DRAW };

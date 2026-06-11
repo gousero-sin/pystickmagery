@@ -35,7 +35,7 @@ const UNIQUE_ENEMY_BLUEPRINTS = Object.freeze([
       },
       {
         name: 'Ash Feint',
-        basedOn: 'Backdraft',
+        basedOn: 'Fireball',
         color: '#d74318',
         c2: '#ff9150',
         core: '#ffe1aa',

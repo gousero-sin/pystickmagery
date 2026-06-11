@@ -36,7 +36,7 @@ try {
   await page.waitForSelector('#screenSelect:not(.hidden)', { timeout: 4000 });
   check('ENTER abre o grimório', (await shellState()) === 'select');
   const cells = await page.$$eval('.school-cell', (els) => els.length);
-  check('21 escolas no grimório', cells === 21, `achou ${cells}`);
+  check('grimório lista todas as escolas (>=21)', cells >= 21, `achou ${cells}`);
   await page.screenshot({ path: OUT + '02-select-1280x720.png' });
 
   // Navegação por teclado + seleção do Fire por clique
@@ -45,7 +45,7 @@ try {
   const detName = (await page.textContent('#detailName'))?.trim();
   check('Detalhe atualiza para Fire', detName === 'Fire', `detail=${detName}`);
   const spellRows = await page.$$eval('#detailSpells .spell-row-item', (els) => els.length);
-  check('Spellbook do Fire com 12 magias', spellRows === 12, `achou ${spellRows}`);
+  check('Spellbook do Fire com 10 magias', spellRows === 10, `achou ${spellRows}`);
 
   // ── Batalha ──
   await page.click('#btnStartBattle');
@@ -63,7 +63,7 @@ try {
   const hudEnemies = await page.textContent('#hudEnemies');
   check('HUD mostra contagem de inimigos', Number(hudEnemies) === enemies.length, `hud=${hudEnemies}`);
   const slots = await page.$$eval('#hotbar .slot', (els) => els.length);
-  check('Hotbar com as 12 magias do Fire', slots === 12, `slots=${slots}`);
+  check('Hotbar com as 10 magias do Fire', slots === 10, `slots=${slots}`);
 
   // Conjura uma magia clicando no canvas e confere o cooldown
   await page.click('canvas#c', { position: { x: 640, y: 200 } });

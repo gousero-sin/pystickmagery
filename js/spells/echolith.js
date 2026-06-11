@@ -83,8 +83,16 @@ import {
   VFX_UPDATE as ULT2_VFX_UPDATE,
   VFX_DRAW as ULT2_VFX_DRAW,
 } from './echolith-ultimate-2.js?v=3';
+import {
+  SPELL_DEFS as NEW_SPELL_DEFS,
+  FIRE_HANDLERS as NEW_FIRE_HANDLERS,
+  PROJ_HOOKS as NEW_PROJ_HOOKS,
+  TRAIL_EMITTERS as NEW_TRAIL_EMITTERS,
+  VFX_UPDATE as NEW_VFX_UPDATE,
+  VFX_DRAW as NEW_VFX_DRAW,
+} from './echolith-new.js?v=1';
 
-export const SPELL_DEFS = [
+const LEGACY_SPELL_DEFS = [
   RAY_SPELL,
   HOLD_SPELL,
   SUMMON_SPELL,
@@ -94,6 +102,18 @@ export const SPELL_DEFS = [
   MANIFEST_SPELL,
   ULT1_SPELL,
   ULT2_SPELL,
+];
+
+const REMOVED_SPELLS = new Set([
+  'Absolution Thorn',
+  'Stigmata Bloom',
+  'Altar of Scales',
+  'Black Mass: Abyss Bell',
+]);
+
+export const SPELL_DEFS = [
+  ...LEGACY_SPELL_DEFS.filter((spell) => !REMOVED_SPELLS.has(spell.name)),
+  ...NEW_SPELL_DEFS,
 ];
 
 export const FIRE_HANDLERS = {
@@ -106,6 +126,7 @@ export const FIRE_HANDLERS = {
   ...MANIFEST_FIRE_HANDLERS,
   ...ULT1_FIRE_HANDLERS,
   ...ULT2_FIRE_HANDLERS,
+  ...NEW_FIRE_HANDLERS,
 };
 
 export const PROJ_HOOKS = {
@@ -118,6 +139,7 @@ export const PROJ_HOOKS = {
   ...MANIFEST_PROJ_HOOKS,
   ...ULT1_PROJ_HOOKS,
   ...ULT2_PROJ_HOOKS,
+  ...NEW_PROJ_HOOKS,
 };
 
 export const TRAIL_EMITTERS = {
@@ -130,6 +152,7 @@ export const TRAIL_EMITTERS = {
   ...MANIFEST_TRAIL_EMITTERS,
   ...ULT1_TRAIL_EMITTERS,
   ...ULT2_TRAIL_EMITTERS,
+  ...NEW_TRAIL_EMITTERS,
 };
 
 export const VFX_UPDATE = {
@@ -142,6 +165,7 @@ export const VFX_UPDATE = {
   ...MANIFEST_VFX_UPDATE,
   ...ULT1_VFX_UPDATE,
   ...ULT2_VFX_UPDATE,
+  ...NEW_VFX_UPDATE,
 };
 
 export const VFX_DRAW = {
@@ -154,4 +178,5 @@ export const VFX_DRAW = {
   ...MANIFEST_VFX_DRAW,
   ...ULT1_VFX_DRAW,
   ...ULT2_VFX_DRAW,
+  ...NEW_VFX_DRAW,
 };

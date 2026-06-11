@@ -7,13 +7,8 @@ import { createHoldSpell, HOLD_FIRE_HANDLERS, HOLD_VFX_UPDATE, HOLD_VFX_DRAW } f
 
 // ── Spell Definitions ──────────────────────────────────────────────────────
 export const SPELL_DEFS = [
-    { name: 'Wind Blast', icon: '💨', key: '8', color: '#99ddbb', c2: '#cceecc', core: '#eeffee', speed: 0, dmg: 8, mana: 14, cd: 350, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'wind', isWind: true, windR: 180, windF: 25, desc: 'Massive knockback push' },
-    { name: 'Air Blade', icon: '🗡️', key: 'T', color: '#ddffee', c2: '#ffffff', core: '#aaffcc', speed: 22, dmg: 18, mana: 10, cd: 200, r: 4, grav: 0, drag: 1, bounce: 0, trail: 'wind', isAirBlade: true, piercing: true, desc: 'High-speed piercing wind cutter' },
-    { name: 'Updraft', icon: '🌪️', key: 'Y', color: '#ccffee', c2: '#eeffff', core: '#aaddbb', speed: 0, dmg: 15, mana: 20, cd: 600, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'wind', isUpdraft: true, desc: 'Launches enemies high into the air' },
-    { name: 'Tornado', icon: '🌪️', key: 'U', color: '#88aacc', c2: '#aaccee', core: '#ddeeff', speed: 0, dmg: 6, mana: 30, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'wind', isTornado: true, torDur: 250, torR: 65, torF: 1.2, desc: 'Moving vortex lifts objects' },
+    { name: 'Tornado', icon: '🌪️', key: 'U', color: '#88aacc', c2: '#aaccee', core: '#ddeeff', speed: 0, dmg: 6, mana: 26, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'wind', isTornado: true, torDur: 250, torR: 65, torF: 1.2, desc: 'Moving vortex lifts objects' },
     { name: 'Zephyr Dash', icon: '🪽', key: 'O', category: 'Dash', color: '#b9fff1', c2: '#e8ffff', core: '#ffffff', speed: 0, dmg: 0, mana: 18, cd: 950, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'wind', isZephyrDash: true, dashDur: 12, dashSpeed: 28, dashR: 38, desc: 'Air-step burst that parts enemies aside and leaves a soft slipstream' },
-    { name: 'Vacuum Bomb', icon: '🫧', key: 'P', color: '#445566', c2: '#778899', core: '#bbccdd', speed: 8, dmg: 30, mana: 24, cd: 700, r: 5, grav: .1, drag: .998, bounce: 0, exR: 0, exF: 0, trail: 'wind', isVacuumBomb: true, vacR: 100, vacDur: 40, desc: 'Implodes on impact, then detonates' },
-    { name: 'Sonic Boom', icon: '💥', key: 'Q', color: '#eeffff', c2: '#bbddee', core: '#ffffff', speed: 0, dmg: 20, mana: 20, cd: 600, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'wind', isSonicBoom: true, boomR: 150, boomF: 22, boomAngle: 0.7, desc: 'Directional shockwave cone' },
     { name: 'Cyclone Blades', icon: '🔄', key: 'F', category: 'Orbit', color: '#aaeedd', c2: '#ddfff0', core: '#ffffff', speed: 0, dmg: 12, mana: 28, cd: 1200, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'wind', isCycloneBlades: true, orbitDur: 300, orbitR: 50, bladeCount: 4, desc: 'Orbiting wind blades slice enemies' },
     createHoldSpell({
         name: 'Slipstream', icon: '🪽', key: 'A',
@@ -23,14 +18,6 @@ export const SPELL_DEFS = [
         holdWidth: 28, holdR: 96, holdDrain: 0.18, holdForce: 0.58, holdLift: 0.75,
         releaseR: 70, releaseDmg: 0,
         desc: 'Hold to sustain a semi-invisible pressure current that makes bodies fly'
-    }),
-    createManifestSpell({
-        name: 'Air Pressure', icon: '🪶',
-        color: '#9fe8ef', c2: '#d7ffff', core: '#ffffff',
-        manifestStyle: 'wind', manifestEffect: 'wind_lift', manifestProfile: 'current', manifestGlyph: '~',
-        manifestSolid: false, manifestDuration: 520,
-        mana: 22, cd: 850, manifestArc: 30, manifestThickness: 24, manifestSegmentHp: 18, manifestBuildRate: 0.06,
-        desc: 'Manifest a semi-invisible pressure current that makes targets fly'
     }),
     { name: 'Eye of the Storm', icon: '🌀', key: 'I', color: '#224455', c2: '#557788', core: '#aaccdd', speed: 0, dmg: 10, mana: 80, cd: 6000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'wind', isStorm: true, desc: 'Massive hurricane (Ultimate)' }
 ];
@@ -821,3 +808,13 @@ export const VFX_DRAW = {
         }
     }
 };
+
+// ── Revamp: spells novos (wind-new.js) ──────────────────────────────────
+import * as WindNew from './wind-new.js?v=1';
+SPELL_DEFS.push(...WindNew.DEFS);
+Object.assign(FIRE_HANDLERS, WindNew.FIRE_HANDLERS);
+Object.assign(PROJ_HOOKS, WindNew.PROJ_HOOKS);
+export const TRAIL_EMITTERS = { ...WindNew.TRAIL_EMITTERS };
+Object.assign(VFX_UPDATE, WindNew.VFX_UPDATE);
+Object.assign(VFX_DRAW, WindNew.VFX_DRAW);
+export const PROJ_DRAW = { ...WindNew.PROJ_DRAW };

@@ -110,8 +110,8 @@ test('Fire enemies use Fire spells randomly while excluding Cataclysm and ultima
   const names = new Set(fireSpellbook.map((spell) => spell.name));
 
   assert.ok(names.has('Fireball'));
-  assert.ok(names.has('Flame Wall'));
-  assert.ok(names.has('Cluster Bomb'));
+  assert.ok(names.has('Ember Serpent'));
+  assert.ok(names.has('Solar Lash'));
   assert.ok(!names.has('Cataclysm'));
 
   for (const spell of fireSpellbook) {
@@ -123,13 +123,13 @@ test('Fire enemies use Fire spells randomly while excluding Cataclysm and ultima
   const fireEnemy = { spellbook: fireSpellbook, ai: {} };
   const seen = new Set([
     chooseEnemySpell(fireEnemy, null, () => 0)?.name,
-    chooseEnemySpell(fireEnemy, null, () => 0.12)?.name,
-    chooseEnemySpell(fireEnemy, null, () => 0.25)?.name,
-    chooseEnemySpell(fireEnemy, null, () => 0.4)?.name,
+    chooseEnemySpell(fireEnemy, null, () => 0.44)?.name,
+    chooseEnemySpell(fireEnemy, null, () => 0.58)?.name,
+    chooseEnemySpell(fireEnemy, null, () => 0.9)?.name,
   ]);
   assert.ok(seen.has('Fireball'));
-  assert.ok(seen.has('Flame Wall'));
-  assert.ok(seen.has('Cluster Bomb'));
+  assert.ok(seen.has('Ember Serpent'));
+  assert.ok(seen.has('Solar Lash'));
   assert.ok(!seen.has('Cataclysm'));
 });
 

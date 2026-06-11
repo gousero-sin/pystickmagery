@@ -57,14 +57,6 @@ function drawPolyCrystal(X, cx, cy, r, sides, rot, fillGrad, strokeColor, alpha 
 // ── Spell Definitions ──────────────────────────────────────────────────────
 // These are the raw data objects (same format as original SPELLS array entries)
 export const SPELL_DEFS = [
-  { name: 'Poison Cloud', icon: '☁️', key: '9', color: '#44cc22', c2: '#88ee55', core: '#ccff88', speed: 8, dmg: 8, mana: 20, cd: 700, r: 8, grav: -.01, drag: .95, bounce: 0, trail: 'poison', isCloud: true, cloudR: 100, cloudDur: 260, cloudDmg: 4, desc: 'Toxic AoE — damages over time' },
-  { name: 'Earth Spike', icon: '⛰️', key: '0', color: '#aa8844', c2: '#ccaa66', core: '#eedd99', speed: 0, dmg: 55, mana: 25, cd: 800, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isSpike: true, spikeW: 45, spikeH: 85, desc: 'Ground eruption at cursor' },
-  { name: 'Earthquake', icon: '🌍', key: 'P', color: '#886633', c2: '#aa8844', core: '#ccaa66', speed: 0, dmg: 40, mana: 35, cd: 1200, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isQuake: true, quakeR: 280, quakeF: 12, desc: 'Shakes ground — launches all' },
-  { name: 'Razor Leaf', icon: '🍃', key: 'K', color: '#33aa44', c2: '#55cc66', core: '#88ffaa', speed: 20, dmg: 18, mana: 12, cd: 200, r: 5, grav: 0, drag: 1, bounce: 0, exR: 25, exF: 4, trail: 'leaf', piercing: true, isLeaf: true, leavesPoison: true, desc: 'Piercing fan that drops toxic puddles' },
-  { name: 'Seed Barrage', icon: '🌱', key: 'L', color: '#88bb44', c2: '#aadd66', core: '#ccff88', speed: 15, dmg: 10, mana: 4, cd: 80, r: 3, grav: .12, drag: .99, bounce: 1, exR: 18, exF: 2, trail: 'seed', desc: 'Rapid-fire spreading seeds' },
-  { name: 'Vine Grapple', icon: '🪴', key: ';', color: '#227733', c2: '#44aa55', core: '#77dd88', speed: 12, dmg: 20, mana: 20, cd: 600, r: 6, grav: .02, drag: .99, bounce: 0, exR: 0, exF: 0, trail: 'vine', isVine: true, vineDur: 560, vineDmg: 4, desc: 'Roots and poisons targets' },
-  { name: 'Spore Burst', icon: '🍄', key: '\'', color: '#aa3355', c2: '#cc5577', core: '#ff88aa', speed: 7, dmg: 18, mana: 25, cd: 500, r: 8, grav: .05, drag: .97, bounce: 0, exR: 35, exF: 5, trail: 'spore', isSporeBomb: true, subCount: 8, subSpd: 5, subDmg: 8, subR: 40, desc: 'Explodes into floating spores' },
-  { name: 'Petrify', icon: '🪨', key: 'F', color: '#887766', c2: '#aaa999', core: '#dddccc', speed: 0, dmg: 35, mana: 28, cd: 900, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isPetrify: true, petrifyR: 70, petrifyDur: 90, desc: 'Turns enemies to stone, then shatters' },
   { name: "Gaia's Wrath", icon: '🧝', key: 'G', color: '#2d8a3a', c2: '#7fdc6b', core: '#e8ffb8', speed: 0, dmg: 12, mana: 32, cd: 1100, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'leaf', isGaiasWrath: true, spiritCount: 3, spiritDur: 110, sapRange: 220, finaleR: 90, desc: 'Three gaia spirits orbit and unleash sap rays — finale petal nova' },
   { name: 'Forest Guardian', icon: '🌳', key: 'D', category: 'Summon', color: '#336622', c2: '#55aa33', core: '#99dd77', speed: 0, dmg: 15, mana: 35, cd: 2000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isForestGuardian: true, summonDur: 400, desc: 'Summons a treant that hunts enemies' },
   createHoldSpell({
@@ -78,6 +70,14 @@ export const SPELL_DEFS = [
   }),
   { name: 'Wooden Construct', icon: '🪵', key: '/', category: 'Manifest', color: '#6b4a22', c2: '#3f8f4a', core: '#bada8c', speed: 0, dmg: 0, mana: 24, cd: 900, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isWoodenConstruct: true, manifestStyle: 'nature', manifestEffect: 'nature_root', manifestPulseDmg: 3, constructMax: 320, segmentHp: 32, constructThickness: 10, desc: 'Manifest wood and vines from point 1 to point 2' },
   { name: 'World Tree', icon: '🌳', key: ',', color: '#115522', c2: '#338844', core: '#66cc77', speed: 0, dmg: 60, mana: 80, cd: 6000, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isWorldTree: true, treeDur: 800, treeR: 180, healAmt: 0.8, desc: 'Spawns a massive healing tree (Ultimate)' },
+];
+
+// Defs herdados pela escola Earth (handlers/VFX continuam neste módulo;
+// o registry funde FIRE_HANDLERS/PROJ_HOOKS/VFX_* globalmente).
+export const EARTH_SPELL_DEFS = [
+  { name: 'Earth Spike', icon: '⛰️', key: '1', color: '#aa8844', c2: '#ccaa66', core: '#eedd99', speed: 0, dmg: 46, mana: 25, cd: 820, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isSpike: true, spikeW: 45, spikeH: 85, desc: 'Ground eruption at cursor' },
+  { name: 'Earthquake', icon: '🌍', key: '2', color: '#886633', c2: '#aa8844', core: '#ccaa66', speed: 0, dmg: 40, mana: 35, cd: 1200, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isQuake: true, quakeR: 280, quakeF: 12, desc: 'Shakes ground — launches all' },
+  { name: 'Petrify', icon: '🪨', key: '3', color: '#887766', c2: '#aaa999', core: '#dddccc', speed: 0, dmg: 35, mana: 28, cd: 900, r: 0, grav: 0, drag: 1, bounce: 0, trail: 'earth', isPetrify: true, petrifyR: 70, petrifyDur: 90, desc: 'Turns enemies to stone, then shatters' },
 ];
 
 function removeVfxSequence(vfx) {
@@ -2106,3 +2106,13 @@ export const VFX_DRAW = {
     X.restore(); X.globalAlpha = 1;
   },
 };
+
+// ── Revamp: spells novos (nature-new.js) ──────────────────────────────────
+import * as NatureNew from './nature-new.js?v=1';
+SPELL_DEFS.push(...NatureNew.DEFS);
+Object.assign(FIRE_HANDLERS, NatureNew.FIRE_HANDLERS);
+Object.assign(PROJ_HOOKS, NatureNew.PROJ_HOOKS);
+Object.assign(TRAIL_EMITTERS, NatureNew.TRAIL_EMITTERS);
+Object.assign(VFX_UPDATE, NatureNew.VFX_UPDATE);
+Object.assign(VFX_DRAW, NatureNew.VFX_DRAW);
+export const PROJ_DRAW = { ...NatureNew.PROJ_DRAW };

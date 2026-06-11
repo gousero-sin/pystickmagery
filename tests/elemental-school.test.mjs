@@ -68,17 +68,20 @@ globalThis.window = {
 const elemental = await import('../js/spells/elemental.js');
 const registry = await import('../js/spell-registry.js');
 
-test('A escola Elemental deve expor o pantheon de 7 guias afro-indígenas brasileiros', () => {
-  assert.equal(elemental.SPELL_DEFS.length, 7);
+test('A escola Elemental deve expor 10 guias e rituais afro-indígenas brasileiros', () => {
+  assert.equal(elemental.SPELL_DEFS.length, 10);
 
   const expectedSpells = [
     { name: 'Caçador da Jurema', category: 'Summon', key: '1' },
     { name: 'Espada de Ogum', category: 'Summon', key: '2' },
     { name: 'Manto de Pombagira', category: 'Stand', key: '3' },
     { name: 'Tranca-Ruas', category: 'Summon', key: '4' },
-    { name: 'Defumação', category: 'Summon', key: '5' },
-    { name: 'Falange das Crianças', category: 'Summon', key: '6' },
-    { name: 'Gira de Abertura', category: 'Ultimate', key: '7' }
+    { name: 'Gira de Abertura', category: 'Ultimate', key: '7' },
+    { name: 'Ponto Riscado', category: 'Trap', key: '5' },
+    { name: 'Porteira de Ferro', category: 'Ward', key: '6' },
+    { name: 'Folha de Amaci', category: 'Support', key: '8' },
+    { name: 'Maré de Atabaques', category: 'Wave', key: '9' },
+    { name: 'Cabaça de Encantaria', category: 'Summon', key: '0' }
   ];
 
   for (const expected of expectedSpells) {
@@ -100,7 +103,7 @@ test('A escola Elemental deve estar registrada com metadados e handlers de execu
   // Metadados no registro
   const meta = registry.SCHOOL_INFO.find(school => school.name === 'Elemental');
   assert.ok(meta, 'A escola Elemental deve estar registrada no central registry');
-  assert.equal(meta.count, 7);
+  assert.equal(meta.count, 10);
   assert.equal(meta.color, '#5db75c');
   assert.equal(meta.icon, '🏹');
 
@@ -110,9 +113,12 @@ test('A escola Elemental deve estar registrada com metadados e handlers de execu
     'isOgumWarrior',
     'isPombagiraStand',
     'isExuTrickster',
-    'isPretoVelho',
-    'isEresSwarm',
-    'isGiraUltimate'
+    'isGiraUltimate',
+    'isPontoRiscado',
+    'isPorteiraFerro',
+    'isFolhaAmaci',
+    'isMareAtabaques',
+    'isCabacaEncantaria'
   ];
 
   for (const flag of fireFlags) {
@@ -134,9 +140,12 @@ test('A escola Elemental deve estar registrada com metadados e handlers de execu
     'elemental_pombagira_stand',
     'elemental_exu_trickster',
     'elemental_exu_mark',
-    'elemental_pretovelho_smoke',
-    'elemental_eres_swarm',
-    'elemental_gira_ultimate'
+    'elemental_gira_ultimate',
+    'elemental_ponto_riscado',
+    'elemental_porteira_ferro',
+    'elemental_folha_amaci',
+    'elemental_mare_atabaques',
+    'elemental_cabaca_encantaria'
   ];
 
   for (const type of expectedVfxTypes) {

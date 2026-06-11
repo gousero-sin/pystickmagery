@@ -36,6 +36,7 @@ const META = {
   Constante:   { rune: '🜏', family: 'Veil', flavor: '"O inferno atende ligações a cobrar. A Constante sabe quem paga a conta."' },
   Aracnidea:   { rune: 'ᛉ', family: 'Veil', flavor: '"A teia não persegue. Ela espera — e tudo, cedo ou tarde, anda na direção dela."' },
   Mycobiota:   { rune: 'ᛜ', family: 'Veil', flavor: '"Todo corpo é um reino. Toda ferida, uma cultura. A Mycobiota apenas espera florescer."' },
+  Shenzhou:    { rune: '龍', family: 'Spirit', flavor: '"O dragão dorme no fundo do rio. A fênix renasce das cinzas do decreto. O reino celestial observa."' },
 };
 
 const FAMILY_ORDER = ['Primal', 'Arcane', 'Veil', 'Spirit'];

@@ -210,40 +210,27 @@ test('O Paradigma captures enemy projectiles and releases them as friendly proje
   assert.ok(released.spell.dmg > 0, 'released hostile shots should keep a damage-capable spell facade');
 });
 
-test('fire hooks keep Time Bomb and Ignite Chain on active projectile paths', () => {
+test('revamp hooks keep Flare Mine and Aqua Javelin on active projectile paths', () => {
   resetState();
-  const timeBomb = registry.SPELL_DEFS.find((candidate) => candidate.name === 'Time Bomb');
-  const timeBombHook = registry.PROJ_HOOKS.isTimeBomb;
-  const handled = timeBombHook.onLand(
-    createPlayerProjectile({ x: 220, y: 250, vx: 0, vy: 0, spell: timeBomb }),
-    timeBomb,
-    true,
-    null,
-  );
+  const mine = registry.SPELL_DEFS.find((candidate) => candidate.name === 'Flare Mine');
+  const handled = registry.FIRE_HANDLERS.isFlareMine(mine, 200, 250, 240, 250);
 
   assert.equal(handled, true);
-  assert.equal(state.timeBombs.length, 0, 'Time Bomb should not use the dead timeBombs queue');
-  assert.equal(state.vfxSequences.filter((v) => v.type === 'timebomb').length, 1);
+  assert.equal(state.vfxSequences.filter((v) => v.type === 'fir_mine').length, 1);
 
   resetState();
-  const ignite = registry.SPELL_DEFS.find((candidate) => candidate.name === 'Ignite Chain');
-  const igniteHook = registry.PROJ_HOOKS.isIgniteChain;
-  const firstEnemy = addEnemy(240, 240);
-  addEnemy(315, 240);
-
-  igniteHook.onLand(
-    createPlayerProjectile({ x: 250, y: 252, vx: 7, vy: 0, spell: ignite, hitList: [] }),
-    ignite,
-    false,
-    firstEnemy,
+  const javelin = registry.SPELL_DEFS.find((candidate) => candidate.name === 'Aqua Javelin');
+  const javelinHook = registry.PROJ_HOOKS.javelin;
+  javelinHook.onLand(
+    createPlayerProjectile({ x: 250, y: 252, vx: 9, vy: 0, spell: javelin, hitList: [] }),
+    javelin,
   );
 
-  assert.equal(state.projectiles.length, 1, 'Ignite Chain should launch the next chain projectile');
-  const next = state.projectiles[0];
-  assert.ok(isGameProjectile(next));
-  assert.equal(next.spell.isIgniteChain, true, 'the next chain projectile should keep the Ignite Chain hook');
-  assert.equal(next.spell._hook, igniteHook);
-  assert.ok(next.hitList.includes(firstEnemy), 'the chain should not retarget the same enemy');
+  assert.equal(state.projectiles.length, 5, 'Aqua Javelin should split into five droplets');
+  for (const droplet of state.projectiles) {
+    assert.ok(isGameProjectile(droplet));
+    assert.equal(droplet.team, 'player');
+  }
 });
 
 test('Backdraft handles enemies at the exact center without corrupting velocity', () => {

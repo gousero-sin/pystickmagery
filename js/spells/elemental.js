@@ -19,6 +19,14 @@ import { SoundFX } from '../core/sounds.js?v=7';
 import { isEnemyEntity } from '../core/utils.js?v=8';
 import { createPlayerProjectile } from '../core/projectiles.js?v=1';
 import { createAlly } from '../core/allies.js?v=1';
+import {
+  SPELL_DEFS as NEW_SPELL_DEFS,
+  FIRE_HANDLERS as NEW_FIRE_HANDLERS,
+  PROJ_HOOKS as NEW_PROJ_HOOKS,
+  TRAIL_EMITTERS as NEW_TRAIL_EMITTERS,
+  VFX_UPDATE as NEW_VFX_UPDATE,
+  VFX_DRAW as NEW_VFX_DRAW,
+} from './elemental-new.js?v=1';
 
 // ── Helpers locais sobre o state VIVO ───────────────────────────────────────
 // utils.js importa state.js sem query (instância separada/vazia no browser),
@@ -205,7 +213,7 @@ function drawAllyHp(X, v, yOff = 30) {
 }
 
 // ── Spell Definitions ───────────────────────────────────────────────────────
-export const SPELL_DEFS = [
+const LEGACY_SPELL_DEFS = [
   {
     name: 'Caçador da Jurema',
     icon: '🏹',
@@ -314,8 +322,19 @@ export const SPELL_DEFS = [
   }
 ];
 
+const REMOVED_SPELLS = new Set([
+  'Defumação',
+  'Falange das Crianças',
+]);
+
+export const SPELL_DEFS = [
+  ...LEGACY_SPELL_DEFS.filter((spell) => !REMOVED_SPELLS.has(spell.name)),
+  ...NEW_SPELL_DEFS,
+];
+
 // ── Fire Handlers ────────────────────────────────────────────────────────────
 export const FIRE_HANDLERS = {
+  ...NEW_FIRE_HANDLERS,
   isOxossiHunter(s, ox, oy, tx, ty) {
     const v = {
       type: 'elemental_oxossi_hunter',
@@ -478,6 +497,7 @@ export const FIRE_HANDLERS = {
 
 // ── Projectile Hooks ──────────────────────────────────────────────────────────
 export const PROJ_HOOKS = {
+  ...NEW_PROJ_HOOKS,
   juremaArrow: {
     onLand(p, s) {
       spawnP(p.x, p.y, s.color, 8, 'burst');
@@ -497,6 +517,7 @@ export const PROJ_HOOKS = {
 
 // ── Trail Particle Emitters ────────────────────────────────────────────────
 export const TRAIL_EMITTERS = {
+  ...NEW_TRAIL_EMITTERS,
   jurema(p, s) {
     state.particles.push({
       x: p.x + (Math.random() - 0.5) * 5, y: p.y + (Math.random() - 0.5) * 5,
@@ -586,6 +607,7 @@ export const TRAIL_EMITTERS = {
 
 // ── VFX Update Handlers ────────────────────────────────────────────────────
 export const VFX_UPDATE = {
+  ...NEW_VFX_UPDATE,
   // 1 ─ Oxóssi: arqueiro estacionário que dispara flechas perfurantes
   elemental_oxossi_hunter(v) {
     const s = v.spell;
@@ -1215,6 +1237,7 @@ function drawWispBase(X, cx, cy, color, t, w = 14) {
 
 // ── VFX Draw Handlers ─────────────────────────────────────────────────────────
 export const VFX_DRAW = {
+  ...NEW_VFX_DRAW,
   // 1 ─ Oxóssi: caboclo arqueiro
   elemental_oxossi_hunter(v, X) {
     const s = v.spell;
